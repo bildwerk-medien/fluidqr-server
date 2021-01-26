@@ -1,0 +1,24 @@
+{
+  "fluidQrServerApp": {
+    "qrCode": {
+      "home": {
+        "title": "Qr Codes",
+        "createLabel": "Qr Code erstellen",
+        "createOrEditLabel": "Qr Code erstellen oder bearbeiten",
+        "notFound": "No Qr Codes found"
+      },
+      "created": "Qr Code erstellt mit ID {{ param }}",
+      "updated": "Qr Code aktualisiert mit ID {{ param }}",
+      "deleted": "Qr Code gelöscht mit ID {{ param }}",
+      "delete": {
+        "question": "Soll Qr Code {{ id }} wirklich dauerhaft gelöscht werden?"
+      },
+      "detail": {
+        "title": "Qr Code"
+      },
+      "code": "Code",
+      "redirection": "Redirection",
+      "user": "User"
+    }
+  }
+}

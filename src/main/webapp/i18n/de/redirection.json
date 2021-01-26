@@ -1,0 +1,29 @@
+{
+  "fluidQrServerApp": {
+    "redirection": {
+      "home": {
+        "title": "Redirections",
+        "createLabel": "Redirection erstellen",
+        "createOrEditLabel": "Redirection erstellen oder bearbeiten",
+        "notFound": "No Redirections found"
+      },
+      "created": "Redirection erstellt mit ID {{ param }}",
+      "updated": "Redirection aktualisiert mit ID {{ param }}",
+      "deleted": "Redirection gelöscht mit ID {{ param }}",
+      "delete": {
+        "question": "Soll Redirection {{ id }} wirklich dauerhaft gelöscht werden?"
+      },
+      "detail": {
+        "title": "Redirection"
+      },
+      "description": "Description",
+      "code": "Code",
+      "url": "Url",
+      "enabled": "Enabled",
+      "creation": "Creation",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "qrCode": "Qr Code"
+    }
+  }
+}
