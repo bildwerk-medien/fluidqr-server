@@ -1,0 +1,43 @@
+{
+  "generator-jhipster": {
+    "promptValues": {
+      "packageName": "de.bildwerkmedien.fluidqr.server",
+      "nativeLanguage": "en"
+    },
+    "jhipsterVersion": "6.10.3",
+    "applicationType": "monolith",
+    "baseName": "FluidQrServer",
+    "packageName": "de.bildwerkmedien.fluidqr.server",
+    "packageFolder": "de/bildwerkmedien/fluidqr/server",
+    "serverPort": "8080",
+    "authenticationType": "jwt",
+    "cacheProvider": "hazelcast",
+    "enableHibernateCache": true,
+    "websocket": false,
+    "databaseType": "sql",
+    "devDatabaseType": "h2Disk",
+    "prodDatabaseType": "mysql",
+    "searchEngine": false,
+    "messageBroker": false,
+    "serviceDiscoveryType": "eureka",
+    "buildTool": "maven",
+    "enableSwaggerCodegen": true,
+    "jwtSecretKey": "ODQ1Yzc0MmYyYzA5YWM3MjlkOTExZTViNTVjMGY1N2I2OWNjOGNkOGJkOTQyYTQyMGNlNzZkN2IxMTM4MzRlYzllZDExNTg1YWVlMmY3MWUxYzUxN2EyZDE5ODA0MTcxYzBkNzA3MGVjMTBhNzNlMzRkZTRlYzE2NjMyNzc3Njg=",
+    "embeddableLaunchScript": false,
+    "useSass": true,
+    "clientPackageManager": "npm",
+    "clientFramework": "angularX",
+    "clientTheme": "none",
+    "clientThemeVariant": "",
+    "creationTimestamp": 1611689337100,
+    "testFrameworks": [],
+    "jhiPrefix": "jhi",
+    "entitySuffix": "",
+    "dtoSuffix": "DTO",
+    "otherModules": [],
+    "enableTranslation": true,
+    "nativeLanguage": "en",
+    "languages": ["en", "de"],
+    "blueprints": []
+  }
+}
