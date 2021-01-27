@@ -1,12 +1,13 @@
 package de.bildwerkmedien.fluidqr.server.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
-import javax.validation.constraints.*;
-
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,6 +37,32 @@ public class QrCode implements Serializable {
     @ManyToOne
     @JsonIgnoreProperties(value = "qrCodes", allowSetters = true)
     private User user;
+
+    @Transient
+    @JsonSerialize
+    private String link;
+
+    @Transient
+    @JsonSerialize
+    private String currentRedirect;
+
+    @JsonProperty("link")
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
+    }
+
+    @JsonProperty("currentRedirect")
+    public String getCurrentRedirect() {
+        return currentRedirect;
+    }
+
+    public void setCurrentRedirect(String currentRedirect) {
+        this.currentRedirect = currentRedirect;
+    }
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
