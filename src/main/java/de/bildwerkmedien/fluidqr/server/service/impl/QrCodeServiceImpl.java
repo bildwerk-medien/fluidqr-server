@@ -47,7 +47,12 @@ public class QrCodeServiceImpl implements QrCodeService {
     @Transactional(readOnly = true)
     public Page<QrCode> findAll(Pageable pageable) {
         log.debug("Request to get all QrCodes");
-        return qrCodeRepository.findAll(pageable);
+        Page<QrCode> qrCodePage = qrCodeRepository.findAll(pageable);
+        qrCodePage.get().forEach(qrCode -> {
+            findCurrentRedirect(qrCode);
+            qrCode.setLink("http://localhost:8080/redirect/" + qrCode.getCode());
+        });
+        return qrCodePage;
     }
 
 
@@ -55,12 +60,21 @@ public class QrCodeServiceImpl implements QrCodeService {
     @Transactional(readOnly = true)
     public Optional<QrCode> findOne(Long id) {
         log.debug("Request to get QrCode : {}", id);
-        return qrCodeRepository.findById(id);
+        Optional<QrCode> qrCode = qrCodeRepository.findById(id);
+        qrCode.ifPresent(qr -> {
+            findCurrentRedirect(qr);
+            qr.setLink("http://localhost:8080/redirect/" + qr.getCode());
+        });
+        return qrCode;
     }
 
     @Override
     public void delete(Long id) {
         log.debug("Request to delete QrCode : {}", id);
         qrCodeRepository.deleteById(id);
+    }
+
+    public void findCurrentRedirect(QrCode qrCode) {
+        qrCode.setCurrentRedirect(qrCode.getRedirections().stream().filter(Redirection::isEnabled).findFirst().orElse(new Redirection()).getUrl());
     }
 }

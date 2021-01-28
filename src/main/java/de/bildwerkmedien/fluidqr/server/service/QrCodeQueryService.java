@@ -59,7 +59,12 @@ public class QrCodeQueryService extends QueryService<QrCode> {
     public Page<QrCode> findByCriteria(QrCodeCriteria criteria, Pageable page) {
         log.debug("find by criteria : {}, page: {}", criteria, page);
         final Specification<QrCode> specification = createSpecification(criteria);
-        return qrCodeRepository.findAll(specification, page);
+        Page<QrCode> qrCodePage = qrCodeRepository.findAll(specification, page);
+        qrCodePage.get().forEach(qrCode -> {
+            findCurrentRedirect(qrCode);
+            qrCode.setLink("http://localhost:8080/redirect/" + qrCode.getCode());
+        });
+        return qrCodePage;
     }
 
     /**
@@ -98,5 +103,9 @@ public class QrCodeQueryService extends QueryService<QrCode> {
             }
         }
         return specification;
+    }
+
+    private void findCurrentRedirect(QrCode qrCode) {
+        qrCode.setCurrentRedirect(qrCode.getRedirections().stream().filter(Redirection::isEnabled).findFirst().orElse(new Redirection()).getUrl());
     }
 }

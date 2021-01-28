@@ -187,4 +187,6 @@ jhipster:
 # https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
-# application:
+#application:
+#  base:
+#    link: 'http://localhost:8080/redirect/'
