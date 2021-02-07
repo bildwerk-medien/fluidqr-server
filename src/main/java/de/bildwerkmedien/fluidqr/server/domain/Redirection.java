@@ -1,5 +1,6 @@
 package de.bildwerkmedien.fluidqr.server.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -39,16 +40,19 @@ public class Redirection implements Serializable {
     private Boolean enabled;
 
     @Column(name = "creation")
+    @JsonIgnore
     private ZonedDateTime creation;
 
     @Column(name = "start_date")
+    @JsonIgnore
     private ZonedDateTime startDate;
 
     @Column(name = "end_date")
+    @JsonIgnore
     private ZonedDateTime endDate;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = "redirections", allowSetters = true)
+    @JsonIgnoreProperties(value = {"redirections", "code", "link", "currentRedirect"}, allowSetters = true)
     private QrCode qrCode;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

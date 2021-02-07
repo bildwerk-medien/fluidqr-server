@@ -137,9 +137,6 @@ public class RedirectionResourceIT {
         assertThat(testRedirection.getCode()).isEqualTo(DEFAULT_CODE);
         assertThat(testRedirection.getUrl()).isEqualTo(DEFAULT_URL);
         assertThat(testRedirection.isEnabled()).isEqualTo(DEFAULT_ENABLED);
-        assertThat(testRedirection.getCreation()).isEqualTo(DEFAULT_CREATION);
-        assertThat(testRedirection.getStartDate()).isEqualTo(DEFAULT_START_DATE);
-        assertThat(testRedirection.getEndDate()).isEqualTo(DEFAULT_END_DATE);
     }
 
     @Test
@@ -214,12 +211,9 @@ public class RedirectionResourceIT {
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
             .andExpect(jsonPath("$.[*].code").value(hasItem(DEFAULT_CODE)))
             .andExpect(jsonPath("$.[*].url").value(hasItem(DEFAULT_URL)))
-            .andExpect(jsonPath("$.[*].enabled").value(hasItem(DEFAULT_ENABLED.booleanValue())))
-            .andExpect(jsonPath("$.[*].creation").value(hasItem(sameInstant(DEFAULT_CREATION))))
-            .andExpect(jsonPath("$.[*].startDate").value(hasItem(sameInstant(DEFAULT_START_DATE))))
-            .andExpect(jsonPath("$.[*].endDate").value(hasItem(sameInstant(DEFAULT_END_DATE))));
+            .andExpect(jsonPath("$.[*].enabled").value(hasItem(DEFAULT_ENABLED.booleanValue())));
     }
-    
+
     @Test
     @Transactional
     public void getRedirection() throws Exception {
@@ -234,10 +228,7 @@ public class RedirectionResourceIT {
             .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
             .andExpect(jsonPath("$.code").value(DEFAULT_CODE))
             .andExpect(jsonPath("$.url").value(DEFAULT_URL))
-            .andExpect(jsonPath("$.enabled").value(DEFAULT_ENABLED.booleanValue()))
-            .andExpect(jsonPath("$.creation").value(sameInstant(DEFAULT_CREATION)))
-            .andExpect(jsonPath("$.startDate").value(sameInstant(DEFAULT_START_DATE)))
-            .andExpect(jsonPath("$.endDate").value(sameInstant(DEFAULT_END_DATE)));
+            .andExpect(jsonPath("$.enabled").value(DEFAULT_ENABLED.booleanValue()));
     }
 
 
@@ -891,10 +882,7 @@ public class RedirectionResourceIT {
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
             .andExpect(jsonPath("$.[*].code").value(hasItem(DEFAULT_CODE)))
             .andExpect(jsonPath("$.[*].url").value(hasItem(DEFAULT_URL)))
-            .andExpect(jsonPath("$.[*].enabled").value(hasItem(DEFAULT_ENABLED.booleanValue())))
-            .andExpect(jsonPath("$.[*].creation").value(hasItem(sameInstant(DEFAULT_CREATION))))
-            .andExpect(jsonPath("$.[*].startDate").value(hasItem(sameInstant(DEFAULT_START_DATE))))
-            .andExpect(jsonPath("$.[*].endDate").value(hasItem(sameInstant(DEFAULT_END_DATE))));
+            .andExpect(jsonPath("$.[*].enabled").value(hasItem(DEFAULT_ENABLED.booleanValue())));
 
         // Check, that the count call also returns 1
         restRedirectionMockMvc.perform(get("/api/redirections/count?sort=id,desc&" + filter))
@@ -962,9 +950,6 @@ public class RedirectionResourceIT {
         assertThat(testRedirection.getCode()).isEqualTo(UPDATED_CODE);
         assertThat(testRedirection.getUrl()).isEqualTo(UPDATED_URL);
         assertThat(testRedirection.isEnabled()).isEqualTo(UPDATED_ENABLED);
-        assertThat(testRedirection.getCreation()).isEqualTo(UPDATED_CREATION);
-        assertThat(testRedirection.getStartDate()).isEqualTo(UPDATED_START_DATE);
-        assertThat(testRedirection.getEndDate()).isEqualTo(UPDATED_END_DATE);
     }
 
     @Test
