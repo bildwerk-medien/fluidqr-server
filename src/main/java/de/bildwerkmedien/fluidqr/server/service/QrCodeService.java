@@ -21,15 +21,6 @@ public interface QrCodeService {
     QrCode save(QrCode qrCode);
 
     /**
-     * Get all the qrCodes.
-     *
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    Page<QrCode> findAll(Pageable pageable);
-
-
-    /**
      * Get the "id" qrCode.
      *
      * @param id the id of the entity.
