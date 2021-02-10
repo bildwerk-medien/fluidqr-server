@@ -45,6 +45,24 @@ public class QrCodeQueryService extends QueryService<QrCode> {
     /**
      * Return a {@link Page} of {@link QrCode} which matches the criteria from the database.
      * @param criteria The object which holds all the filters, which the entities should match.
+     * @return the matching entities.
+     */
+    @Transactional(readOnly = true)
+    public List<QrCode> findByCriteria(QrCodeCriteria criteria) {
+        log.debug("find by criteria : {}", criteria);
+        addUserCriteria(criteria);
+        final Specification<QrCode> specification = createSpecification(criteria);
+        List<QrCode> qrCodePage = qrCodeRepository.findAll(specification);
+        qrCodePage.forEach(qrCode -> {
+            findCurrentRedirect(qrCode);
+            qrCode.setLink("http://localhost:8080/redirect/" + qrCode.getCode());
+        });
+        return qrCodePage;
+    }
+
+    /**
+     * Return a {@link Page} of {@link QrCode} which matches the criteria from the database.
+     * @param criteria The object which holds all the filters, which the entities should match.
      * @param page The page, which should be returned.
      * @return the matching entities.
      */
@@ -111,6 +129,5 @@ public class QrCodeQueryService extends QueryService<QrCode> {
             longFilter.setEquals(user.getId());
             criteria.setUserId(longFilter);
         }
-
     }
 }

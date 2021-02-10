@@ -20,14 +20,6 @@ public interface RedirectionService {
      */
     Redirection save(Redirection redirection);
 
-    /**
-     * Get all the redirections.
-     *
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    Page<Redirection> findAll(Pageable pageable);
-
 
     /**
      * Get the "id" redirection.

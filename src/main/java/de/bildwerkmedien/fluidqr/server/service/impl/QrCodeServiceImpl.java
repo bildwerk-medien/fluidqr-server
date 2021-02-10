@@ -62,7 +62,6 @@ public class QrCodeServiceImpl implements QrCodeService {
         if(qrCode.isPresent() && qrCode.get().getUser().equals(userService.getUserWithAuthorities().orElse(null))) {
             return qrCode;
         }
-
         return Optional.empty();
     }
 
