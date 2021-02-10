@@ -8,6 +8,12 @@
     -->
     <changeSet id="20210126195343-2" author="jhipster">
         
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="redirection"
+                                 constraintName="fk_redirection_user_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"/>
+
         <addForeignKeyConstraint baseColumnNames="qr_code_id"
                                  baseTableName="redirection"
                                  constraintName="fk_redirection_qr_code_id"

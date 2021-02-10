@@ -106,6 +106,10 @@ public class RedirectionQueryService extends QueryService<Redirection> {
             if (criteria.getEndDate() != null) {
                 specification = specification.and(buildRangeSpecification(criteria.getEndDate(), Redirection_.endDate));
             }
+            if (criteria.getUserId() != null) {
+                specification = specification.and(buildSpecification(criteria.getUserId(),
+                    root -> root.join(Redirection_.user, JoinType.LEFT).get(User_.id)));
+            }
             if (criteria.getQrCodeId() != null) {
                 specification = specification.and(buildSpecification(criteria.getQrCodeId(),
                     root -> root.join(Redirection_.qrCode, JoinType.LEFT).get(QrCode_.id)));

@@ -30,6 +30,7 @@
                     <th scope="col"  jhiSortBy="creation"><span jhiTranslate="fluidQrServerApp.redirection.creation">Creation</span> <fa-icon icon="sort"></fa-icon></th>
                     <th scope="col"  jhiSortBy="startDate"><span jhiTranslate="fluidQrServerApp.redirection.startDate">Start Date</span> <fa-icon icon="sort"></fa-icon></th>
                     <th scope="col"  jhiSortBy="endDate"><span jhiTranslate="fluidQrServerApp.redirection.endDate">End Date</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="user.id"><span jhiTranslate="fluidQrServerApp.redirection.user">User</span> <fa-icon icon="sort"></fa-icon></th>
                     <th scope="col"  jhiSortBy="qrCode.id"><span jhiTranslate="fluidQrServerApp.redirection.qrCode">Qr Code</span> <fa-icon icon="sort"></fa-icon></th>
                     <th scope="col"></th>
                 </tr>
@@ -44,6 +45,9 @@
                     <td>{{ redirection.creation | date:'medium' }}</td>
                     <td>{{ redirection.startDate | date:'medium' }}</td>
                     <td>{{ redirection.endDate | date:'medium' }}</td>
+                    <td>
+                        {{ redirection.user?.id }}
+                    </td>
                     <td>
                         <div *ngIf="redirection.qrCode">
                             <a [routerLink]="['/qr-code', redirection.qrCode?.id, 'view']" >{{ redirection.qrCode?.id }}</a>

@@ -39,6 +39,13 @@
   "relationships": [
     {
       "relationshipType": "many-to-one",
+      "otherEntityName": "user",
+      "otherEntityRelationshipName": "redirection",
+      "relationshipName": "user",
+      "otherEntityField": "id"
+    },
+    {
+      "relationshipType": "many-to-one",
       "otherEntityName": "qrCode",
       "otherEntityRelationshipName": "redirection",
       "relationshipName": "qrCode",

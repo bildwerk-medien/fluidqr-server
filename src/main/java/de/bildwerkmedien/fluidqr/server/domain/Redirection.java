@@ -39,17 +39,22 @@ public class Redirection implements Serializable {
     @Column(name = "enabled", nullable = false)
     private Boolean enabled;
 
-    @Column(name = "creation")
     @JsonIgnore
+    @Column(name = "creation")
     private ZonedDateTime creation;
 
-    @Column(name = "start_date")
     @JsonIgnore
+    @Column(name = "start_date")
     private ZonedDateTime startDate;
 
-    @Column(name = "end_date")
     @JsonIgnore
+    @Column(name = "end_date")
     private ZonedDateTime endDate;
+
+    @JsonIgnore
+    @ManyToOne
+    @JsonIgnoreProperties(value = "redirections", allowSetters = true)
+    private User user;
 
     @ManyToOne
     @JsonIgnoreProperties(value = {"redirections", "code", "link", "currentRedirect"}, allowSetters = true)
@@ -153,6 +158,19 @@ public class Redirection implements Serializable {
 
     public void setEndDate(ZonedDateTime endDate) {
         this.endDate = endDate;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public Redirection user(User user) {
+        this.user = user;
+        return this;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public QrCode getQrCode() {

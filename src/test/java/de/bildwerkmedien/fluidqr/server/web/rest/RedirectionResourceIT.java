@@ -2,6 +2,7 @@ package de.bildwerkmedien.fluidqr.server.web.rest;
 
 import de.bildwerkmedien.fluidqr.server.FluidQrServerApp;
 import de.bildwerkmedien.fluidqr.server.domain.Redirection;
+import de.bildwerkmedien.fluidqr.server.domain.User;
 import de.bildwerkmedien.fluidqr.server.domain.QrCode;
 import de.bildwerkmedien.fluidqr.server.repository.RedirectionRepository;
 import de.bildwerkmedien.fluidqr.server.service.RedirectionService;
@@ -849,6 +850,26 @@ public class RedirectionResourceIT {
 
         // Get all the redirectionList where endDate is greater than SMALLER_END_DATE
         defaultRedirectionShouldBeFound("endDate.greaterThan=" + SMALLER_END_DATE);
+    }
+
+
+    @Test
+    @Transactional
+    public void getAllRedirectionsByUserIsEqualToSomething() throws Exception {
+        // Initialize the database
+        redirectionRepository.saveAndFlush(redirection);
+        User user = UserResourceIT.createEntity(em);
+        em.persist(user);
+        em.flush();
+        redirection.setUser(user);
+        redirectionRepository.saveAndFlush(redirection);
+        Long userId = user.getId();
+
+        // Get all the redirectionList where user equals to userId
+        defaultRedirectionShouldBeFound("userId.equals=" + userId);
+
+        // Get all the redirectionList where user equals to userId + 1
+        defaultRedirectionShouldNotBeFound("userId.equals=" + (userId + 1));
     }
 
 
