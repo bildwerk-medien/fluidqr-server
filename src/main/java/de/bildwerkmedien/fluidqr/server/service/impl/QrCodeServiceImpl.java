@@ -4,6 +4,7 @@ import de.bildwerkmedien.fluidqr.server.domain.QrCode;
 import de.bildwerkmedien.fluidqr.server.domain.Redirection;
 import de.bildwerkmedien.fluidqr.server.repository.QrCodeRepository;
 import de.bildwerkmedien.fluidqr.server.service.QrCodeService;
+import de.bildwerkmedien.fluidqr.server.service.UserNotAuthenticatedException;
 import de.bildwerkmedien.fluidqr.server.service.UserNotAuthorizedException;
 import de.bildwerkmedien.fluidqr.server.service.UserService;
 import org.slf4j.Logger;
@@ -34,10 +35,11 @@ public class QrCodeServiceImpl implements QrCodeService {
     @Override
     public QrCode save(QrCode qrCode) {
         log.debug("Request to save QrCode : {}", qrCode);
-        if (qrCode.getId() != null) {
-            if(!findOne(qrCode.getId()).isPresent()){
-                throw new UserNotAuthorizedException();
-            }
+        if (qrCode.getId() != null && !findOne(qrCode.getId()).isPresent()) {
+            throw new UserNotAuthorizedException();
+        }
+        if(!userService.getUserWithAuthorities().isPresent()){
+            throw new UserNotAuthenticatedException();
         }
         userService.getUserWithAuthorities().ifPresent(qrCode::setUser);
         QrCode savedQrCode = qrCodeRepository.save(qrCode);
