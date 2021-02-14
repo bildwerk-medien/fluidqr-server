@@ -37,6 +37,9 @@
             <column name="end_date" type="datetime">
                 <constraints nullable="true" />
             </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
             <column name="qr_code_id" type="bigint">
                 <constraints nullable="true" />
             </column>

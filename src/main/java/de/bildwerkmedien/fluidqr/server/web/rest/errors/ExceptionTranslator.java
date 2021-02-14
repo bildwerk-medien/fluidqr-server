@@ -1,5 +1,7 @@
 package de.bildwerkmedien.fluidqr.server.web.rest.errors;
 
+import de.bildwerkmedien.fluidqr.server.service.UserNotAuthenticatedException;
+import de.bildwerkmedien.fluidqr.server.service.UserNotAuthorizedException;
 import io.github.jhipster.config.JHipsterConstants;
 import io.github.jhipster.web.util.HeaderUtil;
 
@@ -138,9 +140,27 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
         return create(ex, problem, request);
     }
 
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleUserNotAuthenticatedException(UserNotAuthenticatedException ex, NativeWebRequest request){
+        Problem problem = Problem.builder()
+            .withStatus(Status.FORBIDDEN)
+            .with(MESSAGE_KEY, ErrorConstants.ERR_NOT_AUTHENTICATED)
+            .build();
+        return create(ex, problem, request);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleUserNotAuthorizedException(UserNotAuthorizedException ex, NativeWebRequest request){
+        Problem problem = Problem.builder()
+            .withStatus(Status.FORBIDDEN)
+            .with(MESSAGE_KEY, ErrorConstants.ERR_NOT_AUTHORIZED)
+            .build();
+        return create(ex, problem, request);
+    }
+
     @Override
     public ProblemBuilder prepare(final Throwable throwable, final StatusType status, final URI type) {
-        
+
         Collection<String> activeProfiles = Arrays.asList(env.getActiveProfiles());
 
         if (activeProfiles.contains(JHipsterConstants.SPRING_PROFILE_PRODUCTION)) {
@@ -155,7 +175,7 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
                         .map(this::toProblem)
                         .orElse(null));
             }
-    
+
             if (throwable instanceof DataAccessException) {
                 return Problem.builder()
                     .withType(type)
@@ -167,7 +187,7 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
                         .map(this::toProblem)
                         .orElse(null));
             }
-    
+
             if (containsPackageName(throwable.getMessage())) {
                 return Problem.builder()
                     .withType(type)

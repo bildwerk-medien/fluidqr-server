@@ -23,6 +23,7 @@
       "creation": "Creation",
       "startDate": "Start Date",
       "endDate": "End Date",
+      "user": "User",
       "qrCode": "Qr Code"
     }
   }

@@ -14,6 +14,7 @@ entity QrCode {
 
 relationship ManyToOne {
 	QrCode{user} to User
+        Redirection{user} to User
 }
 
 relationship OneToMany {

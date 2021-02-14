@@ -9,8 +9,12 @@ import { DATE_TIME_FORMAT } from 'app/shared/constants/input.constants';
 
 import { IRedirection, Redirection } from 'app/shared/model/redirection.model';
 import { RedirectionService } from './redirection.service';
+import { IUser } from 'app/core/user/user.model';
+import { UserService } from 'app/core/user/user.service';
 import { IQrCode } from 'app/shared/model/qr-code.model';
 import { QrCodeService } from 'app/entities/qr-code/qr-code.service';
+
+type SelectableEntity = IUser | IQrCode;
 
 @Component({
   selector: 'jhi-redirection-update',
@@ -18,6 +22,7 @@ import { QrCodeService } from 'app/entities/qr-code/qr-code.service';
 })
 export class RedirectionUpdateComponent implements OnInit {
   isSaving = false;
+  users: IUser[] = [];
   qrcodes: IQrCode[] = [];
 
   editForm = this.fb.group({
@@ -29,11 +34,13 @@ export class RedirectionUpdateComponent implements OnInit {
     creation: [],
     startDate: [],
     endDate: [],
+    user: [],
     qrCode: [],
   });
 
   constructor(
     protected redirectionService: RedirectionService,
+    protected userService: UserService,
     protected qrCodeService: QrCodeService,
     protected activatedRoute: ActivatedRoute,
     private fb: FormBuilder
@@ -50,6 +57,8 @@ export class RedirectionUpdateComponent implements OnInit {
 
       this.updateForm(redirection);
 
+      this.userService.query().subscribe((res: HttpResponse<IUser[]>) => (this.users = res.body || []));
+
       this.qrCodeService.query().subscribe((res: HttpResponse<IQrCode[]>) => (this.qrcodes = res.body || []));
     });
   }
@@ -64,6 +73,7 @@ export class RedirectionUpdateComponent implements OnInit {
       creation: redirection.creation ? redirection.creation.format(DATE_TIME_FORMAT) : null,
       startDate: redirection.startDate ? redirection.startDate.format(DATE_TIME_FORMAT) : null,
       endDate: redirection.endDate ? redirection.endDate.format(DATE_TIME_FORMAT) : null,
+      user: redirection.user,
       qrCode: redirection.qrCode,
     });
   }
@@ -93,6 +103,7 @@ export class RedirectionUpdateComponent implements OnInit {
       creation: this.editForm.get(['creation'])!.value ? moment(this.editForm.get(['creation'])!.value, DATE_TIME_FORMAT) : undefined,
       startDate: this.editForm.get(['startDate'])!.value ? moment(this.editForm.get(['startDate'])!.value, DATE_TIME_FORMAT) : undefined,
       endDate: this.editForm.get(['endDate'])!.value ? moment(this.editForm.get(['endDate'])!.value, DATE_TIME_FORMAT) : undefined,
+      user: this.editForm.get(['user'])!.value,
       qrCode: this.editForm.get(['qrCode'])!.value,
     };
   }
@@ -113,7 +124,7 @@ export class RedirectionUpdateComponent implements OnInit {
     this.isSaving = false;
   }
 
-  trackById(index: number, item: IQrCode): any {
+  trackById(index: number, item: SelectableEntity): any {
     return item.id;
   }
 }

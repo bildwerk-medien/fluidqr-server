@@ -41,6 +41,8 @@ public class RedirectionCriteria implements Serializable, Criteria {
 
     private ZonedDateTimeFilter endDate;
 
+    private LongFilter userId;
+
     private LongFilter qrCodeId;
 
     public RedirectionCriteria() {
@@ -55,6 +57,7 @@ public class RedirectionCriteria implements Serializable, Criteria {
         this.creation = other.creation == null ? null : other.creation.copy();
         this.startDate = other.startDate == null ? null : other.startDate.copy();
         this.endDate = other.endDate == null ? null : other.endDate.copy();
+        this.userId = other.userId == null ? null : other.userId.copy();
         this.qrCodeId = other.qrCodeId == null ? null : other.qrCodeId.copy();
     }
 
@@ -127,6 +130,14 @@ public class RedirectionCriteria implements Serializable, Criteria {
         this.endDate = endDate;
     }
 
+    public LongFilter getUserId() {
+        return userId;
+    }
+
+    public void setUserId(LongFilter userId) {
+        this.userId = userId;
+    }
+
     public LongFilter getQrCodeId() {
         return qrCodeId;
     }
@@ -154,6 +165,7 @@ public class RedirectionCriteria implements Serializable, Criteria {
             Objects.equals(creation, that.creation) &&
             Objects.equals(startDate, that.startDate) &&
             Objects.equals(endDate, that.endDate) &&
+            Objects.equals(userId, that.userId) &&
             Objects.equals(qrCodeId, that.qrCodeId);
     }
 
@@ -168,6 +180,7 @@ public class RedirectionCriteria implements Serializable, Criteria {
         creation,
         startDate,
         endDate,
+        userId,
         qrCodeId
         );
     }
@@ -184,6 +197,7 @@ public class RedirectionCriteria implements Serializable, Criteria {
                 (creation != null ? "creation=" + creation + ", " : "") +
                 (startDate != null ? "startDate=" + startDate + ", " : "") +
                 (endDate != null ? "endDate=" + endDate + ", " : "") +
+                (userId != null ? "userId=" + userId + ", " : "") +
                 (qrCodeId != null ? "qrCodeId=" + qrCodeId + ", " : "") +
             "}";
     }

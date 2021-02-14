@@ -1,15 +1,14 @@
 package de.bildwerkmedien.fluidqr.server.service.impl;
 
-import de.bildwerkmedien.fluidqr.server.domain.Redirection;
-import de.bildwerkmedien.fluidqr.server.service.QrCodeService;
 import de.bildwerkmedien.fluidqr.server.domain.QrCode;
+import de.bildwerkmedien.fluidqr.server.domain.Redirection;
 import de.bildwerkmedien.fluidqr.server.repository.QrCodeRepository;
+import de.bildwerkmedien.fluidqr.server.service.QrCodeService;
+import de.bildwerkmedien.fluidqr.server.service.UserNotAuthenticatedException;
+import de.bildwerkmedien.fluidqr.server.service.UserNotAuthorizedException;
 import de.bildwerkmedien.fluidqr.server.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,23 +35,17 @@ public class QrCodeServiceImpl implements QrCodeService {
     @Override
     public QrCode save(QrCode qrCode) {
         log.debug("Request to save QrCode : {}", qrCode);
+        if (qrCode.getId() != null && !findOne(qrCode.getId()).isPresent()) {
+            throw new UserNotAuthorizedException();
+        }
+        if(!userService.getUserWithAuthorities().isPresent()){
+            throw new UserNotAuthenticatedException();
+        }
         userService.getUserWithAuthorities().ifPresent(qrCode::setUser);
-        QrCode savedQrCode =  qrCodeRepository.save(qrCode);
+        QrCode savedQrCode = qrCodeRepository.save(qrCode);
         savedQrCode.setLink("http://localhost:8080/redirect/" + savedQrCode.getCode());
         savedQrCode.setCurrentRedirect(savedQrCode.getRedirections().stream().filter(Redirection::isEnabled).findFirst().orElse(new Redirection()).getUrl());
         return savedQrCode;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Page<QrCode> findAll(Pageable pageable) {
-        log.debug("Request to get all QrCodes");
-        Page<QrCode> qrCodePage = qrCodeRepository.findAll(pageable);
-        qrCodePage.get().forEach(qrCode -> {
-            findCurrentRedirect(qrCode);
-            qrCode.setLink("http://localhost:8080/redirect/" + qrCode.getCode());
-        });
-        return qrCodePage;
     }
 
 
@@ -65,13 +58,19 @@ public class QrCodeServiceImpl implements QrCodeService {
             findCurrentRedirect(qr);
             qr.setLink("http://localhost:8080/redirect/" + qr.getCode());
         });
-        return qrCode;
+
+        if(qrCode.isPresent() && qrCode.get().getUser().equals(userService.getUserWithAuthorities().orElse(null))) {
+            return qrCode;
+        }
+        return Optional.empty();
     }
 
     @Override
     public void delete(Long id) {
         log.debug("Request to delete QrCode : {}", id);
-        qrCodeRepository.deleteById(id);
+        if(findOne(id).isPresent()){
+            qrCodeRepository.deleteById(id);
+        }
     }
 
     public void findCurrentRedirect(QrCode qrCode) {

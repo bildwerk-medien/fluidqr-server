@@ -104,6 +104,19 @@ public class UserResourceIT {
         return user;
     }
 
+    public static User create() {
+        User user = new User();
+        user.setId(4L);
+        user.setLogin("user");
+        user.setPassword("$2a$10$VEjxo0jq2YG9Rbk2HmX9S.k1uZBGYUHdUcid3g/vfiEl7lwWgOH/K");
+        user.setActivated(true);
+        user.setEmail("user@localhost");
+        user.setFirstName("User");
+        user.setLastName("User");
+        user.setLangKey(DEFAULT_LANGKEY);
+        return user;
+    }
+
     @BeforeEach
     public void initTest() {
         user = createEntity(em);

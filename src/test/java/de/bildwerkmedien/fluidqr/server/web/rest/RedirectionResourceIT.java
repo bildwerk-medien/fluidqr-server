@@ -2,8 +2,10 @@ package de.bildwerkmedien.fluidqr.server.web.rest;
 
 import de.bildwerkmedien.fluidqr.server.FluidQrServerApp;
 import de.bildwerkmedien.fluidqr.server.domain.Redirection;
+import de.bildwerkmedien.fluidqr.server.domain.User;
 import de.bildwerkmedien.fluidqr.server.domain.QrCode;
 import de.bildwerkmedien.fluidqr.server.repository.RedirectionRepository;
+import de.bildwerkmedien.fluidqr.server.repository.UserRepository;
 import de.bildwerkmedien.fluidqr.server.service.RedirectionService;
 import de.bildwerkmedien.fluidqr.server.service.dto.RedirectionCriteria;
 import de.bildwerkmedien.fluidqr.server.service.RedirectionQueryService;
@@ -26,7 +28,7 @@ import java.util.List;
 
 import static de.bildwerkmedien.fluidqr.server.web.rest.TestUtil.sameInstant;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -79,6 +81,9 @@ public class RedirectionResourceIT {
 
     private Redirection redirection;
 
+    @Autowired
+    private UserRepository userRepository;
+
     /**
      * Create an entity for this test.
      *
@@ -93,7 +98,9 @@ public class RedirectionResourceIT {
             .enabled(DEFAULT_ENABLED)
             .creation(DEFAULT_CREATION)
             .startDate(DEFAULT_START_DATE)
-            .endDate(DEFAULT_END_DATE);
+            .endDate(DEFAULT_END_DATE)
+            .user(UserResourceIT.create());
+
         return redirection;
     }
     /**
@@ -248,6 +255,35 @@ public class RedirectionResourceIT {
 
         defaultRedirectionShouldBeFound("id.lessThanOrEqual=" + id);
         defaultRedirectionShouldNotBeFound("id.lessThan=" + id);
+    }
+
+    @Test
+    @Transactional
+    public void getRedirectionByIdForOwnUserOnly() throws Exception {
+        // Initialize the database
+        User user = UserResourceIT.createEntity(em);
+        userRepository.saveAndFlush(user);
+        redirection.setUser(user);
+        redirectionRepository.saveAndFlush(redirection);
+
+        // Get the redirection
+        restRedirectionMockMvc.perform(get("/api/qr-codes/{id}", redirection.getId()))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @Transactional
+    public void getRedirectionForOwnUserOnly() throws Exception {
+        // Initialize the database
+        User user = UserResourceIT.createEntity(em);
+        userRepository.saveAndFlush(user);
+        redirection.setUser(user);
+        redirectionRepository.saveAndFlush(redirection);
+
+        // Get the redirection
+        restRedirectionMockMvc.perform(get("/api/qr-codes"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", is(empty())));
     }
 
 
@@ -854,6 +890,24 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
+    public void getAllRedirectionsByUserIsEqualToSomething() throws Exception {
+        // Initialize the database
+        redirectionRepository.saveAndFlush(redirection);
+        User user = UserResourceIT.create();
+        redirection.setUser(user);
+        redirectionRepository.saveAndFlush(redirection);
+        Long userId = user.getId();
+
+        // Get all the redirectionList where user equals to userId
+        defaultRedirectionShouldBeFound("userId.equals=" + userId);
+
+        // Get all the redirectionList where user equals to userId + 1
+        defaultRedirectionShouldBeFound("userId.equals=" + (userId + 1));
+    }
+
+
+    @Test
+    @Transactional
     public void getAllRedirectionsByQrCodeIsEqualToSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
@@ -970,6 +1024,30 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
+    public void updateRedirectionWithAnotherUserIsFailing() throws Exception {
+
+        // Initialize the database
+        User user = UserResourceIT.createEntity(em);
+        userRepository.saveAndFlush(user);
+        redirection.setUser(user);
+        redirectionRepository.save(redirection);
+
+        // Update the redirection
+        Redirection updatedRedirection = redirectionRepository.findById(redirection.getId()).get();
+        // Disconnect from session so that the updates on updatedRedirection are not directly saved in db
+        em.detach(redirection);
+
+        updatedRedirection
+            .code(UPDATED_CODE);
+
+        restRedirectionMockMvc.perform(put("/api/qr-codes")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(TestUtil.convertObjectToJsonBytes(updatedRedirection)))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @Transactional
     public void deleteRedirection() throws Exception {
         // Initialize the database
         redirectionService.save(redirection);
@@ -984,5 +1062,26 @@ public class RedirectionResourceIT {
         // Validate the database contains one less item
         List<Redirection> redirectionList = redirectionRepository.findAll();
         assertThat(redirectionList).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    public void doNotDeleteRedirectionFromOtherUser() throws Exception {
+        // Initialize the database
+        User user = UserResourceIT.createEntity(em);
+        userRepository.saveAndFlush(user);
+        redirection.setUser(user);
+        redirectionRepository.save(redirection);
+
+        int databaseSizeBeforeDelete = redirectionRepository.findAll().size();
+
+        // Delete the redirection
+        restRedirectionMockMvc.perform(delete("/api/qr-codes/{id}", redirection.getId())
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNoContent());
+
+        // Validate the database contains one less item
+        List<Redirection> redirectionList = redirectionRepository.findAll();
+        assertThat(redirectionList).hasSize(databaseSizeBeforeDelete);
     }
 }

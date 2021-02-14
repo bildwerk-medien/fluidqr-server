@@ -4,6 +4,9 @@ import java.util.List;
 
 import javax.persistence.criteria.JoinType;
 
+import de.bildwerkmedien.fluidqr.server.security.AuthoritiesConstants;
+import de.bildwerkmedien.fluidqr.server.security.SecurityUtils;
+import io.github.jhipster.service.filter.LongFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -32,9 +35,11 @@ public class RedirectionQueryService extends QueryService<Redirection> {
     private final Logger log = LoggerFactory.getLogger(RedirectionQueryService.class);
 
     private final RedirectionRepository redirectionRepository;
+    private final UserService userService;
 
-    public RedirectionQueryService(RedirectionRepository redirectionRepository) {
+    public RedirectionQueryService(RedirectionRepository redirectionRepository, UserService userService) {
         this.redirectionRepository = redirectionRepository;
+        this.userService = userService;
     }
 
     /**
@@ -45,6 +50,7 @@ public class RedirectionQueryService extends QueryService<Redirection> {
     @Transactional(readOnly = true)
     public List<Redirection> findByCriteria(RedirectionCriteria criteria) {
         log.debug("find by criteria : {}", criteria);
+        addUserCriteria(criteria);
         final Specification<Redirection> specification = createSpecification(criteria);
         return redirectionRepository.findAll(specification);
     }
@@ -58,6 +64,7 @@ public class RedirectionQueryService extends QueryService<Redirection> {
     @Transactional(readOnly = true)
     public Page<Redirection> findByCriteria(RedirectionCriteria criteria, Pageable page) {
         log.debug("find by criteria : {}, page: {}", criteria, page);
+        addUserCriteria(criteria);
         final Specification<Redirection> specification = createSpecification(criteria);
         return redirectionRepository.findAll(specification, page);
     }
@@ -70,6 +77,7 @@ public class RedirectionQueryService extends QueryService<Redirection> {
     @Transactional(readOnly = true)
     public long countByCriteria(RedirectionCriteria criteria) {
         log.debug("count by criteria : {}", criteria);
+        addUserCriteria(criteria);
         final Specification<Redirection> specification = createSpecification(criteria);
         return redirectionRepository.count(specification);
     }
@@ -106,11 +114,24 @@ public class RedirectionQueryService extends QueryService<Redirection> {
             if (criteria.getEndDate() != null) {
                 specification = specification.and(buildRangeSpecification(criteria.getEndDate(), Redirection_.endDate));
             }
+            if (criteria.getUserId() != null) {
+                specification = specification.and(buildSpecification(criteria.getUserId(),
+                    root -> root.join(Redirection_.user, JoinType.LEFT).get(User_.id)));
+            }
             if (criteria.getQrCodeId() != null) {
                 specification = specification.and(buildSpecification(criteria.getQrCodeId(),
                     root -> root.join(Redirection_.qrCode, JoinType.LEFT).get(QrCode_.id)));
             }
         }
         return specification;
+    }
+
+    private void addUserCriteria(RedirectionCriteria criteria){
+        User user = userService.getUserWithAuthorities().orElseThrow(UserNotAuthenticatedException::new);
+        if(!SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)){
+            LongFilter longFilter = new LongFilter();
+            longFilter.setEquals(user.getId());
+            criteria.setUserId(longFilter);
+        }
     }
 }

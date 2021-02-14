@@ -3,6 +3,9 @@ package de.bildwerkmedien.fluidqr.server.service.impl;
 import de.bildwerkmedien.fluidqr.server.service.RedirectionService;
 import de.bildwerkmedien.fluidqr.server.domain.Redirection;
 import de.bildwerkmedien.fluidqr.server.repository.RedirectionRepository;
+import de.bildwerkmedien.fluidqr.server.service.UserNotAuthenticatedException;
+import de.bildwerkmedien.fluidqr.server.service.UserNotAuthorizedException;
+import de.bildwerkmedien.fluidqr.server.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,22 +26,23 @@ public class RedirectionServiceImpl implements RedirectionService {
     private final Logger log = LoggerFactory.getLogger(RedirectionServiceImpl.class);
 
     private final RedirectionRepository redirectionRepository;
+    private final UserService userService;
 
-    public RedirectionServiceImpl(RedirectionRepository redirectionRepository) {
+    public RedirectionServiceImpl(RedirectionRepository redirectionRepository, UserService userService) {
         this.redirectionRepository = redirectionRepository;
+        this.userService = userService;
     }
 
     @Override
     public Redirection save(Redirection redirection) {
         log.debug("Request to save Redirection : {}", redirection);
+        if (redirection.getId() != null && !findOne(redirection.getId()).isPresent()) {
+            throw new UserNotAuthorizedException();
+        }
+        if(!userService.getUserWithAuthorities().isPresent()){
+            throw new UserNotAuthenticatedException();
+        }
         return redirectionRepository.save(redirection);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Page<Redirection> findAll(Pageable pageable) {
-        log.debug("Request to get all Redirections");
-        return redirectionRepository.findAll(pageable);
     }
 
 
@@ -46,12 +50,19 @@ public class RedirectionServiceImpl implements RedirectionService {
     @Transactional(readOnly = true)
     public Optional<Redirection> findOne(Long id) {
         log.debug("Request to get Redirection : {}", id);
-        return redirectionRepository.findById(id);
+        Optional<Redirection> redirection =  redirectionRepository.findById(id);
+
+        if(redirection.isPresent() && redirection.get().getUser().equals(userService.getUserWithAuthorities().orElse(null))) {
+            return redirection;
+        }
+        return Optional.empty();
     }
 
     @Override
     public void delete(Long id) {
         log.debug("Request to delete Redirection : {}", id);
-        redirectionRepository.deleteById(id);
+        if(findOne(id).isPresent()) {
+            redirectionRepository.deleteById(id);
+        }
     }
 }
