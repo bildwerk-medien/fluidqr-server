@@ -1,5 +1,8 @@
 # FluidQrServer
 
+![Java CI with Maven](https://github.com/bildwerk-medien/fluidqr-server/workflows/Java%20CI%20with%20Maven/badge.svg)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/8eb080a058cd4f7a900c17a535af98f1)](https://www.codacy.com/gh/bildwerk-medien/fluidqr-server/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=bildwerk-medien/fluidqr-server&amp;utm_campaign=Badge_Grade)
+
 This application was generated using JHipster 6.10.3, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v6.10.3](https://www.jhipster.tech/documentation-archive/v6.10.3).
 
 ## Development
