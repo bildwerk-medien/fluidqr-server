@@ -7,6 +7,7 @@ import javax.persistence.criteria.JoinType;
 import de.bildwerkmedien.fluidqr.server.security.AuthoritiesConstants;
 import de.bildwerkmedien.fluidqr.server.security.SecurityUtils;
 import io.github.jhipster.service.filter.LongFilter;
+import io.github.jhipster.service.filter.StringFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -58,6 +59,23 @@ public class QrCodeQueryService extends QueryService<QrCode> {
             qrCode.setLink("http://localhost:8080/redirect/" + qrCode.getCode());
         });
         return qrCodePage;
+    }
+
+    @Transactional(readOnly = true)
+    public QrCode findByCode(String code){
+        log.debug("find by code : {}", code);
+        QrCodeCriteria qrCodeCriteria = new QrCodeCriteria();
+        StringFilter stringFilter = new StringFilter();
+        stringFilter.setEquals(code);
+        qrCodeCriteria.setCode(stringFilter);
+        final Specification<QrCode> specification = createSpecification(qrCodeCriteria);
+        List<QrCode> qrCodePage = qrCodeRepository.findAll(specification);
+
+        if(qrCodePage.size() == 1){
+            return qrCodePage.get(0);
+        }
+
+        return null;
     }
 
     /**
