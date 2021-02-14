@@ -72,7 +72,10 @@ public class QrCodeQueryService extends QueryService<QrCode> {
         List<QrCode> qrCodePage = qrCodeRepository.findAll(specification);
 
         if(qrCodePage.size() == 1){
-            return qrCodePage.get(0);
+            QrCode qrCode = qrCodePage.get(0);
+            findCurrentRedirect(qrCode);
+            qrCode.setLink("http://localhost:8080/redirect/" + qrCodePage.get(0).getCode());
+            return qrCode;
         }
 
         return null;

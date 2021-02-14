@@ -4,6 +4,7 @@ import de.bildwerkmedien.fluidqr.server.domain.QrCode;
 import de.bildwerkmedien.fluidqr.server.service.QrCodeQueryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,9 +36,9 @@ public class RedirectController {
         if (qrCOde != null && qrCOde.getCurrentRedirect() != null) {
             httpServletResponse.setHeader("Cache-Control", "no-store");
             httpServletResponse.setHeader("Location", qrCodeQueryService.findByCode(code).getCurrentRedirect());
-            httpServletResponse.setStatus(302);
+            httpServletResponse.setStatus(HttpStatus.TEMPORARY_REDIRECT.value());
         } else {
-            httpServletResponse.setStatus(404);
+            httpServletResponse.setStatus(HttpStatus.NOT_FOUND.value());
         }
 
     }
