@@ -4,10 +4,11 @@ import { RouterModule } from '@angular/router';
 import { FluidQrServerSharedModule } from '../shared/shared.module';
 
 import { QR_CODES_ROUTE, QrCodesComponent } from './';
+import { QrCodeDisplayComponent } from 'app/qr-code-display/qr-code-display.component';
 
 @NgModule({
   imports: [FluidQrServerSharedModule, RouterModule.forRoot([QR_CODES_ROUTE], { useHash: true })],
-  declarations: [QrCodesComponent],
+  declarations: [QrCodesComponent, QrCodeDisplayComponent],
   entryComponents: [],
   providers: [],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

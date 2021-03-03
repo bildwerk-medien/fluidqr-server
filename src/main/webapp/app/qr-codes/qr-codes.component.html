@@ -1,11 +1,15 @@
 <div class="row">
   <div class="col-md-1"></div>
   <div class="col-md-10">
-    <h6 class="text-right">{{message}}</h6>
-    <h1 class="text-capitalize text-center" jhiTranslate="qr-codes.title">Title</h1>
-    <h5 class="text-center" jhiTranslate="qr-codes.subtitle">Subtitle</h5>
-    <hr/>
-    <p class="text-justify" jhiTranslate="qr-codes.content">Content</p>
+
+    <h1 class="text-capitalize text-left" jhiTranslate="qr-codes.title">Title</h1>
+
+      <div class="col-md-4">
+      </div>
+      <div class="m-2 align-content-center">
+          <jhi-qr-code-display></jhi-qr-code-display>
+      </div>
+
   </div>
   <div class="col-md-1"></div>
 </div>
