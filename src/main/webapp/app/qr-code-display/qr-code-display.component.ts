@@ -2,6 +2,7 @@ import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@
 import QRCodeStyling from 'qr-code-styling';
 import { QrCode } from 'app/shared/model/qr-code.model';
 import { NgForm } from '@angular/forms';
+import { UpdateModalService } from 'app/qr-codes/update/update-modal.service';
 
 @Component({
   selector: 'jhi-qr-code-display',
@@ -22,7 +23,7 @@ export class QrCodeDisplayComponent implements OnInit, AfterViewInit {
   @Output()
   deleteQrCode = new EventEmitter<number>();
 
-  constructor() {}
+  constructor(private updateModalService: UpdateModalService) {}
 
   getQrCode(qrCode: QrCode | undefined): QRCodeStyling {
     return new QRCodeStyling({
@@ -47,11 +48,16 @@ export class QrCodeDisplayComponent implements OnInit, AfterViewInit {
   }
 
   updateRedirection(f: NgForm): void {
-    if (f.valid) {
-      if (this.updateRedirect && this.currentQrCode) {
-        this.qrCodeImage = '';
-      }
-    }
+    // if (f.valid) {
+    //   if (this.updateRedirect && this.currentQrCode) {
+    //     this.qrCodeImage = '';
+    //   }
+    // }
+    const promise = this.updateModalService.open(this.currentQrCode?.currentRedirect);
+    promise?.finally(() => {
+      this.updateModalService.close();
+      // this.readQrCodes();
+    });
   }
 
   onDownload(): void {

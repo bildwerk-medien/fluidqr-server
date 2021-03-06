@@ -9,6 +9,7 @@
     "add": "Hinzufügen",
     "delete": "Löschen",
     "addQrCode": "Qr Code hinzufügen",
+    "updateRedirection": "Update Redirection",
     "errors": {
       "couldNotCreate": "Fehler beim Erstellen des Qr Codes"
     }

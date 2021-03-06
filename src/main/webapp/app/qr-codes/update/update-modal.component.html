@@ -1,0 +1,29 @@
+<div class="modal-header">
+    <h4 class="modal-title" jhiTranslate="qr-codes.updateRedirection">Update Redirection</h4>
+
+    <button aria-label="Close" data-dismiss="modal" class="close" type="button" (click)="activeModal.dismiss('closed')">
+        <span aria-hidden="true">x</span>
+    </button>
+</div>
+
+<div class="modal-body">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="alert alert-danger" *ngIf="creationError" jhiTranslate="login.messages.error.authentication">
+                <strong>Failed to sign in!</strong> Please check your credentials and try again.
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <form class="form" #f="ngForm" (ngSubmit)="update(f)">
+                <div class="form-group">
+                    <label class="redirection-input-label" for="redirection-input" jhiTranslate="qr-codes.newRedirection">New Redirection</label>
+                    <input type="text" class="form-control" name="redirection-input" id="redirection-input" required [(ngModel)]="currentRedirect" [pattern]="urlPattern">
+                </div>
+
+                <button class="btn btn-primary mt-2" jhiTranslate="qr-codes.enable">Enable</button>
+            </form>
+
+        </div>
+    </div>
+</div>
