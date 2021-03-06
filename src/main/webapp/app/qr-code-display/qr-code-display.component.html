@@ -1,38 +1,37 @@
-
-<div class="row">
-
-    <div class="col-3">
-        <h3 class="text-capitalize text-left">
-            <span>{{ currentQrCode?.code }}</span>
-            <button class="btn btn-primary" jhiTranslate="qr-codes.delete" (click)="onDelete()">Delete</button>
-        </h3>
+<div>
+    <div class="row justify-content-center">
+        <div class="col-8">
+            <h3 class="text-capitalize text-left">
+                <span>{{ currentQrCode?.code }}</span>
+                <a (click)="onDelete()">
+                    <fa-icon size="sm" icon="trash-alt"></fa-icon>
+                </a>
+            </h3>
 
             <div class="mb-2">
                 <span jhiTranslate="qr-codes.publicUrl">Public URL</span>: <br>
                 <a target="_blank" [href]="currentQrCode?.link">{{ currentQrCode?.link }}</a>
+
             </div>
 
-            <div class="mb-2">
+            <div class="mb-1">
                 <span jhiTranslate="qr-codes.currentRedirection">Current Redirection</span>: <br>
+                <span>
                 <a target="_blank" [href]="currentQrCode?.currentRedirect">{{ currentQrCode?.currentRedirect }}</a>
+                <a (click)="updateRedirection()"><fa-icon icon="pencil-alt"></fa-icon></a>
+                </span>
             </div>
 
-            <div class="mt-3">
-                <span jhiTranslate="qr-codes.newRedirection">New Redirection</span>: <br>
-                <form #f="ngForm" (ngSubmit)="updateRedirection(f)">
-                    <label>
-                        <input type="text" class="form-control" name="updateRedirect" required [(ngModel)]="updateRedirect" [pattern]="urlPattern">
-                        <button class="btn btn-primary mt-2" jhiTranslate="qr-codes.enable">Enable</button>
-                    </label>
-                </form>
-
+            <div>
+                <a class="btn btn-primary mt-3 text-white" (click)="onDownload()"
+                   jhiTranslate="qr-codes.download">Download</a>
             </div>
 
-    </div>
+        </div>
 
-    <div class="col-4">
-        <div [id]="'canvas-' + this.currentQrCode?.id"></div>
-        <a class="btn btn-primary mt-3 text-white" (click)="onDownload()" jhiTranslate="qr-codes.download">Download</a>
-    </div>
+        <div class="col-4">
+            <div class="float-right" [id]="'canvas-' + this.currentQrCode?.id"></div>
+        </div>
 
+    </div>
 </div>

@@ -47,12 +47,7 @@ export class QrCodeDisplayComponent implements OnInit, AfterViewInit {
     });
   }
 
-  updateRedirection(f: NgForm): void {
-    // if (f.valid) {
-    //   if (this.updateRedirect && this.currentQrCode) {
-    //     this.qrCodeImage = '';
-    //   }
-    // }
+  updateRedirection(): void {
     const promise = this.updateModalService.open(this.currentQrCode?.currentRedirect);
     promise?.finally(() => {
       this.updateModalService.close();
