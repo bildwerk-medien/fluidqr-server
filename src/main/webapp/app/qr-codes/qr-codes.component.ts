@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { QrCodeService } from 'app/entities/qr-code/qr-code.service';
-import { QrCode } from 'app/shared/model/qr-code.model';
+import { IQrCode, QrCode } from 'app/shared/model/qr-code.model';
 import { AddModalService } from 'app/qr-codes/add/add-modal.service';
+import { RedirectionService } from 'app/entities/redirection/redirection.service';
 
 @Component({
   selector: 'jhi-qr-codes',
@@ -11,7 +12,11 @@ import { AddModalService } from 'app/qr-codes/add/add-modal.service';
 export class QrCodesComponent implements OnInit {
   qrCodes?: QrCode[];
 
-  constructor(private qrCodeService: QrCodeService, private addModalService: AddModalService) {}
+  constructor(
+    private qrCodeService: QrCodeService,
+    private redirectionService: RedirectionService,
+    private addModalService: AddModalService
+  ) {}
 
   ngOnInit(): void {
     this.readQrCodes();
@@ -31,5 +36,9 @@ export class QrCodesComponent implements OnInit {
         this.qrCodes = res.body;
       }
     });
+  }
+
+  deleteQrCode(qrCodeId: number): void {
+    this.qrCodeService.delete(qrCodeId).subscribe(() => this.readQrCodes());
   }
 }

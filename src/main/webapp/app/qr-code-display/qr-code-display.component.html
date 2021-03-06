@@ -4,7 +4,7 @@
     <div class="col-3">
         <h3 class="text-capitalize text-left">
             <span>{{ currentQrCode?.code }}</span>
-            <button class="btn btn-primary" jhiTranslate="qr-codes.delete">Delete</button>
+            <button class="btn btn-primary" jhiTranslate="qr-codes.delete" (click)="onDelete()">Delete</button>
         </h3>
 
             <div class="mb-2">

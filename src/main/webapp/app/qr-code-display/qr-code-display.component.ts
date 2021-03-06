@@ -1,6 +1,6 @@
-import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import QRCodeStyling from 'qr-code-styling';
-import { QrCode } from 'app/shared/model/qr-code.model';
+import { IQrCode, QrCode } from 'app/shared/model/qr-code.model';
 import { NgForm } from '@angular/forms';
 
 @Component({
@@ -18,6 +18,9 @@ export class QrCodeDisplayComponent implements OnInit, AfterViewInit {
 
   @Input()
   currentQrCode?: QrCode;
+
+  @Output()
+  deleteQrCode = new EventEmitter<number>();
 
   constructor() {}
 
@@ -69,5 +72,9 @@ export class QrCodeDisplayComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.qrCode?.append(this.getHtmlElement());
+  }
+
+  onDelete(): void {
+    this.deleteQrCode.emit(this.currentQrCode?.id);
   }
 }
