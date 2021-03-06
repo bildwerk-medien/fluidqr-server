@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { QrCodeService } from 'app/entities/qr-code/qr-code.service';
+import { QrCode } from 'app/shared/model/qr-code.model';
 
 @Component({
   selector: 'jhi-qr-codes',
@@ -6,11 +8,15 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['qr-codes.component.scss'],
 })
 export class QrCodesComponent implements OnInit {
-  message: string;
+  qrCodes?: QrCode[];
 
-  constructor() {
-    this.message = 'QrCodesComponent message';
+  constructor(private qrCodeService: QrCodeService) {}
+
+  ngOnInit(): void {
+    this.qrCodeService.query().subscribe(res => {
+      if (res.body) {
+        this.qrCodes = res.body;
+      }
+    });
   }
-
-  ngOnInit(): void {}
 }

@@ -1,15 +1,20 @@
 <div class="row">
-  <div class="col-md-1"></div>
-  <div class="col-md-10">
+    <div class="col-md-1"></div>
+    <div class="col-md-10">
 
-    <h1 class="text-capitalize text-left" jhiTranslate="qr-codes.title">Title</h1>
+        <h1 class="text-capitalize text-left">
+            <span jhiTranslate="qr-codes.title">Title</span>
+            <button class="btn btn-primary" jhiTranslate="qr-codes.add">Add</button>
+        </h1>
 
-      <div class="col-md-4">
-      </div>
-      <div class="m-2 align-content-center">
-          <jhi-qr-code-display></jhi-qr-code-display>
-      </div>
+        <div class="col-md-4">
+        </div>
+        <div class="m-2 align-content-center">
+            <ng-container *ngFor="let qrCode of qrCodes">
+                <jhi-qr-code-display [currentQrCode]="qrCode"></jhi-qr-code-display>
+            </ng-container>
+        </div>
 
-  </div>
-  <div class="col-md-1"></div>
+    </div>
+    <div class="col-md-1"></div>
 </div>

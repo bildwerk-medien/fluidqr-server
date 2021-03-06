@@ -1,7 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
 import QRCodeStyling from 'qr-code-styling';
 import { QrCode } from 'app/shared/model/qr-code.model';
-import { QrCodeService } from 'app/entities/qr-code/qr-code.service';
 import { NgForm } from '@angular/forms';
 
 @Component({
@@ -9,7 +8,7 @@ import { NgForm } from '@angular/forms';
   templateUrl: './qr-code-display.component.html',
   styleUrls: ['./qr-code-display.component.scss'],
 })
-export class QrCodeDisplayComponent implements OnInit {
+export class QrCodeDisplayComponent implements OnInit, AfterViewInit {
   qrCodeImage = '';
   qrCode: QRCodeStyling | null = null;
   urlPattern = '(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?';
@@ -18,14 +17,14 @@ export class QrCodeDisplayComponent implements OnInit {
   updateRedirect: any;
 
   @Input()
-  currentQrCode: QrCode | undefined;
+  currentQrCode?: QrCode;
 
-  constructor(private qrCodeService: QrCodeService) {}
+  constructor() {}
 
   getQrCode(): QRCodeStyling {
     return new QRCodeStyling({
-      width: 400,
-      height: 400,
+      width: 200,
+      height: 200,
       data: 'https://www.bildwerk-medien.de/',
       dotsOptions: {
         color: '#000000',
@@ -39,7 +38,7 @@ export class QrCodeDisplayComponent implements OnInit {
       },
       imageOptions: {
         crossOrigin: 'anonymous',
-        margin: 20,
+        margin: 10,
       },
     });
   }
@@ -58,14 +57,17 @@ export class QrCodeDisplayComponent implements OnInit {
 
   ngOnInit(): void {
     this.qrCode = this.getQrCode();
-    this.qrCode.append(this.getHtmlElement());
   }
 
   getHtmlElement(): HTMLElement | undefined {
-    const htmlElement = document.getElementById('canvas');
+    const htmlElement = document.getElementById('canvas-' + this.currentQrCode?.id);
     if (htmlElement != null) {
       return htmlElement;
     }
     return undefined;
+  }
+
+  ngAfterViewInit(): void {
+    this.qrCode?.append(this.getHtmlElement());
   }
 }

@@ -5,6 +5,8 @@
     "currentRedirection": "Aktuelle Weiterleitung",
     "newRedirection": "Neue Weiterleitung",
     "enable": "Aktivieren",
-    "download": "Herunterladen"
+    "download": "Herunterladen",
+    "add": "Hinzufügen",
+    "delete": "Löschen"
   }
 }

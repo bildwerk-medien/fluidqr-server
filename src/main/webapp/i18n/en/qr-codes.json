@@ -5,6 +5,8 @@
     "currentRedirection": "Current Redirection",
     "newRedirection": "New Redirection",
     "enable": "Enable",
-    "download": "Download"
+    "download": "Download",
+    "add": "Add",
+    "delete": "Delete"
   }
 }
