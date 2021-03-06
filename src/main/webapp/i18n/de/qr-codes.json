@@ -7,6 +7,7 @@
     "enable": "Aktivieren",
     "download": "Herunterladen",
     "add": "Hinzufügen",
-    "delete": "Löschen"
+    "delete": "Löschen",
+    "addQrCode": "Qr Code hinzufügen"
   }
 }

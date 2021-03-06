@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { QrCodeService } from 'app/entities/qr-code/qr-code.service';
 import { QrCode } from 'app/shared/model/qr-code.model';
+import { AddModalService } from 'app/qr-codes/add/add-modal.service';
 
 @Component({
   selector: 'jhi-qr-codes',
@@ -10,7 +11,7 @@ import { QrCode } from 'app/shared/model/qr-code.model';
 export class QrCodesComponent implements OnInit {
   qrCodes?: QrCode[];
 
-  constructor(private qrCodeService: QrCodeService) {}
+  constructor(private qrCodeService: QrCodeService, private addModalService: AddModalService) {}
 
   ngOnInit(): void {
     this.qrCodeService.query().subscribe(res => {
@@ -18,5 +19,9 @@ export class QrCodesComponent implements OnInit {
         this.qrCodes = res.body;
       }
     });
+  }
+
+  openAdd(): void {
+    this.addModalService.open();
   }
 }
