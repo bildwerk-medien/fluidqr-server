@@ -8,6 +8,9 @@
     "download": "Download",
     "add": "Add",
     "delete": "Delete",
-    "addQrCode": "Add Qr Code"
+    "addQrCode": "Add Qr Code",
+    "errors": {
+      "couldNotCreate": "Error creating new Qr Code"
+    }
   }
 }

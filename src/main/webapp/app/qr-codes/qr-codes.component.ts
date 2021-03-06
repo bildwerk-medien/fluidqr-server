@@ -14,14 +14,22 @@ export class QrCodesComponent implements OnInit {
   constructor(private qrCodeService: QrCodeService, private addModalService: AddModalService) {}
 
   ngOnInit(): void {
+    this.readQrCodes();
+  }
+
+  openAdd(): void {
+    const promise = this.addModalService.open();
+    promise?.finally(() => {
+      this.addModalService.close();
+      this.readQrCodes();
+    });
+  }
+
+  readQrCodes(): void {
     this.qrCodeService.query().subscribe(res => {
       if (res.body) {
         this.qrCodes = res.body;
       }
     });
-  }
-
-  openAdd(): void {
-    this.addModalService.open();
   }
 }

@@ -8,6 +8,9 @@
     "download": "Herunterladen",
     "add": "Hinzufügen",
     "delete": "Löschen",
-    "addQrCode": "Qr Code hinzufügen"
+    "addQrCode": "Qr Code hinzufügen",
+    "errors": {
+      "couldNotCreate": "Fehler beim Erstellen des Qr Codes"
+    }
   }
 }

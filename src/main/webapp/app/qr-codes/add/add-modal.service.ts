@@ -8,12 +8,16 @@ export class AddModalService {
 
   constructor(private modalService: NgbModal) {}
 
-  open(): void {
+  open(): Promise<any> | null {
     if (this.isOpen) {
-      return;
+      return null;
     }
     this.isOpen = true;
     const modalRef: NgbModalRef = this.modalService.open(AddModalComponent);
-    modalRef.result.finally(() => (this.isOpen = false));
+    return modalRef.result;
+  }
+
+  close(): void {
+    this.isOpen = false;
   }
 }

@@ -1,36 +1,33 @@
-import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Router } from '@angular/router';
-
-import { LoginService } from 'app/core/login/login.service';
+import { QrCodeService } from 'app/entities/qr-code/qr-code.service';
 
 @Component({
   selector: 'jhi-login-modal',
   templateUrl: './add-modal.component.html',
 })
 export class AddModalComponent implements AfterViewInit {
-  @ViewChild('username', { static: false })
-  username?: ElementRef;
+  @ViewChild('code', { static: false })
+  code?: ElementRef;
 
-  authenticationError = false;
+  creationError = false;
 
   loginForm = this.fb.group({
-    username: [''],
-    password: [''],
-    rememberMe: [false],
+    code: [''],
   });
 
-  constructor(private loginService: LoginService, private router: Router, public activeModal: NgbActiveModal, private fb: FormBuilder) {}
+  constructor(private qrCodeService: QrCodeService, private router: Router, public activeModal: NgbActiveModal, private fb: FormBuilder) {}
 
   ngAfterViewInit(): void {
-    if (this.username) {
-      this.username.nativeElement.focus();
+    if (this.code) {
+      this.code.nativeElement.focus();
     }
   }
 
   cancel(): void {
-    this.authenticationError = false;
+    this.creationError = false;
     this.loginForm.patchValue({
       username: '',
       password: '',
@@ -38,36 +35,17 @@ export class AddModalComponent implements AfterViewInit {
     this.activeModal.dismiss('cancel');
   }
 
-  login(): void {
-    this.loginService
-      .login({
-        username: this.loginForm.get('username')!.value,
-        password: this.loginForm.get('password')!.value,
-        rememberMe: this.loginForm.get('rememberMe')!.value,
+  add(): void {
+    this.qrCodeService
+      .create({
+        code: this.loginForm.get('code')!.value,
       })
       .subscribe(
         () => {
-          this.authenticationError = false;
+          this.creationError = false;
           this.activeModal.close();
-          if (
-            this.router.url === '/account/register' ||
-            this.router.url.startsWith('/account/activate') ||
-            this.router.url.startsWith('/account/reset/')
-          ) {
-            this.router.navigate(['']);
-          }
         },
-        () => (this.authenticationError = true)
+        () => (this.creationError = true)
       );
-  }
-
-  register(): void {
-    this.activeModal.dismiss('to state register');
-    this.router.navigate(['/account/register']);
-  }
-
-  requestResetPassword(): void {
-    this.activeModal.dismiss('to state requestReset');
-    this.router.navigate(['/account/reset', 'request']);
   }
 }
