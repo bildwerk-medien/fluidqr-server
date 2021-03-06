@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { QrCodeService } from 'app/entities/qr-code/qr-code.service';
-import { IQrCode, QrCode } from 'app/shared/model/qr-code.model';
+import { QrCode } from 'app/shared/model/qr-code.model';
 import { AddModalService } from 'app/qr-codes/add/add-modal.service';
 import { RedirectionService } from 'app/entities/redirection/redirection.service';
 
