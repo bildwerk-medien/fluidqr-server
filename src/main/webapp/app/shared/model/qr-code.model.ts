@@ -6,8 +6,17 @@ export interface IQrCode {
   code?: string;
   redirections?: IRedirection[];
   user?: IUser;
+  link?: string;
+  currentRedirect?: string;
 }
 
 export class QrCode implements IQrCode {
-  constructor(public id?: number, public code?: string, public redirections?: IRedirection[], public user?: IUser) {}
+  constructor(
+    public id?: number,
+    public code?: string,
+    public redirections?: IRedirection[],
+    public user?: IUser,
+    public link?: string,
+    public currentRedirect?: string
+  ) {}
 }

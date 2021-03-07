@@ -7,6 +7,7 @@ import { FluidQrServerCoreModule } from 'app/core/core.module';
 import { FluidQrServerAppRoutingModule } from './app-routing.module';
 import { FluidQrServerHomeModule } from './home/home.module';
 import { FluidQrServerEntityModule } from './entities/entity.module';
+import { FluidQrServerAppQrCodesModule } from './qr-codes/qr-codes.module';
 // jhipster-needle-angular-add-module-import JHipster will add new module here
 import { MainComponent } from './layouts/main/main.component';
 import { NavbarComponent } from './layouts/navbar/navbar.component';
@@ -21,6 +22,7 @@ import { ErrorComponent } from './layouts/error/error.component';
     FluidQrServerSharedModule,
     FluidQrServerCoreModule,
     FluidQrServerHomeModule,
+    FluidQrServerAppQrCodesModule,
     // jhipster-needle-angular-add-module JHipster will add new module here
     FluidQrServerEntityModule,
     FluidQrServerAppRoutingModule,

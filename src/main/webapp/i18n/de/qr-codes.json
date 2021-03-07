@@ -1,0 +1,17 @@
+{
+  "qr-codes": {
+    "title": "[de] Qr Codes",
+    "publicUrl": "Öffentliche URL",
+    "currentRedirection": "Aktuelle Weiterleitung",
+    "newRedirection": "Neue Weiterleitung",
+    "enable": "Aktivieren",
+    "download": "QR Code Herunterladen",
+    "add": "Qr Code Hinzufügen",
+    "delete": "Löschen",
+    "addQrCode": "Qr Code hinzufügen",
+    "updateRedirection": "Update Redirection",
+    "errors": {
+      "couldNotCreate": "Fehler beim Erstellen des Qr Codes"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "qr-codes": {
+    "title": "Qr Codes",
+    "publicUrl": "Public URL",
+    "currentRedirection": "Current Redirection",
+    "newRedirection": "New Redirection",
+    "enable": "Enable",
+    "download": "Download QR Code",
+    "add": "Add QR Code",
+    "delete": "Delete",
+    "addQrCode": "Add Qr Code",
+    "updateRedirection": "Update Redirection",
+    "errors": {
+      "couldNotCreate": "Error creating new Qr Code"
+    }
+  }
+}
