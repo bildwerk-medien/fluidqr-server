@@ -64,7 +64,7 @@ public class RedirectionQueryService extends QueryService<Redirection> {
     @Transactional(readOnly = true)
     public Page<Redirection> findByCriteria(RedirectionCriteria criteria, Pageable page) {
         log.debug("find by criteria : {}, page: {}", criteria, page);
-        addUserCriteria(criteria);
+        // addUserCriteria(criteria);
         final Specification<Redirection> specification = createSpecification(criteria);
         return redirectionRepository.findAll(specification, page);
     }

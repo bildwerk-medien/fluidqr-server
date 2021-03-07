@@ -3,6 +3,8 @@ package de.bildwerkmedien.fluidqr.server.service.impl;
 import de.bildwerkmedien.fluidqr.server.domain.QrCode;
 import de.bildwerkmedien.fluidqr.server.domain.Redirection;
 import de.bildwerkmedien.fluidqr.server.repository.QrCodeRepository;
+import de.bildwerkmedien.fluidqr.server.security.AuthoritiesConstants;
+import de.bildwerkmedien.fluidqr.server.security.SecurityUtils;
 import de.bildwerkmedien.fluidqr.server.service.QrCodeService;
 import de.bildwerkmedien.fluidqr.server.service.UserNotAuthenticatedException;
 import de.bildwerkmedien.fluidqr.server.service.UserNotAuthorizedException;
@@ -41,7 +43,9 @@ public class QrCodeServiceImpl implements QrCodeService {
         if(!userService.getUserWithAuthorities().isPresent()){
             throw new UserNotAuthenticatedException();
         }
-        userService.getUserWithAuthorities().ifPresent(qrCode::setUser);
+        if(!SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)){
+            userService.getUserWithAuthorities().ifPresent(qrCode::setUser);
+        }
         QrCode savedQrCode = qrCodeRepository.save(qrCode);
         savedQrCode.setLink("http://localhost:8080/redirect/" + savedQrCode.getCode());
         savedQrCode.setCurrentRedirect(savedQrCode.getRedirections().stream().filter(Redirection::isEnabled).findFirst().orElse(new Redirection()).getUrl());
@@ -59,7 +63,11 @@ public class QrCodeServiceImpl implements QrCodeService {
             qr.setLink("http://localhost:8080/redirect/" + qr.getCode());
         });
 
-        if(qrCode.isPresent() && qrCode.get().getUser().equals(userService.getUserWithAuthorities().orElse(null))) {
+        if(SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)){
+            return qrCode;
+        }
+
+        if(qrCode.isPresent() && qrCode.get().getUser() != null && qrCode.get().getUser().equals(userService.getUserWithAuthorities().orElse(null))) {
             return qrCode;
         }
         return Optional.empty();
