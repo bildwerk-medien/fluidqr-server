@@ -3,6 +3,7 @@ import { FormBuilder } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Router } from '@angular/router';
 import { QrCodeService } from 'app/entities/qr-code/qr-code.service';
+import { RedirectionService } from 'app/entities/redirection/redirection.service';
 
 @Component({
   selector: 'jhi-login-modal',
@@ -18,7 +19,13 @@ export class AddModalComponent implements AfterViewInit {
     code: [''],
   });
 
-  constructor(private qrCodeService: QrCodeService, private router: Router, public activeModal: NgbActiveModal, private fb: FormBuilder) {}
+  constructor(
+    private qrCodeService: QrCodeService,
+    private redirectionService: RedirectionService,
+    private router: Router,
+    public activeModal: NgbActiveModal,
+    private fb: FormBuilder
+  ) {}
 
   ngAfterViewInit(): void {
     if (this.code) {
@@ -41,9 +48,21 @@ export class AddModalComponent implements AfterViewInit {
         code: this.loginForm.get('code')!.value,
       })
       .subscribe(
-        () => {
-          this.creationError = false;
-          this.activeModal.close();
+        res => {
+          if (res.body) {
+            this.redirectionService
+              .create({
+                url: 'https://bildwerk-medien.de',
+                enabled: true,
+                qrCode: {
+                  id: res.body.id,
+                },
+              })
+              .subscribe(() => {
+                this.creationError = false;
+                this.activeModal.close();
+              });
+          }
         },
         () => (this.creationError = true)
       );

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { UpdateModalComponent } from './update-modal.component';
+import { IQrCode } from 'app/shared/model/qr-code.model';
 
 @Injectable({ providedIn: 'root' })
 export class UpdateModalService {
@@ -8,13 +9,13 @@ export class UpdateModalService {
 
   constructor(private modalService: NgbModal) {}
 
-  open(currentRedirect: string | undefined): Promise<any> | null {
+  open(currentQrCode: IQrCode | undefined): Promise<any> | null {
     if (this.isOpen) {
       return null;
     }
     this.isOpen = true;
     const modalRef: NgbModalRef = this.modalService.open(UpdateModalComponent);
-    modalRef.componentInstance.currentRedirect = currentRedirect;
+    modalRef.componentInstance.currentQrCode = currentQrCode;
     return modalRef.result;
   }
 

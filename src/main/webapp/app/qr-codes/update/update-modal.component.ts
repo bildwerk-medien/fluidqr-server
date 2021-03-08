@@ -3,6 +3,8 @@ import { FormBuilder, NgForm } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Router } from '@angular/router';
 import { QrCodeService } from 'app/entities/qr-code/qr-code.service';
+import { IQrCode } from 'app/shared/model/qr-code.model';
+import { RedirectionService } from 'app/entities/redirection/redirection.service';
 
 @Component({
   selector: 'jhi-login-modal',
@@ -15,7 +17,9 @@ export class UpdateModalComponent implements AfterViewInit {
   code?: ElementRef;
 
   @Input()
-  currentRedirect?: string;
+  currentQrCode: IQrCode | undefined;
+
+  currentRedirection: string | undefined;
 
   creationError = false;
 
@@ -23,7 +27,18 @@ export class UpdateModalComponent implements AfterViewInit {
     code: [''],
   });
 
-  constructor(private qrCodeService: QrCodeService, private router: Router, public activeModal: NgbActiveModal, private fb: FormBuilder) {}
+  constructor(
+    private redirectionService: RedirectionService,
+    private router: Router,
+    public activeModal: NgbActiveModal,
+    private fb: FormBuilder
+  ) {
+    if (this.currentQrCode?.redirections && this.currentQrCode.redirections?.length > 0) {
+      this.currentRedirection = this.currentQrCode.redirections[0].url;
+    } else {
+      this.currentRedirection = '';
+    }
+  }
 
   ngAfterViewInit(): void {
     if (this.code) {
@@ -41,6 +56,16 @@ export class UpdateModalComponent implements AfterViewInit {
   }
 
   update(f: NgForm): void {
-    this.creationError = false;
+    if (f.valid) {
+      if (this.currentQrCode?.redirections && this.currentQrCode.redirections.length > 0) {
+        this.currentQrCode.redirections[0].url = this.currentRedirection;
+        this.redirectionService.update(this.currentQrCode.redirections[0]).subscribe(() => {
+          this.creationError = false;
+          this.activeModal.close();
+        });
+      }
+      return;
+    }
+    this.creationError = true;
   }
 }

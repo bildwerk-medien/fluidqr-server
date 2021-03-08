@@ -1,8 +1,9 @@
 import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import QRCodeStyling from 'qr-code-styling';
-import { QrCode } from 'app/shared/model/qr-code.model';
+import { IQrCode, QrCode } from 'app/shared/model/qr-code.model';
 import { NgForm } from '@angular/forms';
 import { UpdateModalService } from 'app/qr-codes/update/update-modal.service';
+import { QrCodeService } from 'app/entities/qr-code/qr-code.service';
 
 @Component({
   selector: 'jhi-qr-code-display',
@@ -18,18 +19,18 @@ export class QrCodeDisplayComponent implements OnInit, AfterViewInit {
   updateRedirect: any;
 
   @Input()
-  currentQrCode?: QrCode;
+  currentQrCode?: IQrCode;
 
   @Output()
   deleteQrCode = new EventEmitter<number>();
 
-  constructor(private updateModalService: UpdateModalService) {}
+  constructor(private updateModalService: UpdateModalService, private qrCodeService: QrCodeService) {}
 
   getQrCode(qrCode: QrCode | undefined): QRCodeStyling {
     return new QRCodeStyling({
       width: 200,
       height: 200,
-      data: qrCode?.currentRedirect,
+      data: qrCode?.link,
       dotsOptions: {
         color: '#000000',
         type: 'rounded',
@@ -48,11 +49,21 @@ export class QrCodeDisplayComponent implements OnInit, AfterViewInit {
   }
 
   updateRedirection(): void {
-    const promise = this.updateModalService.open(this.currentQrCode?.currentRedirect);
+    const promise = this.updateModalService.open(this.currentQrCode);
     promise?.finally(() => {
       this.updateModalService.close();
-      // this.readQrCodes();
+      this.refreshQrCode();
     });
+  }
+
+  refreshQrCode(): void {
+    if (this.currentQrCode?.id) {
+      this.qrCodeService.find(this.currentQrCode?.id).subscribe(res => {
+        if (res.body) {
+          this.currentQrCode = res.body;
+        }
+      });
+    }
   }
 
   onDownload(): void {
