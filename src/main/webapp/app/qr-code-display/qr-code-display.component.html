@@ -3,9 +3,6 @@
         <div class="col-8">
             <h3 class="text-capitalize text-left">
                 <span>{{ currentQrCode?.code }}</span>
-                <a (click)="onDelete()">
-                    <fa-icon size="sm" icon="trash-alt"></fa-icon>
-                </a>
             </h3>
 
             <div class="mb-2">
@@ -23,8 +20,13 @@
             </div>
 
             <div>
-                <a class="btn btn-primary mt-3 text-white" (click)="onDownload()"
-                   jhiTranslate="qr-codes.download">Download</a>
+                <span>
+                    <a class="btn btn-primary mt-3 mr-2 text-white" (click)="onDownload()"
+                       jhiTranslate="qr-codes.download">Download</a>
+
+                    <a class="btn btn-danger mt-3 text-white" (click)="onDelete()"
+                       jhiTranslate="qr-codes.delete">Delete</a>
+                </span>
             </div>
 
         </div>
