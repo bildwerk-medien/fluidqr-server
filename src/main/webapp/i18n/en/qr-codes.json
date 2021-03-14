@@ -8,6 +8,9 @@
     "download": "Download",
     "add": "Add New",
     "delete": "Delete",
+    "confirmDelete": "Yes, Delete",
+    "abortDelete": "No, Abort",
+    "deleteConfirmMessage": "Are you sure your want to delete Qr Code \"{{ description }}\" and its redirection?",
     "addQrCode": "Add Qr Code",
     "updateRedirection": "Update Redirection",
     "errors": {

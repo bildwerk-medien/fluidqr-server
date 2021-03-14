@@ -4,6 +4,7 @@ import { IQrCode, QrCode } from 'app/shared/model/qr-code.model';
 import { NgForm } from '@angular/forms';
 import { UpdateModalService } from 'app/qr-codes/update/update-modal.service';
 import { QrCodeService } from 'app/entities/qr-code/qr-code.service';
+import { DeleteModalService } from 'app/qr-codes/delete/delete-modal.service';
 
 @Component({
   selector: 'jhi-qr-code-display',
@@ -22,9 +23,13 @@ export class QrCodeDisplayComponent implements OnInit, AfterViewInit {
   currentQrCode?: IQrCode;
 
   @Output()
-  deleteQrCode = new EventEmitter<number>();
+  deleteQrCode = new EventEmitter<void>();
 
-  constructor(private updateModalService: UpdateModalService, private qrCodeService: QrCodeService) {}
+  constructor(
+    private updateModalService: UpdateModalService,
+    private deleteModalService: DeleteModalService,
+    private qrCodeService: QrCodeService
+  ) {}
 
   getQrCode(qrCode: QrCode | undefined): QRCodeStyling {
     return new QRCodeStyling({
@@ -93,6 +98,11 @@ export class QrCodeDisplayComponent implements OnInit, AfterViewInit {
   }
 
   onDelete(): void {
-    this.deleteQrCode.emit(this.currentQrCode?.id);
+    //this.deleteQrCode.emit(this.currentQrCode?.id);
+    const promise = this.deleteModalService.open(this.currentQrCode);
+    promise?.finally(() => {
+      this.deleteModalService.close();
+      this.deleteQrCode.emit();
+    });
   }
 }

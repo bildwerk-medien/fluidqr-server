@@ -10,7 +10,7 @@
             <div>
                 <div class="mb-4" *ngFor="let qrCode of qrCodes">
                     <jhi-qr-code-display [currentQrCode]="qrCode"
-                                         (deleteQrCode)="deleteQrCode($event)"></jhi-qr-code-display>
+                                         (deleteQrCode)="deleteQrCode()"></jhi-qr-code-display>
                 </div>
             </div>
         </div>

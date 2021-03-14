@@ -1,0 +1,28 @@
+<div class="modal-header">
+    <h4 class="modal-title" jhiTranslate="qr-codes.delete">Delete</h4>
+
+    <button aria-label="Close" data-dismiss="modal" class="close" type="button" (click)="activeModal.dismiss('closed')">
+        <span aria-hidden="true">x</span>
+    </button>
+</div>
+
+<div class="modal-body">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="alert alert-danger" *ngIf="creationError" jhiTranslate="login.messages.error.authentication">
+                <strong>Failed to sign in!</strong> Please check your credentials and try again.
+            </div>
+        </div>
+
+        <div class="col-md-8">
+
+            <h5 jhiTranslate="qr-codes.deleteConfirmMessage" [translateValues]="{ description: currentQrCode?.code }"></h5>
+
+            <span>
+                <button class="btn btn-danger mt-2 mr-2" jhiTranslate="qr-codes.confirmDelete" (click)="delete()">Yes, Delete</button>
+                <button class="btn btn-primary mt-2" jhiTranslate="qr-codes.abortDelete" (click)="cancel()">No, Abort</button>
+            </span>
+
+        </div>
+    </div>
+</div>
