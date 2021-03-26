@@ -57,6 +57,9 @@ export class UpdateModalComponent implements AfterViewInit {
   update(f: NgForm): void {
     if (f.valid) {
       if (this.currentQrCode?.redirections && this.currentQrCode.redirections.length > 0) {
+        if (!this.currentRedirection?.startsWith('http')) {
+          this.currentRedirection = 'https://' + this.currentRedirection;
+        }
         this.currentQrCode.redirections[0].url = this.currentRedirection;
         this.redirectionService.update(this.currentQrCode.redirections[0]).subscribe(() => {
           this.creationError = false;
