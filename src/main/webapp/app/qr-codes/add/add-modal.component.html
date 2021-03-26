@@ -18,8 +18,13 @@
             <form class="form" role="form" (ngSubmit)="add()" [formGroup]="loginForm">
                 <div class="form-group">
                     <label class="code-label" for="code" jhiTranslate="fluidQrServerApp.qrCode.code">Code</label>
-                    <input type="text" class="form-control" name="code" id="code"
-                           formControlName="code" #code>
+                    <div class="input-group">
+                        <h4 class="mr-2">
+                            {{ account?.login }}-
+                        </h4>
+                        <input type="text" class="form-control" name="code" id="code"
+                               formControlName="code" #code>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary" jhiTranslate="qr-codes.add">Add</button>
