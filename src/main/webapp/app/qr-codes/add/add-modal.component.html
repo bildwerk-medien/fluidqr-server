@@ -15,19 +15,33 @@
         </div>
 
         <div class="col-md-8">
-            <form class="form" role="form" (ngSubmit)="add()" [formGroup]="loginForm">
+<!--            <form class="form" role="form" (ngSubmit)="add()" [formGroup]="loginForm">-->
+<!--                <div class="form-group">-->
+<!--                    <label class="code-label" for="code" jhiTranslate="fluidQrServerApp.qrCode.code">Code</label>-->
+<!--                    <div class="input-group">-->
+<!--                        <h4 class="mr-2">-->
+<!--                            {{ account?.login }}- -->
+<!--                        </h4>-->
+<!--                        <input type="text" class="form-control" name="code" id="code"-->
+<!--                               formControlName="code" #code>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                <button type="submit" class="btn btn-primary" jhiTranslate="qr-codes.add">Add</button>-->
+<!--            </form>-->
+            <form class="form" #f="ngForm" (ngSubmit)="submit(f)">
                 <div class="form-group">
-                    <label class="code-label" for="code" jhiTranslate="fluidQrServerApp.qrCode.code">Code</label>
+                    <label class="code-label" for="code-input" jhiTranslate="fluidQrServerApp.qrCode.code">Code</label>
                     <div class="input-group">
                         <h4 class="mr-2">
                             {{ account?.login }}-
                         </h4>
-                        <input type="text" class="form-control" name="code" id="code"
-                               formControlName="code" #code>
+                        <input type="text" class="form-control" name="code-input" id="code-input" [(ngModel)]="code">
                     </div>
+                    <label class="redirection-input-label mt-3" for="redirection-input" jhiTranslate="qr-codes.redirection">Redirection</label>
+                    <input type="text" class="form-control" name="redirection-input" id="redirection-input" required [(ngModel)]="currentRedirection" [pattern]="urlPattern">
                 </div>
-
-                <button type="submit" class="btn btn-primary" jhiTranslate="qr-codes.add">Add</button>
+                <button type="submit" class="btn btn-primary mt-4" jhiTranslate="qr-codes.add">Add</button>
             </form>
 
         </div>

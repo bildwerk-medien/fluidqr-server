@@ -2,6 +2,7 @@
   "qr-codes": {
     "title": "Qr Codes",
     "publicUrl": "Public URL",
+    "redirection": "Redirection",
     "currentRedirection": "Current Redirection",
     "newRedirection": "New Redirection",
     "enable": "Enable",

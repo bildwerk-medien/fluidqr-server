@@ -1,26 +1,30 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import { FormBuilder, NgForm } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Router } from '@angular/router';
 import { QrCodeService } from 'app/entities/qr-code/qr-code.service';
 import { RedirectionService } from 'app/entities/redirection/redirection.service';
 import { Account } from 'app/core/user/account.model';
 import { AccountService } from 'app/core/auth/account.service';
+import { CommonModal } from 'app/core/common-modal.interface';
+import { URL_PATTERN } from 'app/app.constants';
+import { UrlUtil } from 'app/shared/util/url-util';
 
 @Component({
   selector: 'jhi-login-modal',
   templateUrl: './add-modal.component.html',
 })
-export class AddModalComponent implements AfterViewInit, OnInit {
-  @ViewChild('code', { static: false })
-  code?: ElementRef;
+export class AddModalComponent implements OnInit, AfterViewInit, CommonModal {
+  urlPattern = URL_PATTERN;
+
+  @ViewChild('code-input', { static: false })
+  codeInput?: ElementRef;
 
   account: Account | null = null;
   creationError = false;
 
-  loginForm = this.fb.group({
-    code: [''],
-  });
+  currentRedirection: string | undefined;
+  code: string | undefined;
 
   constructor(
     private accountService: AccountService,
@@ -28,48 +32,49 @@ export class AddModalComponent implements AfterViewInit, OnInit {
     private redirectionService: RedirectionService,
     private router: Router,
     public activeModal: NgbActiveModal,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private urlUtil: UrlUtil
   ) {}
 
   ngAfterViewInit(): void {
-    if (this.code) {
-      this.code.nativeElement.focus();
+    if (this.codeInput) {
+      this.codeInput.nativeElement.focus();
     }
   }
 
   cancel(): void {
     this.creationError = false;
-    this.loginForm.patchValue({
-      username: '',
-      password: '',
-    });
     this.activeModal.dismiss('cancel');
   }
 
-  add(): void {
-    this.qrCodeService
-      .create({
-        code: this.account?.login + '-' + this.loginForm.get('code')!.value,
-      })
-      .subscribe(
-        res => {
-          if (res.body) {
-            this.redirectionService
-              .create({
-                url: 'https://bildwerk-medien.de',
-                enabled: true,
-                qrCode: {
-                  id: res.body.id,
-                },
-              })
-              .subscribe(() => {
-                this.creationError = false;
-                this.activeModal.close();
-              });
-          }
-        },
-        () => (this.creationError = true)
-      );
+  submit(f: NgForm): void {
+    if (f.valid && this.code) {
+      this.qrCodeService
+        .create({
+          code: this.account?.login + '-' + this.code,
+        })
+        .subscribe(
+          res => {
+            if (res.body) {
+              this.redirectionService
+                .create({
+                  url: this.urlUtil.enhanceToHttps(this.currentRedirection),
+                  enabled: true,
+                  qrCode: {
+                    id: res.body.id,
+                  },
+                })
+                .subscribe(() => {
+                  this.creationError = false;
+                  this.activeModal.close();
+                });
+            }
+          },
+          () => (this.creationError = true)
+        );
+    }
+
+    this.creationError = true;
   }
 
   ngOnInit(): void {

@@ -15,7 +15,7 @@
         </div>
 
         <div class="col-md-8">
-            <form class="form" #f="ngForm" (ngSubmit)="update(f)">
+            <form class="form" #f="ngForm" (ngSubmit)="submit(f)">
                 <div class="form-group">
                     <label class="redirection-input-label" for="redirection-input" jhiTranslate="qr-codes.newRedirection">New Redirection</label>
                     <input type="text" class="form-control" name="redirection-input" id="redirection-input" required [(ngModel)]="currentRedirection" [pattern]="urlPattern">

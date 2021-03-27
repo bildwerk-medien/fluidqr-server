@@ -2,6 +2,7 @@
   "qr-codes": {
     "title": "[de] Qr Codes",
     "publicUrl": "Öffentliche URL",
+    "redirection": "Weiterleitung",
     "currentRedirection": "Aktuelle Weiterleitung",
     "newRedirection": "Neue Weiterleitung",
     "enable": "Aktivieren",
