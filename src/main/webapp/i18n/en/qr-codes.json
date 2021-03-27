@@ -15,6 +15,11 @@
     "updateRedirection": "Update Redirection",
     "errors": {
       "couldNotCreate": "Error creating new Qr Code"
+    },
+    "error": {
+      "addQrCode": "<strong>Failed to add new QR code.</strong> Please check your input (unique code & valid URL) and try it again.",
+      "updateRedirection": "<strong>Failed to enable redirection.</strong> Please check your input (valid URL) and try it again.",
+      "deleteQrCode": "<strong>Failed to delete QR code.</strong> Please try again."
     }
   }
 }

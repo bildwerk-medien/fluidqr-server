@@ -15,6 +15,11 @@
     "updateRedirection": "Update Redirection",
     "errors": {
       "couldNotCreate": "Fehler beim Erstellen des Qr Codes"
+    },
+    "error": {
+      "addQrCode": "<strong>QR Code kann nicht hinzugefügt werden.</strong> Überprüfen Sie bitte Ihre Angaben (Eindeutiger Code & Gültige URL) und  versuchen Sie es erneut.",
+      "updateRedirection": "<strong>Weiterleitung kann nicht aktiviert werden.</strong> Überprüfen Sie bitte Ihre Angabe (Gültige URL) und  versuchen Sie es erneut.",
+      "deleteQrCode": "<strong>QR Code kann nicht gelöscht werden.</strong> Bitte versuchen Sie es erneut."
     }
   }
 }
