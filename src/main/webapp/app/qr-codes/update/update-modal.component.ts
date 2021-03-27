@@ -1,7 +1,6 @@
 import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
-import { FormBuilder, NgForm } from '@angular/forms';
+import { NgForm } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Router } from '@angular/router';
 import { IQrCode } from 'app/shared/model/qr-code.model';
 import { RedirectionService } from 'app/entities/redirection/redirection.service';
 import { CommonModal } from 'app/core/common-modal.interface';
