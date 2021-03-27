@@ -1,10 +1,9 @@
 import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
-import { FormBuilder, NgForm } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Router } from '@angular/router';
 import { QrCodeService } from 'app/entities/qr-code/qr-code.service';
 import { IQrCode } from 'app/shared/model/qr-code.model';
-import { RedirectionService } from 'app/entities/redirection/redirection.service';
 
 @Component({
   selector: 'jhi-delete-modal',

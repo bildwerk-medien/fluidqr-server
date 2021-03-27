@@ -1,7 +1,6 @@
 import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import QRCodeStyling from 'qr-code-styling';
 import { IQrCode, QrCode } from 'app/shared/model/qr-code.model';
-import { NgForm } from '@angular/forms';
 import { UpdateModalService } from 'app/qr-codes/update/update-modal.service';
 import { QrCodeService } from 'app/entities/qr-code/qr-code.service';
 import { DeleteModalService } from 'app/qr-codes/delete/delete-modal.service';
