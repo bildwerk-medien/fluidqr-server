@@ -19,4 +19,4 @@ services:
       # - SPRING_CLOUD_CONFIG_SERVER_COMPOSITE_0_URI=https://github.com/jhipster/jhipster-registry/
       # - SPRING_CLOUD_CONFIG_SERVER_COMPOSITE_0_SEARCH_PATHS=central-config
     ports:
-      - 8761:8761
+      - 127.0.0.1:8761:8761
