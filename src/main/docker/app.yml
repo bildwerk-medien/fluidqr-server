@@ -16,6 +16,8 @@ services:
       - LETSENCRYPT_EMAIL=*
       - MAIL_PASSWORD=*
       - JHIPSTER_REGISTRY_PASSWORD=*
+      - DB_USERNAME=fluidqruser
+      - DB_PASSWORD=fluidqruserpw
     ports:
       - 127.0.0.1:8080:8080
   fluidqrserver-mysql:
