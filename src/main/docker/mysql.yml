@@ -5,6 +5,7 @@ services:
     # volumes:
     #     - ~/volumes/jhipster/FluidQrServer/mysql/:/var/lib/mysql/
     environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
       - MYSQL_USER=fluidqruser
       - MYSQL_PASSWORD=fluidqruserpw
       - MYSQL_DATABASE=fluidqrserver
