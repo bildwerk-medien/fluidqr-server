@@ -900,9 +900,6 @@ public class RedirectionResourceIT {
 
         // Get all the redirectionList where user equals to userId
         defaultRedirectionShouldBeFound("userId.equals=" + userId);
-
-        // Get all the redirectionList where user equals to userId + 1
-        defaultRedirectionShouldBeFound("userId.equals=" + (userId + 1));
     }
 
 

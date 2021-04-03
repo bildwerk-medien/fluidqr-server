@@ -7,12 +7,14 @@ import { QR_CODES_ROUTE, QrCodesComponent } from './';
 import { QrCodeDisplayComponent } from 'app/qr-code-display/qr-code-display.component';
 import { AddModalComponent } from 'app/qr-codes/add/add-modal.component';
 import { UpdateModalComponent } from 'app/qr-codes/update/update-modal.component';
+import { DeleteModalComponent } from 'app/qr-codes/delete/delete-modal.component';
+import { UrlUtil } from 'app/shared/util/url-util';
 
 @NgModule({
   imports: [FluidQrServerSharedModule, RouterModule.forRoot([QR_CODES_ROUTE], { useHash: true })],
-  declarations: [QrCodesComponent, QrCodeDisplayComponent, AddModalComponent, UpdateModalComponent],
+  declarations: [QrCodesComponent, QrCodeDisplayComponent, AddModalComponent, UpdateModalComponent, DeleteModalComponent],
   entryComponents: [],
-  providers: [],
+  providers: [UrlUtil],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class FluidQrServerAppQrCodesModule {}

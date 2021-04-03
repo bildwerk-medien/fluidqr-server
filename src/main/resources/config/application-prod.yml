@@ -41,8 +41,8 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:mysql://localhost:3306/FluidQrServer?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
-    username: root
-    password:
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     hikari:
       poolName: Hikari
       auto-commit: false
@@ -57,10 +57,18 @@ spring:
   liquibase:
     contexts: prod
   mail:
-    host: localhost
-    port: 25
-    username:
-    password:
+    host: smtp.strato.de
+    port: 465
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    protocol: smtps
+    tls: true
+    properties.mail.smtp:
+      starttls.enable: true
+      starttls.required: true
+      ssl.enable: true
+    properties.mail.smtps:
+      auth: true
   thymeleaf:
     cache: true
   sleuth:
@@ -125,12 +133,12 @@ jhipster:
         # - In the JHipster Registry (which includes a Spring Cloud Config server)
         # - In a separate `application-prod.yml` file, in the same folder as your executable JAR file
         # - In the `JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET` environment variable
-        base64-secret: ODQ1Yzc0MmYyYzA5YWM3MjlkOTExZTViNTVjMGY1N2I2OWNjOGNkOGJkOTQyYTQyMGNlNzZkN2IxMTM4MzRlYzllZDExNTg1YWVlMmY3MWUxYzUxN2EyZDE5ODA0MTcxYzBkNzA3MGVjMTBhNzNlMzRkZTRlYzE2NjMyNzc3Njg=
+        # base64-secret: ODQ1Yzc0MmYyYzA5YWM3MjlkOTExZTViNTVjMGY1N2I2OWNjOGNkOGJkOTQyYTQyMGNlNzZkN2IxMTM4MzRlYzllZDExNTg1YWVlMmY3MWUxYzUxN2EyZDE5ODA0MTcxYzBkNzA3MGVjMTBhNzNlMzRkZTRlYzE2NjMyNzc3Njg=
         # Token is valid 24 hours
         token-validity-in-seconds: 86400
         token-validity-in-seconds-for-remember-me: 2592000
   mail: # specific JHipster mail property, for standard properties see MailProperties
-    base-url: http://my-server-url-to-change # Modify according to your server's URL
+    base-url: https://qr.7lofficial.de # Modify according to your server's URL
   metrics:
     logs: # Reports metrics in the logs
       enabled: false

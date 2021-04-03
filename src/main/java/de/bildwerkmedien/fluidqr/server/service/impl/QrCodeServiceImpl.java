@@ -3,10 +3,9 @@ package de.bildwerkmedien.fluidqr.server.service.impl;
 import de.bildwerkmedien.fluidqr.server.domain.QrCode;
 import de.bildwerkmedien.fluidqr.server.domain.Redirection;
 import de.bildwerkmedien.fluidqr.server.repository.QrCodeRepository;
-import de.bildwerkmedien.fluidqr.server.service.QrCodeService;
-import de.bildwerkmedien.fluidqr.server.service.UserNotAuthenticatedException;
-import de.bildwerkmedien.fluidqr.server.service.UserNotAuthorizedException;
-import de.bildwerkmedien.fluidqr.server.service.UserService;
+import de.bildwerkmedien.fluidqr.server.security.AuthoritiesConstants;
+import de.bildwerkmedien.fluidqr.server.security.SecurityUtils;
+import de.bildwerkmedien.fluidqr.server.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -25,11 +24,13 @@ public class QrCodeServiceImpl implements QrCodeService {
 
     private final QrCodeRepository qrCodeRepository;
     private final UserService userService;
+    private final RedirectionService redirectionService;
 
 
-    public QrCodeServiceImpl(QrCodeRepository qrCodeRepository, UserService userService) {
+    public QrCodeServiceImpl(QrCodeRepository qrCodeRepository, UserService userService, RedirectionService redirectionService) {
         this.qrCodeRepository = qrCodeRepository;
         this.userService = userService;
+        this.redirectionService = redirectionService;
     }
 
     @Override
@@ -41,7 +42,9 @@ public class QrCodeServiceImpl implements QrCodeService {
         if(!userService.getUserWithAuthorities().isPresent()){
             throw new UserNotAuthenticatedException();
         }
-        userService.getUserWithAuthorities().ifPresent(qrCode::setUser);
+        if(!SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)){
+            userService.getUserWithAuthorities().ifPresent(qrCode::setUser);
+        }
         QrCode savedQrCode = qrCodeRepository.save(qrCode);
         savedQrCode.setLink("http://localhost:8080/redirect/" + savedQrCode.getCode());
         savedQrCode.setCurrentRedirect(savedQrCode.getRedirections().stream().filter(Redirection::isEnabled).findFirst().orElse(new Redirection()).getUrl());
@@ -59,7 +62,11 @@ public class QrCodeServiceImpl implements QrCodeService {
             qr.setLink("http://localhost:8080/redirect/" + qr.getCode());
         });
 
-        if(qrCode.isPresent() && qrCode.get().getUser().equals(userService.getUserWithAuthorities().orElse(null))) {
+        if(SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)){
+            return qrCode;
+        }
+
+        if(qrCode.isPresent() && qrCode.get().getUser() != null && qrCode.get().getUser().equals(userService.getUserWithAuthorities().orElse(null))) {
             return qrCode;
         }
         return Optional.empty();
@@ -68,9 +75,11 @@ public class QrCodeServiceImpl implements QrCodeService {
     @Override
     public void delete(Long id) {
         log.debug("Request to delete QrCode : {}", id);
-        if(findOne(id).isPresent()){
-            qrCodeRepository.deleteById(id);
-        }
+
+       findOne(id).ifPresent(qrCode -> {
+           qrCode.getRedirections().forEach(redirection -> redirectionService.delete(redirection.getId()));
+           qrCodeRepository.deleteById(qrCode.getId());
+       });
     }
 
     public void findCurrentRedirect(QrCode qrCode) {

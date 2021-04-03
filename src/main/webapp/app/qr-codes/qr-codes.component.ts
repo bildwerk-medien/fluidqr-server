@@ -38,7 +38,7 @@ export class QrCodesComponent implements OnInit {
     });
   }
 
-  deleteQrCode(qrCodeId: number): void {
-    this.qrCodeService.delete(qrCodeId).subscribe(() => this.readQrCodes());
+  deleteQrCode(): void {
+    this.readQrCodes();
   }
 }

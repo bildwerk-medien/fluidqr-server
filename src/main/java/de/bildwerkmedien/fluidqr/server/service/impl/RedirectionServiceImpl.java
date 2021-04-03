@@ -1,5 +1,7 @@
 package de.bildwerkmedien.fluidqr.server.service.impl;
 
+import de.bildwerkmedien.fluidqr.server.security.AuthoritiesConstants;
+import de.bildwerkmedien.fluidqr.server.security.SecurityUtils;
 import de.bildwerkmedien.fluidqr.server.service.RedirectionService;
 import de.bildwerkmedien.fluidqr.server.domain.Redirection;
 import de.bildwerkmedien.fluidqr.server.repository.RedirectionRepository;
@@ -42,6 +44,10 @@ public class RedirectionServiceImpl implements RedirectionService {
         if(!userService.getUserWithAuthorities().isPresent()){
             throw new UserNotAuthenticatedException();
         }
+
+        if(!SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)){
+            userService.getUserWithAuthorities().ifPresent(redirection::setUser);
+        }
         return redirectionRepository.save(redirection);
     }
 
@@ -52,7 +58,11 @@ public class RedirectionServiceImpl implements RedirectionService {
         log.debug("Request to get Redirection : {}", id);
         Optional<Redirection> redirection =  redirectionRepository.findById(id);
 
-        if(redirection.isPresent() && redirection.get().getUser().equals(userService.getUserWithAuthorities().orElse(null))) {
+        if(SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)){
+            return redirection;
+        }
+
+        if(redirection.isPresent() && redirection.get().getUser() != null && redirection.get().getUser().equals(userService.getUserWithAuthorities().orElse(null))) {
             return redirection;
         }
         return Optional.empty();

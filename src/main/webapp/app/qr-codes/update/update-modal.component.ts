@@ -1,46 +1,56 @@
 import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
-import { FormBuilder, NgForm } from '@angular/forms';
+import { NgForm } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Router } from '@angular/router';
-import { QrCodeService } from 'app/entities/qr-code/qr-code.service';
+import { IQrCode } from 'app/shared/model/qr-code.model';
+import { RedirectionService } from 'app/entities/redirection/redirection.service';
+import { CommonModal } from 'app/core/common-modal.interface';
+import { UrlUtil } from 'app/shared/util/url-util';
+import { URL_PATTERN } from 'app/app.constants';
 
 @Component({
   selector: 'jhi-login-modal',
   templateUrl: './update-modal.component.html',
 })
-export class UpdateModalComponent implements AfterViewInit {
-  urlPattern = '(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?';
+export class UpdateModalComponent implements AfterViewInit, CommonModal {
+  urlPattern = URL_PATTERN;
 
-  @ViewChild('code', { static: false })
-  code?: ElementRef;
+  @ViewChild('redirection-input', { static: false })
+  redirectionInput?: ElementRef;
 
   @Input()
-  currentRedirect?: string;
+  currentQrCode: IQrCode | undefined;
+
+  currentRedirection: string | undefined;
 
   creationError = false;
 
-  loginForm = this.fb.group({
-    code: [''],
-  });
-
-  constructor(private qrCodeService: QrCodeService, private router: Router, public activeModal: NgbActiveModal, private fb: FormBuilder) {}
+  constructor(private redirectionService: RedirectionService, public activeModal: NgbActiveModal, public urlUtil: UrlUtil) {
+    this.currentRedirection = '';
+  }
 
   ngAfterViewInit(): void {
-    if (this.code) {
-      this.code.nativeElement.focus();
+    if (this.redirectionInput) {
+      this.redirectionInput.nativeElement.focus();
     }
   }
 
   cancel(): void {
     this.creationError = false;
-    this.loginForm.patchValue({
-      username: '',
-      password: '',
-    });
     this.activeModal.dismiss('cancel');
   }
 
-  update(f: NgForm): void {
-    this.creationError = false;
+  submit(f: NgForm): void {
+    if (f.valid) {
+      if (this.currentQrCode?.redirections && this.currentQrCode.redirections.length > 0) {
+        this.currentRedirection = this.urlUtil.enhanceToHttps(this.currentRedirection);
+        this.currentQrCode.redirections[0].url = this.currentRedirection;
+        this.redirectionService.update(this.currentQrCode.redirections[0]).subscribe(() => {
+          this.creationError = false;
+          this.activeModal.close();
+        });
+      }
+      return;
+    }
+    this.creationError = true;
   }
 }

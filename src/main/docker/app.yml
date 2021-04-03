@@ -8,10 +8,18 @@ services:
       - MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED=true
       - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/eureka
       - SPRING_CLOUD_CONFIG_URI=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/config
-      - SPRING_DATASOURCE_URL=jdbc:mysql://fluidqrserver-mysql:3306/fluidqrserver?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_URL=jdbc:mysql://fluidqrserver-mysql:3306/fluidqrserver?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
       - JHIPSTER_SLEEP=30 # gives time for other services to boot before the application
+      - VIRTUAL_HOST=qr.7lofficial.de
+      - VIRTUAL_PORT=8080
+      - LETSENCRYPT_HOST=qr.7lofficial.de
+      - LETSENCRYPT_EMAIL=*
+      - MAIL_PASSWORD=*
+      - JHIPSTER_REGISTRY_PASSWORD=*
+      - DB_USERNAME=fluidqruser
+      - DB_PASSWORD=fluidqruserpw
     ports:
-      - 8080:8080
+      - 127.0.0.1:8080:8080
   fluidqrserver-mysql:
     extends:
       file: mysql.yml
@@ -21,5 +29,17 @@ services:
       file: jhipster-registry.yml
       service: jhipster-registry
     environment:
-      - SPRING_CLOUD_CONFIG_SERVER_COMPOSITE_0_TYPE=native
-      - SPRING_CLOUD_CONFIG_SERVER_COMPOSITE_0_SEARCH_LOCATIONS=file:./central-config/docker-config/
+      - SPRING_CLOUD_CONFIG_SERVER_COMPOSITE_0_TYPE=git
+      - SPRING_CLOUD_CONFIG_SERVER_COMPOSITE_0_URI=https://github.com/svenleonhard/server-config-public/
+      - SPRING_CLOUD_CONFIG_SERVER_COMPOSITE_0_SEARCH_PATHS=central-config
+      - SPRING_SECURITY_USER_PASSWORD=*
+      - JHIPSTER_REGISTRY_PASSWORD=*
+      - ENCRYPT_KEY=*
+      - VIRTUAL_HOST=*
+      - VIRTUAL_PORT=*
+      - LETSENCRYPT_HOST=*
+      - LETSENCRYPT_EMAIL=*
+
+networks:
+  nginx-proxy_default:
+    external: true

@@ -1,6 +1,6 @@
 {
   "global": {
-    "title": "FluidQrServer",
+    "title": "<strong>FLUID QR</strong>",
     "browsehappy": "Sie benutzen einen <strong>veralteten</strong> Browser. Bitte <a href=\"http://browsehappy.com/?locale=de/\">aktualisieren Sie Ihren Browser</a>, um die Benutzerfreundlichkeit zu erhöhen.",
     "menu": {
       "home": "Startseite",
@@ -138,5 +138,10 @@
       "not.image": "File was expected to be an image but was found to be \"{{ fileType }}\""
     }
   },
-  "footer": "Dies ist Ihre Fußzeile"
+  "footer": {
+    "donationText": "Diese Plattform lebt von Deiner Unterstützung!",
+    "donateNow": "Jetzt Spenden",
+    "dataPrivacy": "Datenschutz",
+    "imprint": "Impressum"
+  }
 }
