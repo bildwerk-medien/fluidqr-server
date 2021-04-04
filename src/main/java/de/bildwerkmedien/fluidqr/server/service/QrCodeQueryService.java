@@ -37,10 +37,12 @@ public class QrCodeQueryService extends QueryService<QrCode> {
 
     private final QrCodeRepository qrCodeRepository;
     private final UserService userService;
+    private final QrCodeService qrCodeService;
 
-    public QrCodeQueryService(QrCodeRepository qrCodeRepository, UserService userService) {
+    public QrCodeQueryService(QrCodeRepository qrCodeRepository, UserService userService, QrCodeService qrCodeService) {
         this.qrCodeRepository = qrCodeRepository;
         this.userService = userService;
+        this.qrCodeService = qrCodeService;
     }
 
     /**
@@ -56,7 +58,7 @@ public class QrCodeQueryService extends QueryService<QrCode> {
         List<QrCode> qrCodePage = qrCodeRepository.findAll(specification);
         qrCodePage.forEach(qrCode -> {
             findCurrentRedirect(qrCode);
-            qrCode.setLink("http://localhost:8080/redirect/" + qrCode.getCode());
+            qrCode.setLink(qrCodeService.getBaseUrl() + qrCode.getCode());
         });
         return qrCodePage;
     }
@@ -74,7 +76,7 @@ public class QrCodeQueryService extends QueryService<QrCode> {
         if(qrCodePage.size() == 1){
             QrCode qrCode = qrCodePage.get(0);
             findCurrentRedirect(qrCode);
-            qrCode.setLink("http://localhost:8080/redirect/" + qrCodePage.get(0).getCode());
+            qrCode.setLink(qrCodeService.getBaseUrl() + qrCodePage.get(0).getCode());
             return qrCode;
         }
 
@@ -95,7 +97,7 @@ public class QrCodeQueryService extends QueryService<QrCode> {
         Page<QrCode> qrCodePage = qrCodeRepository.findAll(specification, page);
         qrCodePage.get().forEach(qrCode -> {
             findCurrentRedirect(qrCode);
-            qrCode.setLink("http://localhost:8080/redirect/" + qrCode.getCode());
+            qrCode.setLink(qrCodeService.getBaseUrl() + qrCode.getCode());
         });
         return qrCodePage;
     }

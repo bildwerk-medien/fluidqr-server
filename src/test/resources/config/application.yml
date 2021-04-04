@@ -121,4 +121,7 @@ jhipster:
 # https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
-# application:
+application:
+  url:
+    base: 'localhost:8080'
+    protocol: 'http://'
