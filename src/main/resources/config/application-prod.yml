@@ -162,4 +162,7 @@ jhipster:
 # https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
-# application:
+application:
+  url:
+    base: ${VIRTUAL_HOST}
+    protocol: 'https://'
