@@ -14,6 +14,7 @@ services:
       - JHIPSTER_REGISTRY_PASSWORD=admin
       - DB_USERNAME=fluidqruser
       - DB_PASSWORD=fluidqruserpw
+      - VIRTUAL_HOST=test
     ports:
       - 127.0.0.1:8080:8080
   fluidqrserver-mysql:
@@ -30,6 +31,7 @@ services:
       - SPRING_CLOUD_CONFIG_SERVER_COMPOSITE_0_SEARCH_PATHS=central-config
       - SPRING_SECURITY_USER_PASSWORD=admin
       - JHIPSTER_REGISTRY_PASSWORD=admin
+      - ENCRYPT_KEY=fluidqr
 networks:
   nginx-proxy_default:
     external: true
