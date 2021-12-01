@@ -1,0 +1,5 @@
+http:
+  routers:
+    fluidqrserver-docker-localhost:
+      rule: Host(`fluidqrserver.docker.localhost`)
+      service: fluidqrserver@file

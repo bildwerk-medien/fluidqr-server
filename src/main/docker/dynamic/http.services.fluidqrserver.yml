@@ -1,0 +1,6 @@
+http:
+  services:
+    fluidqrserver:
+      loadBalancer:
+        servers:
+          - url: 'http://fluidqrserver-app:8080'

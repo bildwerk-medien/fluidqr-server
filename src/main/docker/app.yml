@@ -30,6 +30,16 @@ services:
       - SPRING_SECURITY_USER_PASSWORD=admin
       - JHIPSTER_REGISTRY_PASSWORD=admin
       - ENCRYPT_KEY=fluidqr
+  traefik:
+    image: traefik:v2.4
+    ports:
+      - 80:80
+      - 443:443
+      - 8081:8080
+    volumes:
+      - ./traefik.yml:/etc/traefik/traefik.yml
+      - ./dynamic:/etc/traefik/dynamic:ro
+
 networks:
   nginx-proxy_default:
     external: true
