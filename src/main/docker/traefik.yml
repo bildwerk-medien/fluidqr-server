@@ -11,7 +11,16 @@ providers:
 
 api:
   dashboard: true
-  insecure: true
+#  insecure: true
 
 log:
   level: DEBUG
+
+certificatesResolvers:
+  myresolver:
+    acme:
+      email: server-administration@7lofficial.de
+      storage: acme.json
+      httpChallenge:
+        # used during the challenge
+        entryPoint: web

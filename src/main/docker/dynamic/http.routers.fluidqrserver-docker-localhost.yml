@@ -1,5 +1,7 @@
 http:
   routers:
-    fluidqrserver-docker-localhost:
-      rule: Host(`fluidqrserver.docker.localhost`)
+    fluidqr:
+      rule: Host(`fluidqr.7lofficial.de`)
       service: fluidqrserver@file
+      tls:
+        certResolver: myresolver
