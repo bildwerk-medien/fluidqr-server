@@ -10,4 +10,38 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @ConfigurationProperties(prefix = "application", ignoreUnknownFields = false)
 public class ApplicationProperties {
+
+    private final ApplicationProperties.Url url = new ApplicationProperties.Url();
+
+    public ApplicationProperties() {
+    }
+
+    public ApplicationProperties.Url getUrl(){
+        return this.url;
+    }
+
+    public static class Url {
+
+        private String base="localhost:8080";
+        private String protocol="http://";
+
+        public Url() {
+        }
+
+        public String getBase() {
+            return base;
+        }
+
+        public void setBase(String base) {
+            this.base = base;
+        }
+
+        public String getProtocol() {
+            return protocol;
+        }
+
+        public void setProtocol(String protocol) {
+            this.protocol = protocol;
+        }
+    }
 }

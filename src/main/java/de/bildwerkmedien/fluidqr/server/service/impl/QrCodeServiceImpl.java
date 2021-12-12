@@ -8,6 +8,7 @@ import de.bildwerkmedien.fluidqr.server.security.SecurityUtils;
 import de.bildwerkmedien.fluidqr.server.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,11 @@ public class QrCodeServiceImpl implements QrCodeService {
     private final UserService userService;
     private final RedirectionService redirectionService;
 
+    @Value("${application.url.base}")
+    private String baseUrl;
+
+    @Value("${application.url.protocol}")
+    private String protocol;
 
     public QrCodeServiceImpl(QrCodeRepository qrCodeRepository, UserService userService, RedirectionService redirectionService) {
         this.qrCodeRepository = qrCodeRepository;
@@ -46,7 +52,7 @@ public class QrCodeServiceImpl implements QrCodeService {
             userService.getUserWithAuthorities().ifPresent(qrCode::setUser);
         }
         QrCode savedQrCode = qrCodeRepository.save(qrCode);
-        savedQrCode.setLink("http://localhost:8080/redirect/" + savedQrCode.getCode());
+        savedQrCode.setLink(getBaseUrl() + savedQrCode.getCode());
         savedQrCode.setCurrentRedirect(savedQrCode.getRedirections().stream().filter(Redirection::isEnabled).findFirst().orElse(new Redirection()).getUrl());
         return savedQrCode;
     }
@@ -59,7 +65,7 @@ public class QrCodeServiceImpl implements QrCodeService {
         Optional<QrCode> qrCode = qrCodeRepository.findById(id);
         qrCode.ifPresent(qr -> {
             findCurrentRedirect(qr);
-            qr.setLink("http://localhost:8080/redirect/" + qr.getCode());
+            qr.setLink(getBaseUrl() + qr.getCode());
         });
 
         if(SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)){
@@ -84,5 +90,9 @@ public class QrCodeServiceImpl implements QrCodeService {
 
     public void findCurrentRedirect(QrCode qrCode) {
         qrCode.setCurrentRedirect(qrCode.getRedirections().stream().filter(Redirection::isEnabled).findFirst().orElse(new Redirection()).getUrl());
+    }
+
+    public String getBaseUrl(){
+        return this.protocol + this.baseUrl + "/redirect/";
     }
 }
