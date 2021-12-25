@@ -75,7 +75,7 @@ public class RedirectIT {
         qrCodeRepository.saveAndFlush(qrCode);
 
         //Get redirect
-        restQrCodeMockMvc.perform(get("/redirect/{code}", DEFAULT_CODE))
+        restQrCodeMockMvc.perform(get("/go/{code}", DEFAULT_CODE))
             .andExpect(status().isTemporaryRedirect())
             .andExpect(header().string("Location", DEFAULT_URL))
             .andExpect(header().string("Cache-Control", "no-store"));
@@ -94,7 +94,7 @@ public class RedirectIT {
         qrCodeRepository.saveAndFlush(qrCode);
 
         //Get redirect
-        restQrCodeMockMvc.perform(get("/redirect/{code}", UPDATED_CODE))
+        restQrCodeMockMvc.perform(get("/go/{code}", UPDATED_CODE))
             .andExpect(status().isNotFound());
     }
 }

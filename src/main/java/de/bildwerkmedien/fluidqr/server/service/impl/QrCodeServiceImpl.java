@@ -93,6 +93,6 @@ public class QrCodeServiceImpl implements QrCodeService {
     }
 
     public String getBaseUrl(){
-        return this.protocol + this.baseUrl + "/redirect/";
+        return this.protocol + this.baseUrl + "/go/";
     }
 }
