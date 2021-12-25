@@ -73,8 +73,6 @@ export class AddModalComponent implements OnInit, AfterViewInit, CommonModal {
           () => (this.creationError = true)
         );
     }
-
-    this.creationError = true;
   }
 
   ngOnInit(): void {
