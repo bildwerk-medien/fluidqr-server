@@ -1,8 +1,7 @@
 {
   "home": {
-    "brand": "Fluid QR by [bild:werk] medien",
-    "title": "Welcome to Fluid QR by [bild:werk] medien!",
-    "subtitle": "A tool for creating dynamic links and QR codes.",
+    "title": "Welcome, Java Hipster!",
+    "subtitle": "This is your homepage",
     "logged": {
       "message": "You are logged in as user \"{{username}}\"."
     },

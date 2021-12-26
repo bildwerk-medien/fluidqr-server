@@ -4,10 +4,7 @@
     {
       "fieldName": "code",
       "fieldType": "String",
-      "fieldValidateRules": [
-        "required",
-        "unique"
-      ]
+      "fieldValidateRules": ["required", "unique"]
     }
   ],
   "relationships": [

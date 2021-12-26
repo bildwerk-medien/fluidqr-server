@@ -1,10 +1,9 @@
 {
   "global": {
-    "title": "<strong>FLUID QR by</strong>",
+    "title": "FluidQrServer",
     "browsehappy": "You are using an <strong>outdated</strong> browser. Please <a href=\"http://browsehappy.com/?locale=en\">upgrade your browser</a> to improve your experience.",
     "menu": {
       "home": "Home",
-      "qr-codes": "Qr Codes",
       "jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
       "entities": {
         "main": "Entities",
@@ -29,7 +28,6 @@
         "health": "Health",
         "configuration": "Configuration",
         "logs": "Logs",
-        "audits": "Audits",
         "apidocs": "API",
         "database": "Database",
         "jhipster-needle-menu-add-admin-element": "JHipster will add additional menu entries here (do not translate!)"
@@ -134,15 +132,12 @@
     "emailexists": "Email is already in use!",
     "idexists": "A new {{ entityName }} cannot already have an ID",
     "idnull": "Invalid ID",
+    "idinvalid": "Invalid ID",
+    "idnotfound": "ID cannot be found",
     "file": {
       "could.not.extract": "Could not extract file",
       "not.image": "File was expected to be an image but was found to be \"{{ fileType }}\""
     }
   },
-  "footer": {
-    "donationText": "This platform is based on your support!",
-    "donateNow": "Donate Now",
-    "dataPrivacy": "Data Privacy",
-    "imprint": "Imprint"
-  }
+  "footer": "This is your footer"
 }

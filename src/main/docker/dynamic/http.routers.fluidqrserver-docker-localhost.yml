@@ -1,7 +1,0 @@
-http:
-  routers:
-    fluidqr:
-      rule: Host(`fluidqr.7lofficial.de`)
-      service: fluidqrserver@file
-      tls:
-        certResolver: myresolver

@@ -1,13 +1,14 @@
 package de.bildwerkmedien.fluidqr.server.domain;
 
-import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
-import de.bildwerkmedien.fluidqr.server.web.rest.TestUtil;
 
-public class RedirectionTest {
+import de.bildwerkmedien.fluidqr.server.web.rest.TestUtil;
+import org.junit.jupiter.api.Test;
+
+class RedirectionTest {
 
     @Test
-    public void equalsVerifier() throws Exception {
+    void equalsVerifier() throws Exception {
         TestUtil.equalsVerifier(Redirection.class);
         Redirection redirection1 = new Redirection();
         redirection1.setId(1L);

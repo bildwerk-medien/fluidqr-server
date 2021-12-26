@@ -3,6 +3,7 @@
     "redirection": {
       "home": {
         "title": "Redirections",
+        "refreshListLabel": "Refresh list",
         "createLabel": "Create a new Redirection",
         "createOrEditLabel": "Create or edit a Redirection",
         "notFound": "No Redirections found"
@@ -16,6 +17,7 @@
       "detail": {
         "title": "Redirection"
       },
+      "id": "ID",
       "description": "Description",
       "code": "Code",
       "url": "Url",

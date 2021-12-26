@@ -4,7 +4,7 @@
       "packageName": "de.bildwerkmedien.fluidqr.server",
       "nativeLanguage": "en"
     },
-    "jhipsterVersion": "6.10.3",
+    "jhipsterVersion": "7.4.1",
     "applicationType": "monolith",
     "baseName": "FluidQrServer",
     "packageName": "de.bildwerkmedien.fluidqr.server",
@@ -38,6 +38,15 @@
     "enableTranslation": true,
     "nativeLanguage": "en",
     "languages": ["en", "de"],
-    "blueprints": []
+    "blueprints": [],
+    "skipUserManagement": false,
+    "withAdminUi": true,
+    "skipCheckLengthOfIdentifier": false,
+    "skipFakeData": false,
+    "pages": [],
+    "reactive": false,
+    "enableGradleEnterprise": false,
+    "devServerPort": 4200,
+    "entities": ["Redirection", "QrCode"]
   }
 }

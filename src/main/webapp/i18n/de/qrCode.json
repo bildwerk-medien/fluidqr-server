@@ -3,9 +3,10 @@
     "qrCode": {
       "home": {
         "title": "Qr Codes",
+        "refreshListLabel": "Liste aktualisieren",
         "createLabel": "Qr Code erstellen",
         "createOrEditLabel": "Qr Code erstellen oder bearbeiten",
-        "notFound": "No Qr Codes found"
+        "notFound": "Keine Qr Codes gefunden"
       },
       "created": "Qr Code erstellt mit ID {{ param }}",
       "updated": "Qr Code aktualisiert mit ID {{ param }}",
@@ -16,6 +17,7 @@
       "detail": {
         "title": "Qr Code"
       },
+      "id": "ID",
       "code": "Code",
       "redirection": "Redirection",
       "user": "User"
