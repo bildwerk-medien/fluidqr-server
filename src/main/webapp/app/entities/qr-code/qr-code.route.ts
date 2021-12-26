@@ -40,7 +40,7 @@ export const qrCodeRoute: Routes = [
     component: QrCodeComponent,
     data: {
       authorities: [Authority.USER],
-      pageTitle: 'fluidQrServerApp.qrCode.home.title',
+      pageTitle: 'fluidQrServerApp.qrCode.home.brand',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -52,7 +52,7 @@ export const qrCodeRoute: Routes = [
     },
     data: {
       authorities: [Authority.USER],
-      pageTitle: 'fluidQrServerApp.qrCode.home.title',
+      pageTitle: 'fluidQrServerApp.qrCode.home.brand',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -64,7 +64,7 @@ export const qrCodeRoute: Routes = [
     },
     data: {
       authorities: [Authority.USER],
-      pageTitle: 'fluidQrServerApp.qrCode.home.title',
+      pageTitle: 'fluidQrServerApp.qrCode.home.brand',
     },
     canActivate: [UserRouteAccessService],
   },
@@ -76,7 +76,7 @@ export const qrCodeRoute: Routes = [
     },
     data: {
       authorities: [Authority.USER],
-      pageTitle: 'fluidQrServerApp.qrCode.home.title',
+      pageTitle: 'fluidQrServerApp.qrCode.home.brand',
     },
     canActivate: [UserRouteAccessService],
   },
