@@ -1,13 +1,14 @@
 package de.bildwerkmedien.fluidqr.server.domain;
 
-import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
-import de.bildwerkmedien.fluidqr.server.web.rest.TestUtil;
 
-public class QrCodeTest {
+import de.bildwerkmedien.fluidqr.server.web.rest.TestUtil;
+import org.junit.jupiter.api.Test;
+
+class QrCodeTest {
 
     @Test
-    public void equalsVerifier() throws Exception {
+    void equalsVerifier() throws Exception {
         TestUtil.equalsVerifier(QrCode.class);
         QrCode qrCode1 = new QrCode();
         qrCode1.setId(1L);

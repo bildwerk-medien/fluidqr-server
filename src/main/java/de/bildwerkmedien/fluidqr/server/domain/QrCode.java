@@ -1,17 +1,13 @@
 package de.bildwerkmedien.fluidqr.server.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.*;
+import javax.validation.constraints.*;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * A QrCode.
@@ -25,6 +21,7 @@ public class QrCode implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @NotNull
@@ -33,42 +30,21 @@ public class QrCode implements Serializable {
 
     @OneToMany(mappedBy = "qrCode")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "user", "qrCode" }, allowSetters = true)
     private Set<Redirection> redirections = new HashSet<>();
 
     @ManyToOne
-    @JsonIgnore
-    @JsonIgnoreProperties(value = "qrCodes", allowSetters = true)
     private User user;
 
-    @Transient
-    @JsonSerialize
-    private String link;
-
-    @Transient
-    @JsonSerialize
-    private String currentRedirect;
-
-    @JsonProperty("link")
-    public String getLink() {
-        return link;
-    }
-
-    public void setLink(String link) {
-        this.link = link;
-    }
-
-    @JsonProperty("currentRedirect")
-    public String getCurrentRedirect() {
-        return currentRedirect;
-    }
-
-    public void setCurrentRedirect(String currentRedirect) {
-        this.currentRedirect = currentRedirect;
-    }
-
     // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public QrCode id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
@@ -76,11 +52,11 @@ public class QrCode implements Serializable {
     }
 
     public String getCode() {
-        return code;
+        return this.code;
     }
 
     public QrCode code(String code) {
-        this.code = code;
+        this.setCode(code);
         return this;
     }
 
@@ -89,11 +65,21 @@ public class QrCode implements Serializable {
     }
 
     public Set<Redirection> getRedirections() {
-        return redirections;
+        return this.redirections;
+    }
+
+    public void setRedirections(Set<Redirection> redirections) {
+        if (this.redirections != null) {
+            this.redirections.forEach(i -> i.setQrCode(null));
+        }
+        if (redirections != null) {
+            redirections.forEach(i -> i.setQrCode(this));
+        }
+        this.redirections = redirections;
     }
 
     public QrCode redirections(Set<Redirection> redirections) {
-        this.redirections = redirections;
+        this.setRedirections(redirections);
         return this;
     }
 
@@ -109,22 +95,19 @@ public class QrCode implements Serializable {
         return this;
     }
 
-    public void setRedirections(Set<Redirection> redirections) {
-        this.redirections = redirections;
-    }
-
     public User getUser() {
-        return user;
-    }
-
-    public QrCode user(User user) {
-        this.user = user;
-        return this;
+        return this.user;
     }
 
     public void setUser(User user) {
         this.user = user;
     }
+
+    public QrCode user(User user) {
+        this.setUser(user);
+        return this;
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
@@ -140,7 +123,8 @@ public class QrCode implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31;
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
     // prettier-ignore

@@ -15,8 +15,11 @@
       "refreshScope": "Microservice Refresh Scope",
       "clientConfigServer": "Microservice Config Server",
       "hystrix": "Hystrix",
+      "hazelcast": "Hazelcast",
       "diskSpace": "Disk space",
       "mail": "Email",
+      "livenessState": "Liveness state",
+      "readinessState": "Readiness state",
       "ping": "Application",
       "db": "Database"
     },

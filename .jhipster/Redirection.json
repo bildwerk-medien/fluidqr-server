@@ -1,5 +1,10 @@
 {
-  "name": "Redirection",
+  "applications": "*",
+  "changelogDate": "20210126195343",
+  "clientRootFolder": "",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "redirection",
   "fields": [
     {
       "fieldName": "description",
@@ -12,16 +17,12 @@
     {
       "fieldName": "url",
       "fieldType": "String",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "enabled",
       "fieldType": "Boolean",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "creation",
@@ -36,31 +37,26 @@
       "fieldType": "ZonedDateTime"
     }
   ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": true,
+  "name": "Redirection",
+  "pagination": "infinite-scroll",
+  "readOnly": false,
   "relationships": [
     {
-      "relationshipType": "many-to-one",
+      "otherEntityField": "id",
       "otherEntityName": "user",
       "otherEntityRelationshipName": "redirection",
       "relationshipName": "user",
-      "otherEntityField": "id"
+      "relationshipType": "many-to-one"
     },
     {
-      "relationshipType": "many-to-one",
+      "otherEntityField": "id",
       "otherEntityName": "qrCode",
       "otherEntityRelationshipName": "redirection",
       "relationshipName": "qrCode",
-      "otherEntityField": "id"
+      "relationshipType": "many-to-one"
     }
   ],
-  "changelogDate": "20210126195343",
-  "entityTableName": "redirection",
-  "dto": "no",
-  "pagination": "infinite-scroll",
-  "service": "serviceImpl",
-  "jpaMetamodelFiltering": true,
-  "fluentMethods": true,
-  "readOnly": false,
-  "embedded": false,
-  "clientRootFolder": "",
-  "applications": "*"
+  "service": "serviceImpl"
 }

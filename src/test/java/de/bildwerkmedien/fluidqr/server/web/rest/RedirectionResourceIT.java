@@ -1,44 +1,41 @@
 package de.bildwerkmedien.fluidqr.server.web.rest;
 
-import de.bildwerkmedien.fluidqr.server.FluidQrServerApp;
+import static de.bildwerkmedien.fluidqr.server.web.rest.TestUtil.sameInstant;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import de.bildwerkmedien.fluidqr.server.IntegrationTest;
+import de.bildwerkmedien.fluidqr.server.domain.QrCode;
 import de.bildwerkmedien.fluidqr.server.domain.Redirection;
 import de.bildwerkmedien.fluidqr.server.domain.User;
-import de.bildwerkmedien.fluidqr.server.domain.QrCode;
 import de.bildwerkmedien.fluidqr.server.repository.RedirectionRepository;
-import de.bildwerkmedien.fluidqr.server.repository.UserRepository;
-import de.bildwerkmedien.fluidqr.server.service.RedirectionService;
-import de.bildwerkmedien.fluidqr.server.service.dto.RedirectionCriteria;
-import de.bildwerkmedien.fluidqr.server.service.RedirectionQueryService;
-
+import de.bildwerkmedien.fluidqr.server.service.criteria.RedirectionCriteria;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
+import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-import javax.persistence.EntityManager;
-import java.time.Instant;
-import java.time.ZonedDateTime;
-import java.time.ZoneOffset;
-import java.time.ZoneId;
-import java.util.List;
-
-import static de.bildwerkmedien.fluidqr.server.web.rest.TestUtil.sameInstant;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * Integration tests for the {@link RedirectionResource} REST controller.
  */
-@SpringBootTest(classes = FluidQrServerApp.class)
+@IntegrationTest
 @AutoConfigureMockMvc
 @WithMockUser
-public class RedirectionResourceIT {
+class RedirectionResourceIT {
 
     private static final String DEFAULT_DESCRIPTION = "AAAAAAAAAA";
     private static final String UPDATED_DESCRIPTION = "BBBBBBBBBB";
@@ -64,14 +61,14 @@ public class RedirectionResourceIT {
     private static final ZonedDateTime UPDATED_END_DATE = ZonedDateTime.now(ZoneId.systemDefault()).withNano(0);
     private static final ZonedDateTime SMALLER_END_DATE = ZonedDateTime.ofInstant(Instant.ofEpochMilli(-1L), ZoneOffset.UTC);
 
+    private static final String ENTITY_API_URL = "/api/redirections";
+    private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
+
+    private static Random random = new Random();
+    private static AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
+
     @Autowired
     private RedirectionRepository redirectionRepository;
-
-    @Autowired
-    private RedirectionService redirectionService;
-
-    @Autowired
-    private RedirectionQueryService redirectionQueryService;
 
     @Autowired
     private EntityManager em;
@@ -80,9 +77,6 @@ public class RedirectionResourceIT {
     private MockMvc restRedirectionMockMvc;
 
     private Redirection redirection;
-
-    @Autowired
-    private UserRepository userRepository;
 
     /**
      * Create an entity for this test.
@@ -98,11 +92,10 @@ public class RedirectionResourceIT {
             .enabled(DEFAULT_ENABLED)
             .creation(DEFAULT_CREATION)
             .startDate(DEFAULT_START_DATE)
-            .endDate(DEFAULT_END_DATE)
-            .user(UserResourceIT.create());
-
+            .endDate(DEFAULT_END_DATE);
         return redirection;
     }
+
     /**
      * Create an updated entity for this test.
      *
@@ -128,12 +121,11 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void createRedirection() throws Exception {
+    void createRedirection() throws Exception {
         int databaseSizeBeforeCreate = redirectionRepository.findAll().size();
         // Create the Redirection
-        restRedirectionMockMvc.perform(post("/api/redirections")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(redirection)))
+        restRedirectionMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(redirection)))
             .andExpect(status().isCreated());
 
         // Validate the Redirection in the database
@@ -143,21 +135,23 @@ public class RedirectionResourceIT {
         assertThat(testRedirection.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
         assertThat(testRedirection.getCode()).isEqualTo(DEFAULT_CODE);
         assertThat(testRedirection.getUrl()).isEqualTo(DEFAULT_URL);
-        assertThat(testRedirection.isEnabled()).isEqualTo(DEFAULT_ENABLED);
+        assertThat(testRedirection.getEnabled()).isEqualTo(DEFAULT_ENABLED);
+        assertThat(testRedirection.getCreation()).isEqualTo(DEFAULT_CREATION);
+        assertThat(testRedirection.getStartDate()).isEqualTo(DEFAULT_START_DATE);
+        assertThat(testRedirection.getEndDate()).isEqualTo(DEFAULT_END_DATE);
     }
 
     @Test
     @Transactional
-    public void createRedirectionWithExistingId() throws Exception {
-        int databaseSizeBeforeCreate = redirectionRepository.findAll().size();
-
+    void createRedirectionWithExistingId() throws Exception {
         // Create the Redirection with an existing ID
         redirection.setId(1L);
 
+        int databaseSizeBeforeCreate = redirectionRepository.findAll().size();
+
         // An entity with an existing ID cannot be created, so this API call must fail
-        restRedirectionMockMvc.perform(post("/api/redirections")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(redirection)))
+        restRedirectionMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(redirection)))
             .andExpect(status().isBadRequest());
 
         // Validate the Redirection in the database
@@ -165,20 +159,17 @@ public class RedirectionResourceIT {
         assertThat(redirectionList).hasSize(databaseSizeBeforeCreate);
     }
 
-
     @Test
     @Transactional
-    public void checkUrlIsRequired() throws Exception {
+    void checkUrlIsRequired() throws Exception {
         int databaseSizeBeforeTest = redirectionRepository.findAll().size();
         // set the field null
         redirection.setUrl(null);
 
         // Create the Redirection, which fails.
 
-
-        restRedirectionMockMvc.perform(post("/api/redirections")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(redirection)))
+        restRedirectionMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(redirection)))
             .andExpect(status().isBadRequest());
 
         List<Redirection> redirectionList = redirectionRepository.findAll();
@@ -187,17 +178,15 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void checkEnabledIsRequired() throws Exception {
+    void checkEnabledIsRequired() throws Exception {
         int databaseSizeBeforeTest = redirectionRepository.findAll().size();
         // set the field null
         redirection.setEnabled(null);
 
         // Create the Redirection, which fails.
 
-
-        restRedirectionMockMvc.perform(post("/api/redirections")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(redirection)))
+        restRedirectionMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(redirection)))
             .andExpect(status().isBadRequest());
 
         List<Redirection> redirectionList = redirectionRepository.findAll();
@@ -206,42 +195,49 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirections() throws Exception {
+    void getAllRedirections() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
         // Get all the redirectionList
-        restRedirectionMockMvc.perform(get("/api/redirections?sort=id,desc"))
+        restRedirectionMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(redirection.getId().intValue())))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
             .andExpect(jsonPath("$.[*].code").value(hasItem(DEFAULT_CODE)))
             .andExpect(jsonPath("$.[*].url").value(hasItem(DEFAULT_URL)))
-            .andExpect(jsonPath("$.[*].enabled").value(hasItem(DEFAULT_ENABLED.booleanValue())));
+            .andExpect(jsonPath("$.[*].enabled").value(hasItem(DEFAULT_ENABLED.booleanValue())))
+            .andExpect(jsonPath("$.[*].creation").value(hasItem(sameInstant(DEFAULT_CREATION))))
+            .andExpect(jsonPath("$.[*].startDate").value(hasItem(sameInstant(DEFAULT_START_DATE))))
+            .andExpect(jsonPath("$.[*].endDate").value(hasItem(sameInstant(DEFAULT_END_DATE))));
     }
 
     @Test
     @Transactional
-    public void getRedirection() throws Exception {
+    void getRedirection() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
         // Get the redirection
-        restRedirectionMockMvc.perform(get("/api/redirections/{id}", redirection.getId()))
+        restRedirectionMockMvc
+            .perform(get(ENTITY_API_URL_ID, redirection.getId()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(redirection.getId().intValue()))
             .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
             .andExpect(jsonPath("$.code").value(DEFAULT_CODE))
             .andExpect(jsonPath("$.url").value(DEFAULT_URL))
-            .andExpect(jsonPath("$.enabled").value(DEFAULT_ENABLED.booleanValue()));
+            .andExpect(jsonPath("$.enabled").value(DEFAULT_ENABLED.booleanValue()))
+            .andExpect(jsonPath("$.creation").value(sameInstant(DEFAULT_CREATION)))
+            .andExpect(jsonPath("$.startDate").value(sameInstant(DEFAULT_START_DATE)))
+            .andExpect(jsonPath("$.endDate").value(sameInstant(DEFAULT_END_DATE)));
     }
-
 
     @Test
     @Transactional
-    public void getRedirectionsByIdFiltering() throws Exception {
+    void getRedirectionsByIdFiltering() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -259,37 +255,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getRedirectionByIdForOwnUserOnly() throws Exception {
-        // Initialize the database
-        User user = UserResourceIT.createEntity(em);
-        userRepository.saveAndFlush(user);
-        redirection.setUser(user);
-        redirectionRepository.saveAndFlush(redirection);
-
-        // Get the redirection
-        restRedirectionMockMvc.perform(get("/api/qr-codes/{id}", redirection.getId()))
-            .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @Transactional
-    public void getRedirectionForOwnUserOnly() throws Exception {
-        // Initialize the database
-        User user = UserResourceIT.createEntity(em);
-        userRepository.saveAndFlush(user);
-        redirection.setUser(user);
-        redirectionRepository.saveAndFlush(redirection);
-
-        // Get the redirection
-        restRedirectionMockMvc.perform(get("/api/qr-codes"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", is(empty())));
-    }
-
-
-    @Test
-    @Transactional
-    public void getAllRedirectionsByDescriptionIsEqualToSomething() throws Exception {
+    void getAllRedirectionsByDescriptionIsEqualToSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -302,7 +268,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByDescriptionIsNotEqualToSomething() throws Exception {
+    void getAllRedirectionsByDescriptionIsNotEqualToSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -315,7 +281,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByDescriptionIsInShouldWork() throws Exception {
+    void getAllRedirectionsByDescriptionIsInShouldWork() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -328,7 +294,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByDescriptionIsNullOrNotNull() throws Exception {
+    void getAllRedirectionsByDescriptionIsNullOrNotNull() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -338,9 +304,10 @@ public class RedirectionResourceIT {
         // Get all the redirectionList where description is null
         defaultRedirectionShouldNotBeFound("description.specified=false");
     }
-                @Test
+
+    @Test
     @Transactional
-    public void getAllRedirectionsByDescriptionContainsSomething() throws Exception {
+    void getAllRedirectionsByDescriptionContainsSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -353,7 +320,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByDescriptionNotContainsSomething() throws Exception {
+    void getAllRedirectionsByDescriptionNotContainsSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -364,10 +331,9 @@ public class RedirectionResourceIT {
         defaultRedirectionShouldBeFound("description.doesNotContain=" + UPDATED_DESCRIPTION);
     }
 
-
     @Test
     @Transactional
-    public void getAllRedirectionsByCodeIsEqualToSomething() throws Exception {
+    void getAllRedirectionsByCodeIsEqualToSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -380,7 +346,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByCodeIsNotEqualToSomething() throws Exception {
+    void getAllRedirectionsByCodeIsNotEqualToSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -393,7 +359,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByCodeIsInShouldWork() throws Exception {
+    void getAllRedirectionsByCodeIsInShouldWork() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -406,7 +372,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByCodeIsNullOrNotNull() throws Exception {
+    void getAllRedirectionsByCodeIsNullOrNotNull() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -416,9 +382,10 @@ public class RedirectionResourceIT {
         // Get all the redirectionList where code is null
         defaultRedirectionShouldNotBeFound("code.specified=false");
     }
-                @Test
+
+    @Test
     @Transactional
-    public void getAllRedirectionsByCodeContainsSomething() throws Exception {
+    void getAllRedirectionsByCodeContainsSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -431,7 +398,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByCodeNotContainsSomething() throws Exception {
+    void getAllRedirectionsByCodeNotContainsSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -442,10 +409,9 @@ public class RedirectionResourceIT {
         defaultRedirectionShouldBeFound("code.doesNotContain=" + UPDATED_CODE);
     }
 
-
     @Test
     @Transactional
-    public void getAllRedirectionsByUrlIsEqualToSomething() throws Exception {
+    void getAllRedirectionsByUrlIsEqualToSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -458,7 +424,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByUrlIsNotEqualToSomething() throws Exception {
+    void getAllRedirectionsByUrlIsNotEqualToSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -471,7 +437,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByUrlIsInShouldWork() throws Exception {
+    void getAllRedirectionsByUrlIsInShouldWork() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -484,7 +450,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByUrlIsNullOrNotNull() throws Exception {
+    void getAllRedirectionsByUrlIsNullOrNotNull() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -494,9 +460,10 @@ public class RedirectionResourceIT {
         // Get all the redirectionList where url is null
         defaultRedirectionShouldNotBeFound("url.specified=false");
     }
-                @Test
+
+    @Test
     @Transactional
-    public void getAllRedirectionsByUrlContainsSomething() throws Exception {
+    void getAllRedirectionsByUrlContainsSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -509,7 +476,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByUrlNotContainsSomething() throws Exception {
+    void getAllRedirectionsByUrlNotContainsSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -520,10 +487,9 @@ public class RedirectionResourceIT {
         defaultRedirectionShouldBeFound("url.doesNotContain=" + UPDATED_URL);
     }
 
-
     @Test
     @Transactional
-    public void getAllRedirectionsByEnabledIsEqualToSomething() throws Exception {
+    void getAllRedirectionsByEnabledIsEqualToSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -536,7 +502,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByEnabledIsNotEqualToSomething() throws Exception {
+    void getAllRedirectionsByEnabledIsNotEqualToSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -549,7 +515,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByEnabledIsInShouldWork() throws Exception {
+    void getAllRedirectionsByEnabledIsInShouldWork() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -562,7 +528,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByEnabledIsNullOrNotNull() throws Exception {
+    void getAllRedirectionsByEnabledIsNullOrNotNull() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -575,7 +541,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByCreationIsEqualToSomething() throws Exception {
+    void getAllRedirectionsByCreationIsEqualToSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -588,7 +554,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByCreationIsNotEqualToSomething() throws Exception {
+    void getAllRedirectionsByCreationIsNotEqualToSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -601,7 +567,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByCreationIsInShouldWork() throws Exception {
+    void getAllRedirectionsByCreationIsInShouldWork() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -614,7 +580,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByCreationIsNullOrNotNull() throws Exception {
+    void getAllRedirectionsByCreationIsNullOrNotNull() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -627,7 +593,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByCreationIsGreaterThanOrEqualToSomething() throws Exception {
+    void getAllRedirectionsByCreationIsGreaterThanOrEqualToSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -640,7 +606,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByCreationIsLessThanOrEqualToSomething() throws Exception {
+    void getAllRedirectionsByCreationIsLessThanOrEqualToSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -653,7 +619,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByCreationIsLessThanSomething() throws Exception {
+    void getAllRedirectionsByCreationIsLessThanSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -666,7 +632,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByCreationIsGreaterThanSomething() throws Exception {
+    void getAllRedirectionsByCreationIsGreaterThanSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -677,10 +643,9 @@ public class RedirectionResourceIT {
         defaultRedirectionShouldBeFound("creation.greaterThan=" + SMALLER_CREATION);
     }
 
-
     @Test
     @Transactional
-    public void getAllRedirectionsByStartDateIsEqualToSomething() throws Exception {
+    void getAllRedirectionsByStartDateIsEqualToSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -693,7 +658,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByStartDateIsNotEqualToSomething() throws Exception {
+    void getAllRedirectionsByStartDateIsNotEqualToSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -706,7 +671,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByStartDateIsInShouldWork() throws Exception {
+    void getAllRedirectionsByStartDateIsInShouldWork() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -719,7 +684,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByStartDateIsNullOrNotNull() throws Exception {
+    void getAllRedirectionsByStartDateIsNullOrNotNull() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -732,7 +697,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByStartDateIsGreaterThanOrEqualToSomething() throws Exception {
+    void getAllRedirectionsByStartDateIsGreaterThanOrEqualToSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -745,7 +710,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByStartDateIsLessThanOrEqualToSomething() throws Exception {
+    void getAllRedirectionsByStartDateIsLessThanOrEqualToSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -758,7 +723,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByStartDateIsLessThanSomething() throws Exception {
+    void getAllRedirectionsByStartDateIsLessThanSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -771,7 +736,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByStartDateIsGreaterThanSomething() throws Exception {
+    void getAllRedirectionsByStartDateIsGreaterThanSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -782,10 +747,9 @@ public class RedirectionResourceIT {
         defaultRedirectionShouldBeFound("startDate.greaterThan=" + SMALLER_START_DATE);
     }
 
-
     @Test
     @Transactional
-    public void getAllRedirectionsByEndDateIsEqualToSomething() throws Exception {
+    void getAllRedirectionsByEndDateIsEqualToSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -798,7 +762,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByEndDateIsNotEqualToSomething() throws Exception {
+    void getAllRedirectionsByEndDateIsNotEqualToSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -811,7 +775,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByEndDateIsInShouldWork() throws Exception {
+    void getAllRedirectionsByEndDateIsInShouldWork() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -824,7 +788,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByEndDateIsNullOrNotNull() throws Exception {
+    void getAllRedirectionsByEndDateIsNullOrNotNull() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -837,7 +801,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByEndDateIsGreaterThanOrEqualToSomething() throws Exception {
+    void getAllRedirectionsByEndDateIsGreaterThanOrEqualToSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -850,7 +814,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByEndDateIsLessThanOrEqualToSomething() throws Exception {
+    void getAllRedirectionsByEndDateIsLessThanOrEqualToSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -863,7 +827,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByEndDateIsLessThanSomething() throws Exception {
+    void getAllRedirectionsByEndDateIsLessThanSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -876,7 +840,7 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getAllRedirectionsByEndDateIsGreaterThanSomething() throws Exception {
+    void getAllRedirectionsByEndDateIsGreaterThanSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
 
@@ -887,28 +851,45 @@ public class RedirectionResourceIT {
         defaultRedirectionShouldBeFound("endDate.greaterThan=" + SMALLER_END_DATE);
     }
 
-
     @Test
     @Transactional
-    public void getAllRedirectionsByUserIsEqualToSomething() throws Exception {
+    void getAllRedirectionsByUserIsEqualToSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
-        User user = UserResourceIT.create();
+        User user;
+        if (TestUtil.findAll(em, User.class).isEmpty()) {
+            user = UserResourceIT.createEntity(em);
+            em.persist(user);
+            em.flush();
+        } else {
+            user = TestUtil.findAll(em, User.class).get(0);
+        }
+        em.persist(user);
+        em.flush();
         redirection.setUser(user);
         redirectionRepository.saveAndFlush(redirection);
         Long userId = user.getId();
 
         // Get all the redirectionList where user equals to userId
         defaultRedirectionShouldBeFound("userId.equals=" + userId);
-    }
 
+        // Get all the redirectionList where user equals to (userId + 1)
+        defaultRedirectionShouldNotBeFound("userId.equals=" + (userId + 1));
+    }
 
     @Test
     @Transactional
-    public void getAllRedirectionsByQrCodeIsEqualToSomething() throws Exception {
+    void getAllRedirectionsByQrCodeIsEqualToSomething() throws Exception {
         // Initialize the database
         redirectionRepository.saveAndFlush(redirection);
-        QrCode qrCode = QrCodeResourceIT.createEntity(em);
+        QrCode qrCode;
+        if (TestUtil.findAll(em, QrCode.class).isEmpty()) {
+            qrCode = QrCodeResourceIT.createEntity(em);
+            em.persist(qrCode);
+            em.flush();
+        } else {
+            qrCode = TestUtil.findAll(em, QrCode.class).get(0);
+        }
         em.persist(qrCode);
         em.flush();
         redirection.setQrCode(qrCode);
@@ -918,7 +899,7 @@ public class RedirectionResourceIT {
         // Get all the redirectionList where qrCode equals to qrCodeId
         defaultRedirectionShouldBeFound("qrCodeId.equals=" + qrCodeId);
 
-        // Get all the redirectionList where qrCode equals to qrCodeId + 1
+        // Get all the redirectionList where qrCode equals to (qrCodeId + 1)
         defaultRedirectionShouldNotBeFound("qrCodeId.equals=" + (qrCodeId + 1));
     }
 
@@ -926,17 +907,22 @@ public class RedirectionResourceIT {
      * Executes the search, and checks that the default entity is returned.
      */
     private void defaultRedirectionShouldBeFound(String filter) throws Exception {
-        restRedirectionMockMvc.perform(get("/api/redirections?sort=id,desc&" + filter))
+        restRedirectionMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(redirection.getId().intValue())))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
             .andExpect(jsonPath("$.[*].code").value(hasItem(DEFAULT_CODE)))
             .andExpect(jsonPath("$.[*].url").value(hasItem(DEFAULT_URL)))
-            .andExpect(jsonPath("$.[*].enabled").value(hasItem(DEFAULT_ENABLED.booleanValue())));
+            .andExpect(jsonPath("$.[*].enabled").value(hasItem(DEFAULT_ENABLED.booleanValue())))
+            .andExpect(jsonPath("$.[*].creation").value(hasItem(sameInstant(DEFAULT_CREATION))))
+            .andExpect(jsonPath("$.[*].startDate").value(hasItem(sameInstant(DEFAULT_START_DATE))))
+            .andExpect(jsonPath("$.[*].endDate").value(hasItem(sameInstant(DEFAULT_END_DATE))));
 
         // Check, that the count call also returns 1
-        restRedirectionMockMvc.perform(get("/api/redirections/count?sort=id,desc&" + filter))
+        restRedirectionMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(content().string("1"));
@@ -946,14 +932,16 @@ public class RedirectionResourceIT {
      * Executes the search, and checks that the default entity is not returned.
      */
     private void defaultRedirectionShouldNotBeFound(String filter) throws Exception {
-        restRedirectionMockMvc.perform(get("/api/redirections?sort=id,desc&" + filter))
+        restRedirectionMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$").isEmpty());
 
         // Check, that the count call also returns 0
-        restRedirectionMockMvc.perform(get("/api/redirections/count?sort=id,desc&" + filter))
+        restRedirectionMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(content().string("0"));
@@ -961,17 +949,16 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void getNonExistingRedirection() throws Exception {
+    void getNonExistingRedirection() throws Exception {
         // Get the redirection
-        restRedirectionMockMvc.perform(get("/api/redirections/{id}", Long.MAX_VALUE))
-            .andExpect(status().isNotFound());
+        restRedirectionMockMvc.perform(get(ENTITY_API_URL_ID, Long.MAX_VALUE)).andExpect(status().isNotFound());
     }
 
     @Test
     @Transactional
-    public void updateRedirection() throws Exception {
+    void putNewRedirection() throws Exception {
         // Initialize the database
-        redirectionService.save(redirection);
+        redirectionRepository.saveAndFlush(redirection);
 
         int databaseSizeBeforeUpdate = redirectionRepository.findAll().size();
 
@@ -988,9 +975,12 @@ public class RedirectionResourceIT {
             .startDate(UPDATED_START_DATE)
             .endDate(UPDATED_END_DATE);
 
-        restRedirectionMockMvc.perform(put("/api/redirections")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(updatedRedirection)))
+        restRedirectionMockMvc
+            .perform(
+                put(ENTITY_API_URL_ID, updatedRedirection.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(updatedRedirection))
+            )
             .andExpect(status().isOk());
 
         // Validate the Redirection in the database
@@ -1000,18 +990,25 @@ public class RedirectionResourceIT {
         assertThat(testRedirection.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
         assertThat(testRedirection.getCode()).isEqualTo(UPDATED_CODE);
         assertThat(testRedirection.getUrl()).isEqualTo(UPDATED_URL);
-        assertThat(testRedirection.isEnabled()).isEqualTo(UPDATED_ENABLED);
+        assertThat(testRedirection.getEnabled()).isEqualTo(UPDATED_ENABLED);
+        assertThat(testRedirection.getCreation()).isEqualTo(UPDATED_CREATION);
+        assertThat(testRedirection.getStartDate()).isEqualTo(UPDATED_START_DATE);
+        assertThat(testRedirection.getEndDate()).isEqualTo(UPDATED_END_DATE);
     }
 
     @Test
     @Transactional
-    public void updateNonExistingRedirection() throws Exception {
+    void putNonExistingRedirection() throws Exception {
         int databaseSizeBeforeUpdate = redirectionRepository.findAll().size();
+        redirection.setId(count.incrementAndGet());
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restRedirectionMockMvc.perform(put("/api/redirections")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(redirection)))
+        restRedirectionMockMvc
+            .perform(
+                put(ENTITY_API_URL_ID, redirection.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(redirection))
+            )
             .andExpect(status().isBadRequest());
 
         // Validate the Redirection in the database
@@ -1021,64 +1018,190 @@ public class RedirectionResourceIT {
 
     @Test
     @Transactional
-    public void updateRedirectionWithAnotherUserIsFailing() throws Exception {
+    void putWithIdMismatchRedirection() throws Exception {
+        int databaseSizeBeforeUpdate = redirectionRepository.findAll().size();
+        redirection.setId(count.incrementAndGet());
 
-        // Initialize the database
-        User user = UserResourceIT.createEntity(em);
-        userRepository.saveAndFlush(user);
-        redirection.setUser(user);
-        redirectionRepository.save(redirection);
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restRedirectionMockMvc
+            .perform(
+                put(ENTITY_API_URL_ID, count.incrementAndGet())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(redirection))
+            )
+            .andExpect(status().isBadRequest());
 
-        // Update the redirection
-        Redirection updatedRedirection = redirectionRepository.findById(redirection.getId()).get();
-        // Disconnect from session so that the updates on updatedRedirection are not directly saved in db
-        em.detach(redirection);
-
-        updatedRedirection
-            .code(UPDATED_CODE);
-
-        restRedirectionMockMvc.perform(put("/api/qr-codes")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(updatedRedirection)))
-            .andExpect(status().isForbidden());
+        // Validate the Redirection in the database
+        List<Redirection> redirectionList = redirectionRepository.findAll();
+        assertThat(redirectionList).hasSize(databaseSizeBeforeUpdate);
     }
 
     @Test
     @Transactional
-    public void deleteRedirection() throws Exception {
+    void putWithMissingIdPathParamRedirection() throws Exception {
+        int databaseSizeBeforeUpdate = redirectionRepository.findAll().size();
+        redirection.setId(count.incrementAndGet());
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restRedirectionMockMvc
+            .perform(put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(redirection)))
+            .andExpect(status().isMethodNotAllowed());
+
+        // Validate the Redirection in the database
+        List<Redirection> redirectionList = redirectionRepository.findAll();
+        assertThat(redirectionList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void partialUpdateRedirectionWithPatch() throws Exception {
         // Initialize the database
-        redirectionService.save(redirection);
+        redirectionRepository.saveAndFlush(redirection);
+
+        int databaseSizeBeforeUpdate = redirectionRepository.findAll().size();
+
+        // Update the redirection using partial update
+        Redirection partialUpdatedRedirection = new Redirection();
+        partialUpdatedRedirection.setId(redirection.getId());
+
+        partialUpdatedRedirection.code(UPDATED_CODE).startDate(UPDATED_START_DATE);
+
+        restRedirectionMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, partialUpdatedRedirection.getId())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(partialUpdatedRedirection))
+            )
+            .andExpect(status().isOk());
+
+        // Validate the Redirection in the database
+        List<Redirection> redirectionList = redirectionRepository.findAll();
+        assertThat(redirectionList).hasSize(databaseSizeBeforeUpdate);
+        Redirection testRedirection = redirectionList.get(redirectionList.size() - 1);
+        assertThat(testRedirection.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+        assertThat(testRedirection.getCode()).isEqualTo(UPDATED_CODE);
+        assertThat(testRedirection.getUrl()).isEqualTo(DEFAULT_URL);
+        assertThat(testRedirection.getEnabled()).isEqualTo(DEFAULT_ENABLED);
+        assertThat(testRedirection.getCreation()).isEqualTo(DEFAULT_CREATION);
+        assertThat(testRedirection.getStartDate()).isEqualTo(UPDATED_START_DATE);
+        assertThat(testRedirection.getEndDate()).isEqualTo(DEFAULT_END_DATE);
+    }
+
+    @Test
+    @Transactional
+    void fullUpdateRedirectionWithPatch() throws Exception {
+        // Initialize the database
+        redirectionRepository.saveAndFlush(redirection);
+
+        int databaseSizeBeforeUpdate = redirectionRepository.findAll().size();
+
+        // Update the redirection using partial update
+        Redirection partialUpdatedRedirection = new Redirection();
+        partialUpdatedRedirection.setId(redirection.getId());
+
+        partialUpdatedRedirection
+            .description(UPDATED_DESCRIPTION)
+            .code(UPDATED_CODE)
+            .url(UPDATED_URL)
+            .enabled(UPDATED_ENABLED)
+            .creation(UPDATED_CREATION)
+            .startDate(UPDATED_START_DATE)
+            .endDate(UPDATED_END_DATE);
+
+        restRedirectionMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, partialUpdatedRedirection.getId())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(partialUpdatedRedirection))
+            )
+            .andExpect(status().isOk());
+
+        // Validate the Redirection in the database
+        List<Redirection> redirectionList = redirectionRepository.findAll();
+        assertThat(redirectionList).hasSize(databaseSizeBeforeUpdate);
+        Redirection testRedirection = redirectionList.get(redirectionList.size() - 1);
+        assertThat(testRedirection.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
+        assertThat(testRedirection.getCode()).isEqualTo(UPDATED_CODE);
+        assertThat(testRedirection.getUrl()).isEqualTo(UPDATED_URL);
+        assertThat(testRedirection.getEnabled()).isEqualTo(UPDATED_ENABLED);
+        assertThat(testRedirection.getCreation()).isEqualTo(UPDATED_CREATION);
+        assertThat(testRedirection.getStartDate()).isEqualTo(UPDATED_START_DATE);
+        assertThat(testRedirection.getEndDate()).isEqualTo(UPDATED_END_DATE);
+    }
+
+    @Test
+    @Transactional
+    void patchNonExistingRedirection() throws Exception {
+        int databaseSizeBeforeUpdate = redirectionRepository.findAll().size();
+        redirection.setId(count.incrementAndGet());
+
+        // If the entity doesn't have an ID, it will throw BadRequestAlertException
+        restRedirectionMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, redirection.getId())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(redirection))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the Redirection in the database
+        List<Redirection> redirectionList = redirectionRepository.findAll();
+        assertThat(redirectionList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void patchWithIdMismatchRedirection() throws Exception {
+        int databaseSizeBeforeUpdate = redirectionRepository.findAll().size();
+        redirection.setId(count.incrementAndGet());
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restRedirectionMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, count.incrementAndGet())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(redirection))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the Redirection in the database
+        List<Redirection> redirectionList = redirectionRepository.findAll();
+        assertThat(redirectionList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void patchWithMissingIdPathParamRedirection() throws Exception {
+        int databaseSizeBeforeUpdate = redirectionRepository.findAll().size();
+        redirection.setId(count.incrementAndGet());
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restRedirectionMockMvc
+            .perform(
+                patch(ENTITY_API_URL).contentType("application/merge-patch+json").content(TestUtil.convertObjectToJsonBytes(redirection))
+            )
+            .andExpect(status().isMethodNotAllowed());
+
+        // Validate the Redirection in the database
+        List<Redirection> redirectionList = redirectionRepository.findAll();
+        assertThat(redirectionList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void deleteRedirection() throws Exception {
+        // Initialize the database
+        redirectionRepository.saveAndFlush(redirection);
 
         int databaseSizeBeforeDelete = redirectionRepository.findAll().size();
 
         // Delete the redirection
-        restRedirectionMockMvc.perform(delete("/api/redirections/{id}", redirection.getId())
-            .accept(MediaType.APPLICATION_JSON))
+        restRedirectionMockMvc
+            .perform(delete(ENTITY_API_URL_ID, redirection.getId()).accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item
         List<Redirection> redirectionList = redirectionRepository.findAll();
         assertThat(redirectionList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void doNotDeleteRedirectionFromOtherUser() throws Exception {
-        // Initialize the database
-        User user = UserResourceIT.createEntity(em);
-        userRepository.saveAndFlush(user);
-        redirection.setUser(user);
-        redirectionRepository.save(redirection);
-
-        int databaseSizeBeforeDelete = redirectionRepository.findAll().size();
-
-        // Delete the redirection
-        restRedirectionMockMvc.perform(delete("/api/qr-codes/{id}", redirection.getId())
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isNoContent());
-
-        // Validate the database contains one less item
-        List<Redirection> redirectionList = redirectionRepository.findAll();
-        assertThat(redirectionList).hasSize(databaseSizeBeforeDelete);
     }
 }

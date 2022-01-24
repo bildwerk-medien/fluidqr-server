@@ -1,30 +1,30 @@
 package de.bildwerkmedien.fluidqr.server.web.rest;
 
 import de.bildwerkmedien.fluidqr.server.domain.QrCode;
-import de.bildwerkmedien.fluidqr.server.service.QrCodeService;
-import de.bildwerkmedien.fluidqr.server.web.rest.errors.BadRequestAlertException;
-import de.bildwerkmedien.fluidqr.server.service.dto.QrCodeCriteria;
+import de.bildwerkmedien.fluidqr.server.repository.QrCodeRepository;
 import de.bildwerkmedien.fluidqr.server.service.QrCodeQueryService;
-
-import io.github.jhipster.web.util.HeaderUtil;
-import io.github.jhipster.web.util.PaginationUtil;
-import io.github.jhipster.web.util.ResponseUtil;
+import de.bildwerkmedien.fluidqr.server.service.QrCodeService;
+import de.bildwerkmedien.fluidqr.server.service.criteria.QrCodeCriteria;
+import de.bildwerkmedien.fluidqr.server.web.rest.errors.BadRequestAlertException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import tech.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.PaginationUtil;
+import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing {@link de.bildwerkmedien.fluidqr.server.domain.QrCode}.
@@ -42,10 +42,13 @@ public class QrCodeResource {
 
     private final QrCodeService qrCodeService;
 
+    private final QrCodeRepository qrCodeRepository;
+
     private final QrCodeQueryService qrCodeQueryService;
 
-    public QrCodeResource(QrCodeService qrCodeService, QrCodeQueryService qrCodeQueryService) {
+    public QrCodeResource(QrCodeService qrCodeService, QrCodeRepository qrCodeRepository, QrCodeQueryService qrCodeQueryService) {
         this.qrCodeService = qrCodeService;
+        this.qrCodeRepository = qrCodeRepository;
         this.qrCodeQueryService = qrCodeQueryService;
     }
 
@@ -63,30 +66,80 @@ public class QrCodeResource {
             throw new BadRequestAlertException("A new qrCode cannot already have an ID", ENTITY_NAME, "idexists");
         }
         QrCode result = qrCodeService.save(qrCode);
-        return ResponseEntity.created(new URI("/api/qr-codes/" + result.getId()))
+        return ResponseEntity
+            .created(new URI("/api/qr-codes/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
 
     /**
-     * {@code PUT  /qr-codes} : Updates an existing qrCode.
+     * {@code PUT  /qr-codes/:id} : Updates an existing qrCode.
      *
+     * @param id the id of the qrCode to save.
      * @param qrCode the qrCode to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated qrCode,
      * or with status {@code 400 (Bad Request)} if the qrCode is not valid,
      * or with status {@code 500 (Internal Server Error)} if the qrCode couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PutMapping("/qr-codes")
-    public ResponseEntity<QrCode> updateQrCode(@Valid @RequestBody QrCode qrCode) throws URISyntaxException {
-        log.debug("REST request to update QrCode : {}", qrCode);
+    @PutMapping("/qr-codes/{id}")
+    public ResponseEntity<QrCode> updateQrCode(
+        @PathVariable(value = "id", required = false) final Long id,
+        @Valid @RequestBody QrCode qrCode
+    ) throws URISyntaxException {
+        log.debug("REST request to update QrCode : {}, {}", id, qrCode);
         if (qrCode.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
+        if (!Objects.equals(id, qrCode.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        }
+
+        if (!qrCodeRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
+        }
+
         QrCode result = qrCodeService.save(qrCode);
-        return ResponseEntity.ok()
+        return ResponseEntity
+            .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, qrCode.getId().toString()))
             .body(result);
+    }
+
+    /**
+     * {@code PATCH  /qr-codes/:id} : Partial updates given fields of an existing qrCode, field will ignore if it is null
+     *
+     * @param id the id of the qrCode to save.
+     * @param qrCode the qrCode to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated qrCode,
+     * or with status {@code 400 (Bad Request)} if the qrCode is not valid,
+     * or with status {@code 404 (Not Found)} if the qrCode is not found,
+     * or with status {@code 500 (Internal Server Error)} if the qrCode couldn't be updated.
+     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     */
+    @PatchMapping(value = "/qr-codes/{id}", consumes = { "application/json", "application/merge-patch+json" })
+    public ResponseEntity<QrCode> partialUpdateQrCode(
+        @PathVariable(value = "id", required = false) final Long id,
+        @NotNull @RequestBody QrCode qrCode
+    ) throws URISyntaxException {
+        log.debug("REST request to partial update QrCode partially : {}, {}", id, qrCode);
+        if (qrCode.getId() == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        if (!Objects.equals(id, qrCode.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        }
+
+        if (!qrCodeRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
+        }
+
+        Optional<QrCode> result = qrCodeService.partialUpdate(qrCode);
+
+        return ResponseUtil.wrapOrNotFound(
+            result,
+            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, qrCode.getId().toString())
+        );
     }
 
     /**
@@ -97,7 +150,10 @@ public class QrCodeResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of qrCodes in body.
      */
     @GetMapping("/qr-codes")
-    public ResponseEntity<List<QrCode>> getAllQrCodes(QrCodeCriteria criteria, Pageable pageable) {
+    public ResponseEntity<List<QrCode>> getAllQrCodes(
+        QrCodeCriteria criteria,
+        @org.springdoc.api.annotations.ParameterObject Pageable pageable
+    ) {
         log.debug("REST request to get QrCodes by criteria: {}", criteria);
         Page<QrCode> page = qrCodeQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
@@ -139,6 +195,9 @@ public class QrCodeResource {
     public ResponseEntity<Void> deleteQrCode(@PathVariable Long id) {
         log.debug("REST request to delete QrCode : {}", id);
         qrCodeService.delete(id);
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
+        return ResponseEntity
+            .noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .build();
     }
 }

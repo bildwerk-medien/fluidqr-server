@@ -1,53 +1,48 @@
 package de.bildwerkmedien.fluidqr.server.web.rest;
 
-import de.bildwerkmedien.fluidqr.server.FluidQrServerApp;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import de.bildwerkmedien.fluidqr.server.IntegrationTest;
 import de.bildwerkmedien.fluidqr.server.domain.QrCode;
 import de.bildwerkmedien.fluidqr.server.domain.Redirection;
 import de.bildwerkmedien.fluidqr.server.domain.User;
 import de.bildwerkmedien.fluidqr.server.repository.QrCodeRepository;
-import de.bildwerkmedien.fluidqr.server.repository.UserRepository;
-import de.bildwerkmedien.fluidqr.server.service.QrCodeQueryService;
-import de.bildwerkmedien.fluidqr.server.service.QrCodeService;
+import de.bildwerkmedien.fluidqr.server.service.criteria.QrCodeCriteria;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
+import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 /**
  * Integration tests for the {@link QrCodeResource} REST controller.
  */
-@SpringBootTest(classes = FluidQrServerApp.class)
+@IntegrationTest
 @AutoConfigureMockMvc
 @WithMockUser
-public class QrCodeResourceIT {
+class QrCodeResourceIT {
 
     private static final String DEFAULT_CODE = "AAAAAAAAAA";
     private static final String UPDATED_CODE = "BBBBBBBBBB";
 
+    private static final String ENTITY_API_URL = "/api/qr-codes";
+    private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
+
+    private static Random random = new Random();
+    private static AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
+
     @Autowired
     private QrCodeRepository qrCodeRepository;
-
-    @Autowired
-    private QrCodeService qrCodeService;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private QrCodeQueryService qrCodeQueryService;
 
     @Autowired
     private EntityManager em;
@@ -59,26 +54,23 @@ public class QrCodeResourceIT {
 
     /**
      * Create an entity for this test.
-     * <p>
+     *
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
     public static QrCode createEntity(EntityManager em) {
-        QrCode qrCode = new QrCode()
-            .code(DEFAULT_CODE)
-            .user(UserResourceIT.create());
+        QrCode qrCode = new QrCode().code(DEFAULT_CODE);
         return qrCode;
     }
 
     /**
      * Create an updated entity for this test.
-     * <p>
+     *
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
     public static QrCode createUpdatedEntity(EntityManager em) {
-        QrCode qrCode = new QrCode()
-            .code(UPDATED_CODE);
+        QrCode qrCode = new QrCode().code(UPDATED_CODE);
         return qrCode;
     }
 
@@ -89,12 +81,11 @@ public class QrCodeResourceIT {
 
     @Test
     @Transactional
-    public void createQrCode() throws Exception {
+    void createQrCode() throws Exception {
         int databaseSizeBeforeCreate = qrCodeRepository.findAll().size();
         // Create the QrCode
-        restQrCodeMockMvc.perform(post("/api/qr-codes")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(qrCode)))
+        restQrCodeMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(qrCode)))
             .andExpect(status().isCreated());
 
         // Validate the QrCode in the database
@@ -106,16 +97,15 @@ public class QrCodeResourceIT {
 
     @Test
     @Transactional
-    public void createQrCodeWithExistingId() throws Exception {
-        int databaseSizeBeforeCreate = qrCodeRepository.findAll().size();
-
+    void createQrCodeWithExistingId() throws Exception {
         // Create the QrCode with an existing ID
         qrCode.setId(1L);
 
+        int databaseSizeBeforeCreate = qrCodeRepository.findAll().size();
+
         // An entity with an existing ID cannot be created, so this API call must fail
-        restQrCodeMockMvc.perform(post("/api/qr-codes")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(qrCode)))
+        restQrCodeMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(qrCode)))
             .andExpect(status().isBadRequest());
 
         // Validate the QrCode in the database
@@ -123,20 +113,17 @@ public class QrCodeResourceIT {
         assertThat(qrCodeList).hasSize(databaseSizeBeforeCreate);
     }
 
-
     @Test
     @Transactional
-    public void checkCodeIsRequired() throws Exception {
+    void checkCodeIsRequired() throws Exception {
         int databaseSizeBeforeTest = qrCodeRepository.findAll().size();
         // set the field null
         qrCode.setCode(null);
 
         // Create the QrCode, which fails.
 
-
-        restQrCodeMockMvc.perform(post("/api/qr-codes")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(qrCode)))
+        restQrCodeMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(qrCode)))
             .andExpect(status().isBadRequest());
 
         List<QrCode> qrCodeList = qrCodeRepository.findAll();
@@ -145,12 +132,13 @@ public class QrCodeResourceIT {
 
     @Test
     @Transactional
-    public void getAllQrCodes() throws Exception {
+    void getAllQrCodes() throws Exception {
         // Initialize the database
         qrCodeRepository.saveAndFlush(qrCode);
 
         // Get all the qrCodeList
-        restQrCodeMockMvc.perform(get("/api/qr-codes?sort=id,desc"))
+        restQrCodeMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(qrCode.getId().intValue())))
@@ -159,12 +147,13 @@ public class QrCodeResourceIT {
 
     @Test
     @Transactional
-    public void getQrCode() throws Exception {
+    void getQrCode() throws Exception {
         // Initialize the database
         qrCodeRepository.saveAndFlush(qrCode);
 
         // Get the qrCode
-        restQrCodeMockMvc.perform(get("/api/qr-codes/{id}", qrCode.getId()))
+        restQrCodeMockMvc
+            .perform(get(ENTITY_API_URL_ID, qrCode.getId()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(qrCode.getId().intValue()))
@@ -173,37 +162,7 @@ public class QrCodeResourceIT {
 
     @Test
     @Transactional
-    public void getQrCodeByIdForOwnUserOnly() throws Exception {
-        // Initialize the database
-        User user = UserResourceIT.createEntity(em);
-        userRepository.saveAndFlush(user);
-        qrCode.setUser(user);
-        qrCodeRepository.saveAndFlush(qrCode);
-
-        // Get the qrCode
-        restQrCodeMockMvc.perform(get("/api/qr-codes/{id}", qrCode.getId()))
-            .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @Transactional
-    public void getQrCodeForOwnUserOnly() throws Exception {
-        // Initialize the database
-        User user = UserResourceIT.createEntity(em);
-        userRepository.saveAndFlush(user);
-        qrCode.setUser(user);
-        qrCodeRepository.saveAndFlush(qrCode);
-
-        // Get the qrCode
-        restQrCodeMockMvc.perform(get("/api/qr-codes"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", is(empty())));
-    }
-
-
-    @Test
-    @Transactional
-    public void getQrCodesByIdFiltering() throws Exception {
+    void getQrCodesByIdFiltering() throws Exception {
         // Initialize the database
         qrCodeRepository.saveAndFlush(qrCode);
 
@@ -219,10 +178,9 @@ public class QrCodeResourceIT {
         defaultQrCodeShouldNotBeFound("id.lessThan=" + id);
     }
 
-
     @Test
     @Transactional
-    public void getAllQrCodesByCodeIsEqualToSomething() throws Exception {
+    void getAllQrCodesByCodeIsEqualToSomething() throws Exception {
         // Initialize the database
         qrCodeRepository.saveAndFlush(qrCode);
 
@@ -235,7 +193,7 @@ public class QrCodeResourceIT {
 
     @Test
     @Transactional
-    public void getAllQrCodesByCodeIsNotEqualToSomething() throws Exception {
+    void getAllQrCodesByCodeIsNotEqualToSomething() throws Exception {
         // Initialize the database
         qrCodeRepository.saveAndFlush(qrCode);
 
@@ -248,7 +206,7 @@ public class QrCodeResourceIT {
 
     @Test
     @Transactional
-    public void getAllQrCodesByCodeIsInShouldWork() throws Exception {
+    void getAllQrCodesByCodeIsInShouldWork() throws Exception {
         // Initialize the database
         qrCodeRepository.saveAndFlush(qrCode);
 
@@ -261,7 +219,7 @@ public class QrCodeResourceIT {
 
     @Test
     @Transactional
-    public void getAllQrCodesByCodeIsNullOrNotNull() throws Exception {
+    void getAllQrCodesByCodeIsNullOrNotNull() throws Exception {
         // Initialize the database
         qrCodeRepository.saveAndFlush(qrCode);
 
@@ -274,7 +232,7 @@ public class QrCodeResourceIT {
 
     @Test
     @Transactional
-    public void getAllQrCodesByCodeContainsSomething() throws Exception {
+    void getAllQrCodesByCodeContainsSomething() throws Exception {
         // Initialize the database
         qrCodeRepository.saveAndFlush(qrCode);
 
@@ -287,7 +245,7 @@ public class QrCodeResourceIT {
 
     @Test
     @Transactional
-    public void getAllQrCodesByCodeNotContainsSomething() throws Exception {
+    void getAllQrCodesByCodeNotContainsSomething() throws Exception {
         // Initialize the database
         qrCodeRepository.saveAndFlush(qrCode);
 
@@ -298,13 +256,19 @@ public class QrCodeResourceIT {
         defaultQrCodeShouldBeFound("code.doesNotContain=" + UPDATED_CODE);
     }
 
-
     @Test
     @Transactional
-    public void getAllQrCodesByRedirectionIsEqualToSomething() throws Exception {
+    void getAllQrCodesByRedirectionIsEqualToSomething() throws Exception {
         // Initialize the database
         qrCodeRepository.saveAndFlush(qrCode);
-        Redirection redirection = RedirectionResourceIT.createEntity(em);
+        Redirection redirection;
+        if (TestUtil.findAll(em, Redirection.class).isEmpty()) {
+            redirection = RedirectionResourceIT.createEntity(em);
+            em.persist(redirection);
+            em.flush();
+        } else {
+            redirection = TestUtil.findAll(em, Redirection.class).get(0);
+        }
         em.persist(redirection);
         em.flush();
         qrCode.addRedirection(redirection);
@@ -314,17 +278,25 @@ public class QrCodeResourceIT {
         // Get all the qrCodeList where redirection equals to redirectionId
         defaultQrCodeShouldBeFound("redirectionId.equals=" + redirectionId);
 
-        // Get all the qrCodeList where redirection equals to redirectionId + 1
+        // Get all the qrCodeList where redirection equals to (redirectionId + 1)
         defaultQrCodeShouldNotBeFound("redirectionId.equals=" + (redirectionId + 1));
     }
 
-
     @Test
     @Transactional
-    public void getAllQrCodesByUserIsEqualToSomething() throws Exception {
+    void getAllQrCodesByUserIsEqualToSomething() throws Exception {
         // Initialize the database
         qrCodeRepository.saveAndFlush(qrCode);
-        User user = UserResourceIT.create();
+        User user;
+        if (TestUtil.findAll(em, User.class).isEmpty()) {
+            user = UserResourceIT.createEntity(em);
+            em.persist(user);
+            em.flush();
+        } else {
+            user = TestUtil.findAll(em, User.class).get(0);
+        }
+        em.persist(user);
+        em.flush();
         qrCode.setUser(user);
         qrCodeRepository.saveAndFlush(qrCode);
         Long userId = user.getId();
@@ -332,22 +304,24 @@ public class QrCodeResourceIT {
         // Get all the qrCodeList where user equals to userId
         defaultQrCodeShouldBeFound("userId.equals=" + userId);
 
-        // Get all the qrCodeList where user equals to userId + 1
-        defaultQrCodeShouldBeFound("userId.equals=" + (userId + 1));
+        // Get all the qrCodeList where user equals to (userId + 1)
+        defaultQrCodeShouldNotBeFound("userId.equals=" + (userId + 1));
     }
 
     /**
      * Executes the search, and checks that the default entity is returned.
      */
     private void defaultQrCodeShouldBeFound(String filter) throws Exception {
-        restQrCodeMockMvc.perform(get("/api/qr-codes?sort=id,desc&" + filter))
+        restQrCodeMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(qrCode.getId().intValue())))
             .andExpect(jsonPath("$.[*].code").value(hasItem(DEFAULT_CODE)));
 
         // Check, that the count call also returns 1
-        restQrCodeMockMvc.perform(get("/api/qr-codes/count?sort=id,desc&" + filter))
+        restQrCodeMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(content().string("1"));
@@ -357,14 +331,16 @@ public class QrCodeResourceIT {
      * Executes the search, and checks that the default entity is not returned.
      */
     private void defaultQrCodeShouldNotBeFound(String filter) throws Exception {
-        restQrCodeMockMvc.perform(get("/api/qr-codes?sort=id,desc&" + filter))
+        restQrCodeMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$").isEmpty());
 
         // Check, that the count call also returns 0
-        restQrCodeMockMvc.perform(get("/api/qr-codes/count?sort=id,desc&" + filter))
+        restQrCodeMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(content().string("0"));
@@ -372,17 +348,16 @@ public class QrCodeResourceIT {
 
     @Test
     @Transactional
-    public void getNonExistingQrCode() throws Exception {
+    void getNonExistingQrCode() throws Exception {
         // Get the qrCode
-        restQrCodeMockMvc.perform(get("/api/qr-codes/{id}", Long.MAX_VALUE))
-            .andExpect(status().isNotFound());
+        restQrCodeMockMvc.perform(get(ENTITY_API_URL_ID, Long.MAX_VALUE)).andExpect(status().isNotFound());
     }
 
     @Test
     @Transactional
-    public void updateQrCode() throws Exception {
+    void putNewQrCode() throws Exception {
         // Initialize the database
-        qrCodeService.save(qrCode);
+        qrCodeRepository.saveAndFlush(qrCode);
 
         int databaseSizeBeforeUpdate = qrCodeRepository.findAll().size();
 
@@ -390,12 +365,14 @@ public class QrCodeResourceIT {
         QrCode updatedQrCode = qrCodeRepository.findById(qrCode.getId()).get();
         // Disconnect from session so that the updates on updatedQrCode are not directly saved in db
         em.detach(updatedQrCode);
-        updatedQrCode
-            .code(UPDATED_CODE);
+        updatedQrCode.code(UPDATED_CODE);
 
-        restQrCodeMockMvc.perform(put("/api/qr-codes")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(updatedQrCode)))
+        restQrCodeMockMvc
+            .perform(
+                put(ENTITY_API_URL_ID, updatedQrCode.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(updatedQrCode))
+            )
             .andExpect(status().isOk());
 
         // Validate the QrCode in the database
@@ -407,37 +384,17 @@ public class QrCodeResourceIT {
 
     @Test
     @Transactional
-    public void updateQrCodeWithAnotherUserIsFailing() throws Exception {
-
-        // Initialize the database
-        User user = UserResourceIT.createEntity(em);
-        userRepository.saveAndFlush(user);
-        qrCode.setUser(user);
-        qrCodeRepository.save(qrCode);
-
-        // Update the qrCode
-        QrCode updatedQrCode = qrCodeRepository.findById(qrCode.getId()).get();
-        // Disconnect from session so that the updates on updatedQrCode are not directly saved in db
-        em.detach(updatedQrCode);
-
-        updatedQrCode
-            .code(UPDATED_CODE);
-
-        restQrCodeMockMvc.perform(put("/api/qr-codes")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(updatedQrCode)))
-            .andExpect(status().isForbidden());
-    }
-
-    @Test
-    @Transactional
-    public void updateNonExistingQrCode() throws Exception {
+    void putNonExistingQrCode() throws Exception {
         int databaseSizeBeforeUpdate = qrCodeRepository.findAll().size();
+        qrCode.setId(count.incrementAndGet());
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restQrCodeMockMvc.perform(put("/api/qr-codes")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(TestUtil.convertObjectToJsonBytes(qrCode)))
+        restQrCodeMockMvc
+            .perform(
+                put(ENTITY_API_URL_ID, qrCode.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(qrCode))
+            )
             .andExpect(status().isBadRequest());
 
         // Validate the QrCode in the database
@@ -447,40 +404,167 @@ public class QrCodeResourceIT {
 
     @Test
     @Transactional
-    public void deleteQrCode() throws Exception {
+    void putWithIdMismatchQrCode() throws Exception {
+        int databaseSizeBeforeUpdate = qrCodeRepository.findAll().size();
+        qrCode.setId(count.incrementAndGet());
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restQrCodeMockMvc
+            .perform(
+                put(ENTITY_API_URL_ID, count.incrementAndGet())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(qrCode))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the QrCode in the database
+        List<QrCode> qrCodeList = qrCodeRepository.findAll();
+        assertThat(qrCodeList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void putWithMissingIdPathParamQrCode() throws Exception {
+        int databaseSizeBeforeUpdate = qrCodeRepository.findAll().size();
+        qrCode.setId(count.incrementAndGet());
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restQrCodeMockMvc
+            .perform(put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(qrCode)))
+            .andExpect(status().isMethodNotAllowed());
+
+        // Validate the QrCode in the database
+        List<QrCode> qrCodeList = qrCodeRepository.findAll();
+        assertThat(qrCodeList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void partialUpdateQrCodeWithPatch() throws Exception {
         // Initialize the database
-        qrCodeService.save(qrCode);
+        qrCodeRepository.saveAndFlush(qrCode);
+
+        int databaseSizeBeforeUpdate = qrCodeRepository.findAll().size();
+
+        // Update the qrCode using partial update
+        QrCode partialUpdatedQrCode = new QrCode();
+        partialUpdatedQrCode.setId(qrCode.getId());
+
+        restQrCodeMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, partialUpdatedQrCode.getId())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(partialUpdatedQrCode))
+            )
+            .andExpect(status().isOk());
+
+        // Validate the QrCode in the database
+        List<QrCode> qrCodeList = qrCodeRepository.findAll();
+        assertThat(qrCodeList).hasSize(databaseSizeBeforeUpdate);
+        QrCode testQrCode = qrCodeList.get(qrCodeList.size() - 1);
+        assertThat(testQrCode.getCode()).isEqualTo(DEFAULT_CODE);
+    }
+
+    @Test
+    @Transactional
+    void fullUpdateQrCodeWithPatch() throws Exception {
+        // Initialize the database
+        qrCodeRepository.saveAndFlush(qrCode);
+
+        int databaseSizeBeforeUpdate = qrCodeRepository.findAll().size();
+
+        // Update the qrCode using partial update
+        QrCode partialUpdatedQrCode = new QrCode();
+        partialUpdatedQrCode.setId(qrCode.getId());
+
+        partialUpdatedQrCode.code(UPDATED_CODE);
+
+        restQrCodeMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, partialUpdatedQrCode.getId())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(partialUpdatedQrCode))
+            )
+            .andExpect(status().isOk());
+
+        // Validate the QrCode in the database
+        List<QrCode> qrCodeList = qrCodeRepository.findAll();
+        assertThat(qrCodeList).hasSize(databaseSizeBeforeUpdate);
+        QrCode testQrCode = qrCodeList.get(qrCodeList.size() - 1);
+        assertThat(testQrCode.getCode()).isEqualTo(UPDATED_CODE);
+    }
+
+    @Test
+    @Transactional
+    void patchNonExistingQrCode() throws Exception {
+        int databaseSizeBeforeUpdate = qrCodeRepository.findAll().size();
+        qrCode.setId(count.incrementAndGet());
+
+        // If the entity doesn't have an ID, it will throw BadRequestAlertException
+        restQrCodeMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, qrCode.getId())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(qrCode))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the QrCode in the database
+        List<QrCode> qrCodeList = qrCodeRepository.findAll();
+        assertThat(qrCodeList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void patchWithIdMismatchQrCode() throws Exception {
+        int databaseSizeBeforeUpdate = qrCodeRepository.findAll().size();
+        qrCode.setId(count.incrementAndGet());
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restQrCodeMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, count.incrementAndGet())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(qrCode))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the QrCode in the database
+        List<QrCode> qrCodeList = qrCodeRepository.findAll();
+        assertThat(qrCodeList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void patchWithMissingIdPathParamQrCode() throws Exception {
+        int databaseSizeBeforeUpdate = qrCodeRepository.findAll().size();
+        qrCode.setId(count.incrementAndGet());
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restQrCodeMockMvc
+            .perform(patch(ENTITY_API_URL).contentType("application/merge-patch+json").content(TestUtil.convertObjectToJsonBytes(qrCode)))
+            .andExpect(status().isMethodNotAllowed());
+
+        // Validate the QrCode in the database
+        List<QrCode> qrCodeList = qrCodeRepository.findAll();
+        assertThat(qrCodeList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void deleteQrCode() throws Exception {
+        // Initialize the database
+        qrCodeRepository.saveAndFlush(qrCode);
 
         int databaseSizeBeforeDelete = qrCodeRepository.findAll().size();
 
         // Delete the qrCode
-        restQrCodeMockMvc.perform(delete("/api/qr-codes/{id}", qrCode.getId())
-            .accept(MediaType.APPLICATION_JSON))
+        restQrCodeMockMvc
+            .perform(delete(ENTITY_API_URL_ID, qrCode.getId()).accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item
         List<QrCode> qrCodeList = qrCodeRepository.findAll();
         assertThat(qrCodeList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void doNotDeleteQrCodeFromOtherUser() throws Exception {
-        // Initialize the database
-        User user = UserResourceIT.createEntity(em);
-        userRepository.saveAndFlush(user);
-        qrCode.setUser(user);
-        qrCodeRepository.save(qrCode);
-
-        int databaseSizeBeforeDelete = qrCodeRepository.findAll().size();
-
-        // Delete the qrCode
-        restQrCodeMockMvc.perform(delete("/api/qr-codes/{id}", qrCode.getId())
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isNoContent());
-
-        // Validate the database contains one less item
-        List<QrCode> qrCodeList = qrCodeRepository.findAll();
-        assertThat(qrCodeList).hasSize(databaseSizeBeforeDelete);
     }
 }

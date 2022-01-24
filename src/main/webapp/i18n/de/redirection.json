@@ -3,9 +3,10 @@
     "redirection": {
       "home": {
         "title": "Redirections",
+        "refreshListLabel": "Liste aktualisieren",
         "createLabel": "Redirection erstellen",
         "createOrEditLabel": "Redirection erstellen oder bearbeiten",
-        "notFound": "No Redirections found"
+        "notFound": "Keine Redirections gefunden"
       },
       "created": "Redirection erstellt mit ID {{ param }}",
       "updated": "Redirection aktualisiert mit ID {{ param }}",
@@ -16,6 +17,7 @@
       "detail": {
         "title": "Redirection"
       },
+      "id": "ID",
       "description": "Description",
       "code": "Code",
       "url": "Url",
