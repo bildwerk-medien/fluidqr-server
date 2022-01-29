@@ -10,6 +10,7 @@ import io.github.jhipster.service.filter.LongFilter;
 import io.github.jhipster.service.filter.StringFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -39,7 +40,7 @@ public class QrCodeQueryService extends QueryService<QrCode> {
     private final UserService userService;
     private final QrCodeService qrCodeService;
 
-    public QrCodeQueryService(QrCodeRepository qrCodeRepository, UserService userService, QrCodeService qrCodeService) {
+    public QrCodeQueryService(QrCodeRepository qrCodeRepository, UserService userService, @Qualifier("qrCodeServiceExtendedImpl") QrCodeService qrCodeService) {
         this.qrCodeRepository = qrCodeRepository;
         this.userService = userService;
         this.qrCodeService = qrCodeService;
