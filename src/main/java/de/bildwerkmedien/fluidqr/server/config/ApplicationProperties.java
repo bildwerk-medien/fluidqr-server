@@ -16,6 +16,7 @@ public class ApplicationProperties {
     public ApplicationProperties() {
     }
 
+//    custom fields ### start ###
     public ApplicationProperties.Url getUrl(){
         return this.url;
     }
@@ -44,4 +45,6 @@ public class ApplicationProperties {
             this.protocol = protocol;
         }
     }
+
+//    custom fields ### end ###
 }

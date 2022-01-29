@@ -40,6 +40,8 @@ public class QrCode implements Serializable {
     @JsonIgnoreProperties(value = "qrCodes", allowSetters = true)
     private User user;
 
+//    custom transient fields ### start ###
+
     @Transient
     @JsonSerialize
     private String link;
@@ -65,6 +67,8 @@ public class QrCode implements Serializable {
     public void setCurrentRedirect(String currentRedirect) {
         this.currentRedirect = currentRedirect;
     }
+
+//        custom transient fields ### end ###
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {

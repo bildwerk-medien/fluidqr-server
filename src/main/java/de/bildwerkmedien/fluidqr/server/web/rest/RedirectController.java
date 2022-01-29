@@ -1,7 +1,7 @@
 package de.bildwerkmedien.fluidqr.server.web.rest;
 
 import de.bildwerkmedien.fluidqr.server.domain.QrCode;
-import de.bildwerkmedien.fluidqr.server.service.QrCodeQueryService;
+import de.bildwerkmedien.fluidqr.server.service.QrCodeQueryExtendedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -18,9 +18,9 @@ public class RedirectController {
 
     private final Logger log = LoggerFactory.getLogger(AccountResource.class);
 
-    private final QrCodeQueryService qrCodeQueryService;
+    private final QrCodeQueryExtendedService qrCodeQueryService;
 
-    public RedirectController(QrCodeQueryService qrCodeQueryService) {
+    public RedirectController(QrCodeQueryExtendedService qrCodeQueryService) {
         this.qrCodeQueryService = qrCodeQueryService;
     }
 
