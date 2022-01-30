@@ -1,39 +1,36 @@
 {
-  "name": "QrCode",
+  "applications": "*",
+  "changelogDate": "20210126195443",
+  "clientRootFolder": "",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "qr_code",
   "fields": [
     {
       "fieldName": "code",
       "fieldType": "String",
-      "fieldValidateRules": [
-        "required",
-        "unique"
-      ]
+      "fieldValidateRules": ["required", "unique"]
     }
   ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": true,
+  "name": "QrCode",
+  "pagination": "infinite-scroll",
+  "readOnly": false,
   "relationships": [
     {
-      "relationshipType": "one-to-many",
       "otherEntityName": "redirection",
       "otherEntityRelationshipName": "qrCode",
-      "relationshipName": "redirection"
+      "relationshipName": "redirection",
+      "relationshipType": "one-to-many"
     },
     {
-      "relationshipType": "many-to-one",
+      "otherEntityField": "id",
       "otherEntityName": "user",
       "otherEntityRelationshipName": "qrCode",
       "relationshipName": "user",
-      "otherEntityField": "id"
+      "relationshipType": "many-to-one"
     }
   ],
-  "changelogDate": "20210126195443",
-  "entityTableName": "qr_code",
-  "dto": "no",
-  "pagination": "infinite-scroll",
-  "service": "serviceImpl",
-  "jpaMetamodelFiltering": true,
-  "fluentMethods": true,
-  "readOnly": false,
-  "embedded": false,
-  "clientRootFolder": "",
-  "applications": "*"
+  "service": "serviceImpl"
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { IQrCode } from 'app/shared/model/qr-code.model';
 import { DeleteModalComponent } from 'app/qr-codes/delete/delete-modal.component';
+import { IQrCode } from '../../entities/qr-code/qr-code.model';
 
 @Injectable({ providedIn: 'root' })
 export class DeleteModalService {

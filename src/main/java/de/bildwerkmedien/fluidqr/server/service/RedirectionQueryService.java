@@ -1,12 +1,11 @@
 package de.bildwerkmedien.fluidqr.server.service;
 
+import de.bildwerkmedien.fluidqr.server.domain.*; // for static metamodels
+import de.bildwerkmedien.fluidqr.server.domain.Redirection;
+import de.bildwerkmedien.fluidqr.server.repository.RedirectionRepository;
+import de.bildwerkmedien.fluidqr.server.service.criteria.RedirectionCriteria;
 import java.util.List;
-
 import javax.persistence.criteria.JoinType;
-
-import de.bildwerkmedien.fluidqr.server.security.AuthoritiesConstants;
-import de.bildwerkmedien.fluidqr.server.security.SecurityUtils;
-import io.github.jhipster.service.filter.LongFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -14,13 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import io.github.jhipster.service.QueryService;
-
-import de.bildwerkmedien.fluidqr.server.domain.Redirection;
-import de.bildwerkmedien.fluidqr.server.domain.*; // for static metamodels
-import de.bildwerkmedien.fluidqr.server.repository.RedirectionRepository;
-import de.bildwerkmedien.fluidqr.server.service.dto.RedirectionCriteria;
+import tech.jhipster.service.QueryService;
 
 /**
  * Service for executing complex queries for {@link Redirection} entities in the database.
@@ -35,11 +28,9 @@ public class RedirectionQueryService extends QueryService<Redirection> {
     private final Logger log = LoggerFactory.getLogger(RedirectionQueryService.class);
 
     private final RedirectionRepository redirectionRepository;
-    private final UserService userService;
 
-    public RedirectionQueryService(RedirectionRepository redirectionRepository, UserService userService) {
+    public RedirectionQueryService(RedirectionRepository redirectionRepository) {
         this.redirectionRepository = redirectionRepository;
-        this.userService = userService;
     }
 
     /**
@@ -50,7 +41,6 @@ public class RedirectionQueryService extends QueryService<Redirection> {
     @Transactional(readOnly = true)
     public List<Redirection> findByCriteria(RedirectionCriteria criteria) {
         log.debug("find by criteria : {}", criteria);
-        addUserCriteria(criteria);
         final Specification<Redirection> specification = createSpecification(criteria);
         return redirectionRepository.findAll(specification);
     }
@@ -64,7 +54,6 @@ public class RedirectionQueryService extends QueryService<Redirection> {
     @Transactional(readOnly = true)
     public Page<Redirection> findByCriteria(RedirectionCriteria criteria, Pageable page) {
         log.debug("find by criteria : {}, page: {}", criteria, page);
-        // addUserCriteria(criteria);
         final Specification<Redirection> specification = createSpecification(criteria);
         return redirectionRepository.findAll(specification, page);
     }
@@ -77,7 +66,6 @@ public class RedirectionQueryService extends QueryService<Redirection> {
     @Transactional(readOnly = true)
     public long countByCriteria(RedirectionCriteria criteria) {
         log.debug("count by criteria : {}", criteria);
-        addUserCriteria(criteria);
         final Specification<Redirection> specification = createSpecification(criteria);
         return redirectionRepository.count(specification);
     }
@@ -90,6 +78,10 @@ public class RedirectionQueryService extends QueryService<Redirection> {
     protected Specification<Redirection> createSpecification(RedirectionCriteria criteria) {
         Specification<Redirection> specification = Specification.where(null);
         if (criteria != null) {
+            // This has to be called first, because the distinct method returns null
+            if (criteria.getDistinct() != null) {
+                specification = specification.and(distinct(criteria.getDistinct()));
+            }
             if (criteria.getId() != null) {
                 specification = specification.and(buildRangeSpecification(criteria.getId(), Redirection_.id));
             }
@@ -115,23 +107,18 @@ public class RedirectionQueryService extends QueryService<Redirection> {
                 specification = specification.and(buildRangeSpecification(criteria.getEndDate(), Redirection_.endDate));
             }
             if (criteria.getUserId() != null) {
-                specification = specification.and(buildSpecification(criteria.getUserId(),
-                    root -> root.join(Redirection_.user, JoinType.LEFT).get(User_.id)));
+                specification =
+                    specification.and(
+                        buildSpecification(criteria.getUserId(), root -> root.join(Redirection_.user, JoinType.LEFT).get(User_.id))
+                    );
             }
             if (criteria.getQrCodeId() != null) {
-                specification = specification.and(buildSpecification(criteria.getQrCodeId(),
-                    root -> root.join(Redirection_.qrCode, JoinType.LEFT).get(QrCode_.id)));
+                specification =
+                    specification.and(
+                        buildSpecification(criteria.getQrCodeId(), root -> root.join(Redirection_.qrCode, JoinType.LEFT).get(QrCode_.id))
+                    );
             }
         }
         return specification;
-    }
-
-    private void addUserCriteria(RedirectionCriteria criteria){
-        User user = userService.getUserWithAuthorities().orElseThrow(UserNotAuthenticatedException::new);
-        if(!SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)){
-            LongFilter longFilter = new LongFilter();
-            longFilter.setEquals(user.getId());
-            criteria.setUserId(longFilter);
-        }
     }
 }

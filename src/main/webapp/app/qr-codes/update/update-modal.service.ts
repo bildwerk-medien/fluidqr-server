@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { UpdateModalComponent } from './update-modal.component';
-import { IQrCode } from 'app/shared/model/qr-code.model';
+import { IQrCode } from '../../entities/qr-code/qr-code.model';
 
 @Injectable({ providedIn: 'root' })
 export class UpdateModalService {

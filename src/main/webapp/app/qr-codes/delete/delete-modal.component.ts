@@ -2,8 +2,8 @@ import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular
 import { FormBuilder } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Router } from '@angular/router';
-import { QrCodeService } from 'app/entities/qr-code/qr-code.service';
-import { IQrCode } from 'app/shared/model/qr-code.model';
+import { IQrCode } from '../../entities/qr-code/qr-code.model';
+import { QrCodeService } from '../../entities/qr-code/service/qr-code.service';
 
 @Component({
   selector: 'jhi-delete-modal',
@@ -27,7 +27,7 @@ export class DeleteModalComponent implements AfterViewInit {
   });
 
   constructor(private qrCodeService: QrCodeService, private router: Router, public activeModal: NgbActiveModal, private fb: FormBuilder) {
-    if (this.currentQrCode?.redirections && this.currentQrCode.redirections?.length > 0) {
+    if (this.currentQrCode?.redirections && this.currentQrCode.redirections.length > 0) {
       this.currentRedirection = this.currentQrCode.redirections[0].url;
     } else {
       this.currentRedirection = '';
@@ -51,7 +51,7 @@ export class DeleteModalComponent implements AfterViewInit {
 
   delete(): void {
     if (this.currentQrCode?.id) {
-      this.qrCodeService.delete(this.currentQrCode?.id).subscribe(res => {
+      this.qrCodeService.delete(this.currentQrCode.id).subscribe((res: { ok: any }) => {
         if (!res.ok) {
           this.creationError = false;
         } else {

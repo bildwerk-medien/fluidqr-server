@@ -1,16 +1,16 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, Output } from '@angular/core';
 import QRCodeStyling from 'qr-code-styling';
-import { IQrCode, QrCode } from 'app/shared/model/qr-code.model';
 import { UpdateModalService } from 'app/qr-codes/update/update-modal.service';
-import { QrCodeService } from 'app/entities/qr-code/qr-code.service';
 import { DeleteModalService } from 'app/qr-codes/delete/delete-modal.service';
+import { IQrCode, QrCode } from 'app/entities/qr-code/qr-code.model';
+import { QrCodeService } from 'app/entities/qr-code/service/qr-code.service';
 
 @Component({
   selector: 'jhi-qr-code-display',
   templateUrl: './qr-code-display.component.html',
   styleUrls: ['./qr-code-display.component.scss'],
 })
-export class QrCodeDisplayComponent implements OnInit, AfterViewInit {
+export class QrCodeDisplayComponent implements AfterViewInit {
   qrCodeImage: string | undefined = '';
   qrCode: QRCodeStyling | null = null;
   urlPattern = '(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?';
@@ -62,7 +62,7 @@ export class QrCodeDisplayComponent implements OnInit, AfterViewInit {
 
   refreshQrCode(): void {
     if (this.currentQrCode?.id) {
-      this.qrCodeService.find(this.currentQrCode?.id).subscribe(res => {
+      this.qrCodeService.find(this.currentQrCode.id).subscribe(res => {
         if (res.body) {
           this.currentQrCode = res.body;
         }
@@ -81,10 +81,14 @@ export class QrCodeDisplayComponent implements OnInit, AfterViewInit {
     });
   }
 
-  ngOnInit(): void {}
-
   getHtmlElement(): HTMLElement | undefined {
-    const htmlElement = document.getElementById('canvas-' + this.currentQrCode?.id);
+    let qrCodeId = '';
+
+    if (this.currentQrCode?.id) {
+      qrCodeId = this.currentQrCode.id.toString();
+    }
+
+    const htmlElement = document.getElementById(`canvas-${qrCodeId}`);
     if (htmlElement != null) {
       return htmlElement;
     }
@@ -93,11 +97,10 @@ export class QrCodeDisplayComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.qrCode = this.getQrCode(this.currentQrCode);
-    this.qrCode?.append(this.getHtmlElement());
+    this.qrCode.append(this.getHtmlElement());
   }
 
   onDelete(): void {
-    //this.deleteQrCode.emit(this.currentQrCode?.id);
     const promise = this.deleteModalService.open(this.currentQrCode);
     promise?.finally(() => {
       this.deleteModalService.close();

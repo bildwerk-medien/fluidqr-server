@@ -2,19 +2,17 @@ import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angula
 import { FormBuilder, NgForm } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Router } from '@angular/router';
-import { QrCodeService } from 'app/entities/qr-code/qr-code.service';
-import { RedirectionService } from 'app/entities/redirection/redirection.service';
-import { Account } from 'app/core/user/account.model';
 import { AccountService } from 'app/core/auth/account.service';
-import { CommonModal } from 'app/core/common-modal.interface';
 import { URL_PATTERN } from 'app/app.constants';
-import { UrlUtil } from 'app/shared/util/url-util';
+import { Account } from '../../core/auth/account.model';
+import { QrCodeService } from '../../entities/qr-code/service/qr-code.service';
+import { RedirectionService } from '../../entities/redirection/service/redirection.service';
 
 @Component({
   selector: 'jhi-login-modal',
   templateUrl: './add-modal.component.html',
 })
-export class AddModalComponent implements OnInit, AfterViewInit, CommonModal {
+export class AddModalComponent implements OnInit, AfterViewInit {
   urlPattern = URL_PATTERN;
 
   @ViewChild('code-input', { static: false })
@@ -32,8 +30,7 @@ export class AddModalComponent implements OnInit, AfterViewInit, CommonModal {
     private redirectionService: RedirectionService,
     private router: Router,
     public activeModal: NgbActiveModal,
-    private fb: FormBuilder,
-    private urlUtil: UrlUtil
+    private fb: FormBuilder
   ) {}
 
   ngAfterViewInit(): void {
@@ -48,17 +45,17 @@ export class AddModalComponent implements OnInit, AfterViewInit, CommonModal {
   }
 
   submit(f: NgForm): void {
-    if (f.valid && this.code) {
+    if (f.valid && this.code && this.account) {
       this.qrCodeService
         .create({
-          code: this.account?.login + '-' + this.code,
+          code: `${this.account.login}-${this.code}`,
         })
         .subscribe(
           res => {
             if (res.body) {
               this.redirectionService
                 .create({
-                  url: this.urlUtil.enhanceToHttps(this.currentRedirection),
+                  url: this.currentRedirection,
                   enabled: true,
                   qrCode: {
                     id: res.body.id,

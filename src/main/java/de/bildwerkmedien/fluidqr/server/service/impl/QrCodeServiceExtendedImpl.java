@@ -6,14 +6,13 @@ import de.bildwerkmedien.fluidqr.server.repository.QrCodeRepository;
 import de.bildwerkmedien.fluidqr.server.security.AuthoritiesConstants;
 import de.bildwerkmedien.fluidqr.server.security.SecurityUtils;
 import de.bildwerkmedien.fluidqr.server.service.*;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 /**
  * Service Implementation for managing {@link QrCode}.
@@ -34,8 +33,12 @@ public class QrCodeServiceExtendedImpl extends QrCodeServiceImpl {
     @Value("${application.url.protocol}")
     private String protocol;
 
-    public QrCodeServiceExtendedImpl(QrCodeRepository qrCodeRepository, UserService userService, RedirectionService redirectionService) {
-        super(qrCodeRepository, userService, redirectionService);
+    public QrCodeServiceExtendedImpl(
+        QrCodeRepository qrCodeRepository,
+        UserService userService,
+        @Qualifier("redirectionServiceExtendedImpl") RedirectionService redirectionService
+    ) {
+        super(qrCodeRepository);
         this.qrCodeRepository = qrCodeRepository;
         this.userService = userService;
         this.redirectionService = redirectionService;
@@ -47,18 +50,19 @@ public class QrCodeServiceExtendedImpl extends QrCodeServiceImpl {
         if (qrCode.getId() != null && !findOne(qrCode.getId()).isPresent()) {
             throw new UserNotAuthorizedException();
         }
-        if(!userService.getUserWithAuthorities().isPresent()){
+        if (!userService.getUserWithAuthorities().isPresent()) {
             throw new UserNotAuthenticatedException();
         }
-        if(!SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)){
+        if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
             userService.getUserWithAuthorities().ifPresent(qrCode::setUser);
         }
         QrCode savedQrCode = qrCodeRepository.save(qrCode);
         savedQrCode.setLink(getBaseUrl() + savedQrCode.getCode());
-        savedQrCode.setCurrentRedirect(savedQrCode.getRedirections().stream().filter(Redirection::isEnabled).findFirst().orElse(new Redirection()).getUrl());
+        savedQrCode.setCurrentRedirect(
+            savedQrCode.getRedirections().stream().filter(Redirection::getEnabled).findFirst().orElse(new Redirection()).getUrl()
+        );
         return savedQrCode;
     }
-
 
     @Override
     @Transactional(readOnly = true)
@@ -70,11 +74,15 @@ public class QrCodeServiceExtendedImpl extends QrCodeServiceImpl {
             qr.setLink(getBaseUrl() + qr.getCode());
         });
 
-        if(SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)){
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
             return qrCode;
         }
 
-        if(qrCode.isPresent() && qrCode.get().getUser() != null && qrCode.get().getUser().equals(userService.getUserWithAuthorities().orElse(null))) {
+        if (
+            qrCode.isPresent() &&
+            qrCode.get().getUser() != null &&
+            qrCode.get().getUser().equals(userService.getUserWithAuthorities().orElse(null))
+        ) {
             return qrCode;
         }
         return Optional.empty();
@@ -84,17 +92,20 @@ public class QrCodeServiceExtendedImpl extends QrCodeServiceImpl {
     public void delete(Long id) {
         log.debug("Request to delete QrCode : {}", id);
 
-       findOne(id).ifPresent(qrCode -> {
-           qrCode.getRedirections().forEach(redirection -> redirectionService.delete(redirection.getId()));
-           qrCodeRepository.deleteById(qrCode.getId());
-       });
+        findOne(id)
+            .ifPresent(qrCode -> {
+                qrCode.getRedirections().forEach(redirection -> redirectionService.delete(redirection.getId()));
+                qrCodeRepository.deleteById(qrCode.getId());
+            });
     }
 
     public void findCurrentRedirect(QrCode qrCode) {
-        qrCode.setCurrentRedirect(qrCode.getRedirections().stream().filter(Redirection::isEnabled).findFirst().orElse(new Redirection()).getUrl());
+        qrCode.setCurrentRedirect(
+            qrCode.getRedirections().stream().filter(Redirection::getEnabled).findFirst().orElse(new Redirection()).getUrl()
+        );
     }
 
-    public String getBaseUrl(){
+    public String getBaseUrl() {
         return this.protocol + this.baseUrl + "/go/";
     }
 }

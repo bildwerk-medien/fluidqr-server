@@ -4,21 +4,19 @@ import de.bildwerkmedien.fluidqr.server.domain.*;
 import de.bildwerkmedien.fluidqr.server.repository.QrCodeRepository;
 import de.bildwerkmedien.fluidqr.server.security.AuthoritiesConstants;
 import de.bildwerkmedien.fluidqr.server.security.SecurityUtils;
-import de.bildwerkmedien.fluidqr.server.service.dto.QrCodeCriteria;
-import io.github.jhipster.service.QueryService;
-import io.github.jhipster.service.filter.LongFilter;
-import io.github.jhipster.service.filter.StringFilter;
+import de.bildwerkmedien.fluidqr.server.service.criteria.QrCodeCriteria;
+import de.bildwerkmedien.fluidqr.server.service.impl.QrCodeServiceExtendedImpl;
+import java.util.List;
+import javax.persistence.criteria.JoinType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.criteria.JoinType;
-import java.util.List;
+import tech.jhipster.service.filter.LongFilter;
+import tech.jhipster.service.filter.StringFilter;
 
 /**
  * Service for executing complex queries for {@link QrCode} entities in the database.
@@ -28,16 +26,16 @@ import java.util.List;
  */
 @Service
 @Transactional(readOnly = true)
-public class QrCodeQueryExtendedService extends QrCodeQueryService{
+public class QrCodeQueryExtendedService extends QrCodeQueryService {
 
     private final Logger log = LoggerFactory.getLogger(QrCodeQueryExtendedService.class);
 
     private final QrCodeRepository qrCodeRepository;
     private final UserService userService;
-    private final QrCodeService qrCodeService;
+    private final QrCodeServiceExtendedImpl qrCodeService;
 
-    public QrCodeQueryExtendedService(QrCodeRepository qrCodeRepository, UserService userService, @Qualifier("qrCodeServiceExtendedImpl") QrCodeService qrCodeService) {
-        super(qrCodeRepository, userService, qrCodeService);
+    public QrCodeQueryExtendedService(QrCodeRepository qrCodeRepository, UserService userService, QrCodeServiceExtendedImpl qrCodeService) {
+        super(qrCodeRepository);
         this.qrCodeRepository = qrCodeRepository;
         this.userService = userService;
         this.qrCodeService = qrCodeService;
@@ -45,6 +43,7 @@ public class QrCodeQueryExtendedService extends QrCodeQueryService{
 
     /**
      * Return a {@link Page} of {@link QrCode} which matches the criteria from the database.
+     *
      * @param criteria The object which holds all the filters, which the entities should match.
      * @return the matching entities.
      */
@@ -62,7 +61,7 @@ public class QrCodeQueryExtendedService extends QrCodeQueryService{
     }
 
     @Transactional(readOnly = true)
-    public QrCode findByCode(String code){
+    public QrCode findByCode(String code) {
         log.debug("find by code : {}", code);
         QrCodeCriteria qrCodeCriteria = new QrCodeCriteria();
         StringFilter stringFilter = new StringFilter();
@@ -71,7 +70,7 @@ public class QrCodeQueryExtendedService extends QrCodeQueryService{
         final Specification<QrCode> specification = createSpecification(qrCodeCriteria);
         List<QrCode> qrCodePage = qrCodeRepository.findAll(specification);
 
-        if(qrCodePage.size() == 1){
+        if (qrCodePage.size() == 1) {
             QrCode qrCode = qrCodePage.get(0);
             findCurrentRedirect(qrCode);
             qrCode.setLink(qrCodeService.getBaseUrl() + qrCodePage.get(0).getCode());
@@ -83,8 +82,9 @@ public class QrCodeQueryExtendedService extends QrCodeQueryService{
 
     /**
      * Return a {@link Page} of {@link QrCode} which matches the criteria from the database.
+     *
      * @param criteria The object which holds all the filters, which the entities should match.
-     * @param page The page, which should be returned.
+     * @param page     The page, which should be returned.
      * @return the matching entities.
      */
     @Transactional(readOnly = true)
@@ -93,15 +93,18 @@ public class QrCodeQueryExtendedService extends QrCodeQueryService{
         addUserCriteria(criteria);
         final Specification<QrCode> specification = createSpecification(criteria);
         Page<QrCode> qrCodePage = qrCodeRepository.findAll(specification, page);
-        qrCodePage.get().forEach(qrCode -> {
-            findCurrentRedirect(qrCode);
-            qrCode.setLink(qrCodeService.getBaseUrl() + qrCode.getCode());
-        });
+        qrCodePage
+            .get()
+            .forEach(qrCode -> {
+                findCurrentRedirect(qrCode);
+                qrCode.setLink(qrCodeService.getBaseUrl() + qrCode.getCode());
+            });
         return qrCodePage;
     }
 
     /**
      * Return the number of matching entities in the database.
+     *
      * @param criteria The object which holds all the filters, which the entities should match.
      * @return the number of matching entities.
      */
@@ -115,6 +118,7 @@ public class QrCodeQueryExtendedService extends QrCodeQueryService{
 
     /**
      * Function to convert {@link QrCodeCriteria} to a {@link Specification}
+     *
      * @param criteria The object which holds all the filters, which the entities should match.
      * @return the matching {@link Specification} of the entity.
      */
@@ -128,24 +132,33 @@ public class QrCodeQueryExtendedService extends QrCodeQueryService{
                 specification = specification.and(buildStringSpecification(criteria.getCode(), QrCode_.code));
             }
             if (criteria.getRedirectionId() != null) {
-                specification = specification.and(buildSpecification(criteria.getRedirectionId(),
-                    root -> root.join(QrCode_.redirections, JoinType.LEFT).get(Redirection_.id)));
+                specification =
+                    specification.and(
+                        buildSpecification(
+                            criteria.getRedirectionId(),
+                            root -> root.join(QrCode_.redirections, JoinType.LEFT).get(Redirection_.id)
+                        )
+                    );
             }
             if (criteria.getUserId() != null) {
-                specification = specification.and(buildSpecification(criteria.getUserId(),
-                    root -> root.join(QrCode_.user, JoinType.LEFT).get(User_.id)));
+                specification =
+                    specification.and(
+                        buildSpecification(criteria.getUserId(), root -> root.join(QrCode_.user, JoinType.LEFT).get(User_.id))
+                    );
             }
         }
         return specification;
     }
 
     private void findCurrentRedirect(QrCode qrCode) {
-        qrCode.setCurrentRedirect(qrCode.getRedirections().stream().filter(Redirection::isEnabled).findFirst().orElse(new Redirection()).getUrl());
+        qrCode.setCurrentRedirect(
+            qrCode.getRedirections().stream().filter(Redirection::getEnabled).findFirst().orElse(new Redirection()).getUrl()
+        );
     }
 
-    private void addUserCriteria(QrCodeCriteria criteria){
+    private void addUserCriteria(QrCodeCriteria criteria) {
         User user = userService.getUserWithAuthorities().orElseThrow(UserNotAuthenticatedException::new);
-        if(!SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)){
+        if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
             LongFilter longFilter = new LongFilter();
             longFilter.setEquals(user.getId());
             criteria.setUserId(longFilter);

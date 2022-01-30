@@ -4,9 +4,9 @@ import de.bildwerkmedien.fluidqr.server.domain.*;
 import de.bildwerkmedien.fluidqr.server.repository.RedirectionRepository;
 import de.bildwerkmedien.fluidqr.server.security.AuthoritiesConstants;
 import de.bildwerkmedien.fluidqr.server.security.SecurityUtils;
-import de.bildwerkmedien.fluidqr.server.service.dto.RedirectionCriteria;
-import io.github.jhipster.service.QueryService;
-import io.github.jhipster.service.filter.LongFilter;
+import de.bildwerkmedien.fluidqr.server.service.criteria.RedirectionCriteria;
+import java.util.List;
+import javax.persistence.criteria.JoinType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -14,9 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.criteria.JoinType;
-import java.util.List;
+import tech.jhipster.service.filter.LongFilter;
 
 /**
  * Service for executing complex queries for {@link Redirection} entities in the database.
@@ -34,13 +32,14 @@ public class RedirectionQueryExtendedService extends RedirectionQueryService {
     private final UserService userService;
 
     public RedirectionQueryExtendedService(RedirectionRepository redirectionRepository, UserService userService) {
-        super(redirectionRepository, userService);
+        super(redirectionRepository);
         this.redirectionRepository = redirectionRepository;
         this.userService = userService;
     }
 
     /**
      * Return a {@link List} of {@link Redirection} which matches the criteria from the database.
+     *
      * @param criteria The object which holds all the filters, which the entities should match.
      * @return the matching entities.
      */
@@ -54,8 +53,9 @@ public class RedirectionQueryExtendedService extends RedirectionQueryService {
 
     /**
      * Return a {@link Page} of {@link Redirection} which matches the criteria from the database.
+     *
      * @param criteria The object which holds all the filters, which the entities should match.
-     * @param page The page, which should be returned.
+     * @param page     The page, which should be returned.
      * @return the matching entities.
      */
     @Transactional(readOnly = true)
@@ -68,6 +68,7 @@ public class RedirectionQueryExtendedService extends RedirectionQueryService {
 
     /**
      * Return the number of matching entities in the database.
+     *
      * @param criteria The object which holds all the filters, which the entities should match.
      * @return the number of matching entities.
      */
@@ -81,6 +82,7 @@ public class RedirectionQueryExtendedService extends RedirectionQueryService {
 
     /**
      * Function to convert {@link RedirectionCriteria} to a {@link Specification}
+     *
      * @param criteria The object which holds all the filters, which the entities should match.
      * @return the matching {@link Specification} of the entity.
      */
@@ -112,20 +114,24 @@ public class RedirectionQueryExtendedService extends RedirectionQueryService {
                 specification = specification.and(buildRangeSpecification(criteria.getEndDate(), Redirection_.endDate));
             }
             if (criteria.getUserId() != null) {
-                specification = specification.and(buildSpecification(criteria.getUserId(),
-                    root -> root.join(Redirection_.user, JoinType.LEFT).get(User_.id)));
+                specification =
+                    specification.and(
+                        buildSpecification(criteria.getUserId(), root -> root.join(Redirection_.user, JoinType.LEFT).get(User_.id))
+                    );
             }
             if (criteria.getQrCodeId() != null) {
-                specification = specification.and(buildSpecification(criteria.getQrCodeId(),
-                    root -> root.join(Redirection_.qrCode, JoinType.LEFT).get(QrCode_.id)));
+                specification =
+                    specification.and(
+                        buildSpecification(criteria.getQrCodeId(), root -> root.join(Redirection_.qrCode, JoinType.LEFT).get(QrCode_.id))
+                    );
             }
         }
         return specification;
     }
 
-    private void addUserCriteria(RedirectionCriteria criteria){
+    private void addUserCriteria(RedirectionCriteria criteria) {
         User user = userService.getUserWithAuthorities().orElseThrow(UserNotAuthenticatedException::new);
-        if(!SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)){
+        if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
             LongFilter longFilter = new LongFilter();
             longFilter.setEquals(user.getId());
             criteria.setUserId(longFilter);

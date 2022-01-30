@@ -9,7 +9,6 @@
       "500": "Interner Serverfehler."
     },
     "concurrencyFailure": "Ein anderer Benutzer hat diese Daten zeitgleich mit Ihnen geändert. Ihre Änderungen wurden abgelehnt.",
-    "validation": "Validierungsfehler auf dem Server.",
-    "authorization": "Fehlende Authorisierung für diese Aktion"
+    "validation": "Validierungsfehler auf dem Server."
   }
 }

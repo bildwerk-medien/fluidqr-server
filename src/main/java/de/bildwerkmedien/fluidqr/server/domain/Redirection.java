@@ -1,15 +1,12 @@
 package de.bildwerkmedien.fluidqr.server.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
 import java.io.Serializable;
 import java.time.ZonedDateTime;
+import javax.persistence.*;
+import javax.validation.constraints.*;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * A Redirection.
@@ -23,6 +20,7 @@ public class Redirection implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "description")
@@ -39,30 +37,31 @@ public class Redirection implements Serializable {
     @Column(name = "enabled", nullable = false)
     private Boolean enabled;
 
-    @JsonIgnore
     @Column(name = "creation")
     private ZonedDateTime creation;
 
-    @JsonIgnore
     @Column(name = "start_date")
     private ZonedDateTime startDate;
 
-    @JsonIgnore
     @Column(name = "end_date")
     private ZonedDateTime endDate;
 
-    @JsonIgnore
     @ManyToOne
-    @JsonIgnoreProperties(value = "redirections", allowSetters = true)
     private User user;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = {"redirections", "code", "link", "currentRedirect"}, allowSetters = true)
+    @JsonIgnoreProperties(value = { "redirections", "user" }, allowSetters = true)
     private QrCode qrCode;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public Redirection id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
@@ -70,11 +69,11 @@ public class Redirection implements Serializable {
     }
 
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     public Redirection description(String description) {
-        this.description = description;
+        this.setDescription(description);
         return this;
     }
 
@@ -83,11 +82,11 @@ public class Redirection implements Serializable {
     }
 
     public String getCode() {
-        return code;
+        return this.code;
     }
 
     public Redirection code(String code) {
-        this.code = code;
+        this.setCode(code);
         return this;
     }
 
@@ -96,11 +95,11 @@ public class Redirection implements Serializable {
     }
 
     public String getUrl() {
-        return url;
+        return this.url;
     }
 
     public Redirection url(String url) {
-        this.url = url;
+        this.setUrl(url);
         return this;
     }
 
@@ -108,12 +107,12 @@ public class Redirection implements Serializable {
         this.url = url;
     }
 
-    public Boolean isEnabled() {
-        return enabled;
+    public Boolean getEnabled() {
+        return this.enabled;
     }
 
     public Redirection enabled(Boolean enabled) {
-        this.enabled = enabled;
+        this.setEnabled(enabled);
         return this;
     }
 
@@ -122,11 +121,11 @@ public class Redirection implements Serializable {
     }
 
     public ZonedDateTime getCreation() {
-        return creation;
+        return this.creation;
     }
 
     public Redirection creation(ZonedDateTime creation) {
-        this.creation = creation;
+        this.setCreation(creation);
         return this;
     }
 
@@ -135,11 +134,11 @@ public class Redirection implements Serializable {
     }
 
     public ZonedDateTime getStartDate() {
-        return startDate;
+        return this.startDate;
     }
 
     public Redirection startDate(ZonedDateTime startDate) {
-        this.startDate = startDate;
+        this.setStartDate(startDate);
         return this;
     }
 
@@ -148,11 +147,11 @@ public class Redirection implements Serializable {
     }
 
     public ZonedDateTime getEndDate() {
-        return endDate;
+        return this.endDate;
     }
 
     public Redirection endDate(ZonedDateTime endDate) {
-        this.endDate = endDate;
+        this.setEndDate(endDate);
         return this;
     }
 
@@ -161,30 +160,31 @@ public class Redirection implements Serializable {
     }
 
     public User getUser() {
-        return user;
-    }
-
-    public Redirection user(User user) {
-        this.user = user;
-        return this;
+        return this.user;
     }
 
     public void setUser(User user) {
         this.user = user;
     }
 
-    public QrCode getQrCode() {
-        return qrCode;
+    public Redirection user(User user) {
+        this.setUser(user);
+        return this;
     }
 
-    public Redirection qrCode(QrCode qrCode) {
-        this.qrCode = qrCode;
-        return this;
+    public QrCode getQrCode() {
+        return this.qrCode;
     }
 
     public void setQrCode(QrCode qrCode) {
         this.qrCode = qrCode;
     }
+
+    public Redirection qrCode(QrCode qrCode) {
+        this.setQrCode(qrCode);
+        return this;
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
@@ -200,7 +200,8 @@ public class Redirection implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31;
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
     // prettier-ignore
@@ -211,7 +212,7 @@ public class Redirection implements Serializable {
             ", description='" + getDescription() + "'" +
             ", code='" + getCode() + "'" +
             ", url='" + getUrl() + "'" +
-            ", enabled='" + isEnabled() + "'" +
+            ", enabled='" + getEnabled() + "'" +
             ", creation='" + getCreation() + "'" +
             ", startDate='" + getStartDate() + "'" +
             ", endDate='" + getEndDate() + "'" +

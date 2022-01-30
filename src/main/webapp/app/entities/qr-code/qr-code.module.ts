@@ -1,16 +1,14 @@
 import { NgModule } from '@angular/core';
-import { RouterModule } from '@angular/router';
-
-import { FluidQrServerSharedModule } from 'app/shared/shared.module';
-import { QrCodeComponent } from './qr-code.component';
-import { QrCodeDetailComponent } from './qr-code-detail.component';
-import { QrCodeUpdateComponent } from './qr-code-update.component';
-import { QrCodeDeleteDialogComponent } from './qr-code-delete-dialog.component';
-import { qrCodeRoute } from './qr-code.route';
+import { SharedModule } from 'app/shared/shared.module';
+import { QrCodeComponent } from './list/qr-code.component';
+import { QrCodeDetailComponent } from './detail/qr-code-detail.component';
+import { QrCodeUpdateComponent } from './update/qr-code-update.component';
+import { QrCodeDeleteDialogComponent } from './delete/qr-code-delete-dialog.component';
+import { QrCodeRoutingModule } from './route/qr-code-routing.module';
 
 @NgModule({
-  imports: [FluidQrServerSharedModule, RouterModule.forChild(qrCodeRoute)],
+  imports: [SharedModule, QrCodeRoutingModule],
   declarations: [QrCodeComponent, QrCodeDetailComponent, QrCodeUpdateComponent, QrCodeDeleteDialogComponent],
   entryComponents: [QrCodeDeleteDialogComponent],
 })
-export class FluidQrServerQrCodeModule {}
+export class QrCodeModule {}

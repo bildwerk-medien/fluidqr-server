@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { QrCodeService } from 'app/entities/qr-code/qr-code.service';
-import { QrCode } from 'app/shared/model/qr-code.model';
 import { AddModalService } from 'app/qr-codes/add/add-modal.service';
-import { RedirectionService } from 'app/entities/redirection/redirection.service';
+import { QrCode } from '../entities/qr-code/qr-code.model';
+import { QrCodeService } from '../entities/qr-code/service/qr-code.service';
+import { RedirectionService } from '../entities/redirection/service/redirection.service';
 
 @Component({
   selector: 'jhi-qr-codes',
   templateUrl: './qr-codes.component.html',
-  styleUrls: ['qr-codes.component.scss'],
+  styleUrls: ['./qr-codes.component.scss'],
 })
 export class QrCodesComponent implements OnInit {
   qrCodes?: QrCode[];

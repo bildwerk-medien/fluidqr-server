@@ -1,7 +1,7 @@
 import { Route } from '@angular/router';
 
-import { UserRouteAccessService } from 'app/core/auth/user-route-access-service';
 import { QrCodesComponent } from './qr-codes.component';
+import { UserRouteAccessService } from '../core/auth/user-route-access.service';
 
 export const QR_CODES_ROUTE: Route = {
   path: 'qr-codes',
