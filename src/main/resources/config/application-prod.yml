@@ -53,8 +53,8 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:mysql://localhost:3306/FluidQrServer?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
-    username: root
-    password:
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     hikari:
       poolName: Hikari
       auto-commit: false
@@ -68,10 +68,16 @@ spring:
   liquibase:
     contexts: prod
   mail:
-    host: localhost
-    port: 25
-    username:
-    password:
+    host: smtp.strato.de
+    port: 465
+    protocol: smtps
+    tls: true
+    properties.mail.smtp:
+      starttls.enable: true
+      starttls.required: true
+      ssl.enable: true
+    properties.mail.smtps:
+      auth: true
   thymeleaf:
     cache: true
   sleuth:
@@ -140,7 +146,7 @@ jhipster:
         token-validity-in-seconds: 86400
         token-validity-in-seconds-for-remember-me: 2592000
   mail: # specific JHipster mail property, for standard properties see MailProperties
-    base-url: http://my-server-url-to-change # Modify according to your server's URL
+    base-url: https://qr.7lofficial.de # Modify according to your server's URL
   logging:
     use-json-format: false # By default, logs are not in Json format
     logstash: # Forward logs to logstash over a socket, used by LoggingConfiguration
