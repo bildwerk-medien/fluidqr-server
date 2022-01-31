@@ -7,6 +7,7 @@ import { URL_PATTERN } from 'app/app.constants';
 import { Account } from '../../core/auth/account.model';
 import { QrCodeService } from '../../entities/qr-code/service/qr-code.service';
 import { RedirectionService } from '../../entities/redirection/service/redirection.service';
+import { UrlUtil } from '../../shared/util/url-util';
 
 @Component({
   selector: 'jhi-login-modal',
@@ -30,7 +31,8 @@ export class AddModalComponent implements OnInit, AfterViewInit {
     private redirectionService: RedirectionService,
     private router: Router,
     public activeModal: NgbActiveModal,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private urlUtil: UrlUtil
   ) {}
 
   ngAfterViewInit(): void {
@@ -55,7 +57,7 @@ export class AddModalComponent implements OnInit, AfterViewInit {
             if (res.body) {
               this.redirectionService
                 .create({
-                  url: this.currentRedirection,
+                  url: this.urlUtil.enhanceToHttps(this.currentRedirection),
                   enabled: true,
                   qrCode: {
                     id: res.body.id,

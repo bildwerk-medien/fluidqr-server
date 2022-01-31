@@ -4,6 +4,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { URL_PATTERN } from 'app/app.constants';
 import { RedirectionService } from '../../entities/redirection/service/redirection.service';
 import { IQrCode } from '../../entities/qr-code/qr-code.model';
+import { UrlUtil } from '../../shared/util/url-util';
 
 @Component({
   selector: 'jhi-login-modal',
@@ -22,7 +23,7 @@ export class UpdateModalComponent implements AfterViewInit {
 
   creationError = false;
 
-  constructor(private redirectionService: RedirectionService, public activeModal: NgbActiveModal) {
+  constructor(private redirectionService: RedirectionService, public activeModal: NgbActiveModal, private urlUtil: UrlUtil) {
     this.currentRedirection = '';
   }
 
@@ -40,7 +41,7 @@ export class UpdateModalComponent implements AfterViewInit {
   submit(f: NgForm): void {
     if (f.valid) {
       if (this.currentQrCode?.redirections && this.currentQrCode.redirections.length > 0) {
-        this.currentQrCode.redirections[0].url = this.currentRedirection;
+        this.currentQrCode.redirections[0].url = this.urlUtil.enhanceToHttps(this.currentRedirection);
         this.redirectionService.update(this.currentQrCode.redirections[0]).subscribe(() => {
           this.creationError = false;
           this.activeModal.close();
