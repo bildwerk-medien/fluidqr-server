@@ -2,7 +2,7 @@
   "name": "fluid-qr-server",
   "version": "0.0.1-SNAPSHOT",
   "private": true,
-  "description": "Description for FluidQrServer",
+  "description": "Fluid QR by [bild:werk] medien",
   "license": "UNLICENSED",
   "scripts": {
     "app:start": "./mvnw",

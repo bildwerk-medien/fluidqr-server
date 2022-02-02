@@ -9,8 +9,8 @@
     <artifactId>fluid-qr-server</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>Fluid Qr Server</name>
-    <description>Description for FluidQrServer</description>
+    <name>Fluid QR</name>
+    <description>Fluid QR by [bild:werk] medien</description>
 
     <repositories>
         <!-- jhipster-needle-maven-repository -->
