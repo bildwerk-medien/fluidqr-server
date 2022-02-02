@@ -1,22 +1,18 @@
 <div class="row">
-  <div class="col-md-3"></div>
-
-  <div class="col-md-9">
-    <h1 class="display-5" jhiTranslate="home.title">Welcome, Java Hipster!</h1>
-
-    <p class="lead" jhiTranslate="home.subtitle">This is your homepage</p>
-
-    <div [ngSwitch]="account !== null">
-      <div class="alert alert-success" *ngSwitchCase="true">
-        <span id="home-logged-message" *ngIf="account" jhiTranslate="home.logged.message" [translateValues]="{ username: account.login }"
-          >You are logged in as user "{{ account.login }}".</span
-        >
+  <section class="py-5 text-center container">
+    <div class="row py-lg-5">
+      <div class="col-lg-6 col-md-8 mx-auto">
+        <h1 class="fw-light mb-4" jhiTranslate="home.brand">Fluid QR von [bild:werk] medien</h1>
+        <p class="lead text-muted" jhiTranslate="home.info">
+          Die Fluid QR Platform ermöglicht die Erstellung eines beständigen und leicht lesbaren Links, der auf einen anderen Link Deiner
+          Wahl verweist. Die mit Fluid QR erstellten Links können bedenkenlos verbreitet werden, ohne dass eine Korrektur bei Änderung des
+          ursprünglichen Links kommuniziert werden muss. Die Anpassung des Verweises erfolgt dynamisch im Hintergrund über die Fluid QR
+          Plattform. Zu jedem Fluid QR Link wird ein QR Code zum Herunterladen bereitgestellt.
+        </p>
+        <div>
+          <a class="btn btn-secondary" routerLink="/qr-codes" jhiTranslate="home.button.letsGo">Los geht's</a>
+        </div>
       </div>
-
-      <!--            <div class="alert alert-warning" *ngSwitchCase="false">-->
-      <!--                <span jhiTranslate="global.messages.info.register.noaccount">You don't have an account yet?</span>&nbsp;-->
-      <!--                <a class="alert-link" routerLink="account/register" jhiTranslate="global.messages.info.register.link">Register a new account</a>-->
-      <!--            </div>-->
     </div>
-  </div>
+  </section>
 </div>

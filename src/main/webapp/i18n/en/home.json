@@ -1,20 +1,14 @@
 {
   "home": {
     "brand": "Fluid QR by [bild:werk] medien",
-    "title": "Welcome to Fluid QR by [bild:werk] medien!",
+    "title": "Fluid QR by [bild:werk] medien",
     "subtitle": "A tool for creating dynamic links and QR codes.",
     "logged": {
       "message": "You are logged in as user \"{{username}}\"."
     },
-    "question": "If you have any question on JHipster:",
-    "link": {
-      "homepage": "JHipster homepage",
-      "stackoverflow": "JHipster on Stack Overflow",
-      "bugtracker": "JHipster bug tracker",
-      "chat": "JHipster public chat room",
-      "follow": "follow @jhipster on Twitter"
-    },
-    "like": "If you like JHipster, don't forget to give us a star on",
-    "github": "GitHub"
+    "info": "The Fluid QR Platform enables the creation of a persistent and easily readable link that points to another link of your choice. The links created with Fluid QR can be distributed without hesitation and without the need to communicate a correction if your original link is changed. The adjustment of the link is done dynamically in the background via the Fluid QR platform. A downloadable QR code is provided for each Fluid QR link.",
+    "button": {
+      "letsGo": "Let's go"
+    }
   }
 }
