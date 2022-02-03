@@ -1,39 +1,41 @@
 <div>
-    <div class="row justify-content-center">
-        <div class="col-8">
-            <h3 class="text-capitalize text-left">
-                <span>{{ currentQrCode?.code }}</span>
-            </h3>
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-12">
+      <h3 class="text-capitalize text-left">
+        <span>{{ currentQrCode?.code }}</span>
+      </h3>
 
-            <div class="mb-2">
-                <span jhiTranslate="qr-codes.publicUrl">Public URL</span>: <br>
-                <a target="_blank" [href]="currentQrCode?.link">{{ currentQrCode?.link }}</a>
+      <div class="mb-2">
+        <span jhiTranslate="qr-codes.publicUrl">Public URL</span>: <br />
+        <a target="_blank" [href]="currentQrCode?.link">{{ currentQrCode?.link }}</a>
+      </div>
 
-            </div>
+      <div class="mb-1">
+        <span jhiTranslate="qr-codes.currentRedirection">Current Redirection</span>: <br />
+        <span>
+          <a target="_blank" [href]="currentQrCode?.currentRedirect">{{ currentQrCode?.currentRedirect }}</a>
+          <a (click)="updateRedirection()"><fa-icon icon="pencil-alt"></fa-icon></a>
+        </span>
+      </div>
 
-            <div class="mb-1">
-                <span jhiTranslate="qr-codes.currentRedirection">Current Redirection</span>: <br>
-                <span>
-                <a target="_blank" [href]="currentQrCode?.currentRedirect">{{ currentQrCode?.currentRedirect }}</a>
-                <a (click)="updateRedirection()"><fa-icon icon="pencil-alt"></fa-icon></a>
-                </span>
-            </div>
+      <div class="row m-1 m-md-0">
+        <a
+          class="btn btn-primary mt-3 mr-2 text-white btn-block d-none d-md-block col-md-3"
+          (click)="onDownload()"
+          jhiTranslate="qr-codes.download"
+          >Download</a
+        >
 
-            <div>
-                <span>
-                    <a class="btn btn-primary mt-3 mr-2 text-white" (click)="onDownload()"
-                       jhiTranslate="qr-codes.download">Download</a>
+        <a class="btn btn-primary mt-3 mr-2 text-white btn-block d-md-none col-5" (click)="onShowQrCode()" jhiTranslate="qr-codes.show"
+          >QR Code</a
+        >
 
-                    <a class="btn btn-danger mt-3 text-white" (click)="onDelete()"
-                       jhiTranslate="qr-codes.delete">Delete</a>
-                </span>
-            </div>
-
-        </div>
-
-        <div class="col-4">
-            <div class="float-right" [id]="'canvas-' + this.currentQrCode?.id"></div>
-        </div>
-
+        <a class="btn btn-danger mt-3 text-white col-md-3 col-5" (click)="onDelete()" jhiTranslate="qr-codes.delete">Delete</a>
+      </div>
     </div>
+
+    <div class="col-4 d-none d-md-block">
+      <div class="float-right" [id]="'canvas-' + this.currentQrCode?.id"></div>
+    </div>
+  </div>
 </div>

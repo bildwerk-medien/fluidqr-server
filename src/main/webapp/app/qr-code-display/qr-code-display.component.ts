@@ -4,6 +4,7 @@ import { UpdateModalService } from 'app/qr-codes/update/update-modal.service';
 import { DeleteModalService } from 'app/qr-codes/delete/delete-modal.service';
 import { IQrCode, QrCode } from 'app/entities/qr-code/qr-code.model';
 import { QrCodeService } from 'app/entities/qr-code/service/qr-code.service';
+import { ShowModalService } from '../qr-codes/show/show-modal.service';
 
 @Component({
   selector: 'jhi-qr-code-display',
@@ -27,6 +28,7 @@ export class QrCodeDisplayComponent implements AfterViewInit {
   constructor(
     private updateModalService: UpdateModalService,
     private deleteModalService: DeleteModalService,
+    private showModalService: ShowModalService,
     private qrCodeService: QrCodeService
   ) {}
 
@@ -82,13 +84,7 @@ export class QrCodeDisplayComponent implements AfterViewInit {
   }
 
   getHtmlElement(): HTMLElement | undefined {
-    let qrCodeId = '';
-
-    if (this.currentQrCode?.id) {
-      qrCodeId = this.currentQrCode.id.toString();
-    }
-
-    const htmlElement = document.getElementById(`canvas-${qrCodeId}`);
+    const htmlElement = document.getElementById(this.createCanvasQrCodeId());
     if (htmlElement != null) {
       return htmlElement;
     }
@@ -106,5 +102,19 @@ export class QrCodeDisplayComponent implements AfterViewInit {
       this.deleteModalService.close();
       this.deleteQrCode.emit();
     });
+  }
+
+  onShowQrCode(): void {
+    this.showModalService.open(this.createCanvasQrCodeId() + '-modal', this.getQrCode(this.currentQrCode));
+  }
+
+  private createCanvasQrCodeId(): string {
+    let qrCodeId = '';
+
+    if (this.currentQrCode?.id) {
+      qrCodeId = this.currentQrCode.id.toString();
+    }
+
+    return `canvas-${qrCodeId}`;
   }
 }
