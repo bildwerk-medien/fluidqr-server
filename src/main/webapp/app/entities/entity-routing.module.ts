@@ -14,6 +14,11 @@ import { RouterModule } from '@angular/router';
         data: { pageTitle: 'fluidQrServerApp.qrCode.home.title' },
         loadChildren: () => import('./qr-code/qr-code.module').then(m => m.QrCodeModule),
       },
+      {
+        path: 'google-user',
+        data: { pageTitle: 'fluidQrServerApp.googleUser.home.title' },
+        loadChildren: () => import('./google-user/google-user.module').then(m => m.GoogleUserModule),
+      },
       /* jhipster-needle-add-entity-route - JHipster will add entity modules routes here */
     ]),
   ],

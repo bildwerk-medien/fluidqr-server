@@ -1,0 +1,59 @@
+<div>
+  <h2 id="page-heading" data-cy="GoogleUserHeading">
+    <span jhiTranslate="fluidQrServerApp.googleUser.home.title">Google Users</span>
+
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-info mr-2" (click)="loadAll()" [disabled]="isLoading">
+        <fa-icon icon="sync" [spin]="isLoading"></fa-icon>
+        <span jhiTranslate="fluidQrServerApp.googleUser.home.refreshListLabel">Refresh List</span>
+      </button>
+    </div>
+  </h2>
+
+  <jhi-alert-error></jhi-alert-error>
+
+  <jhi-alert></jhi-alert>
+
+  <div class="alert alert-warning" id="no-result" *ngIf="googleUsers?.length === 0">
+    <span jhiTranslate="fluidQrServerApp.googleUser.home.notFound">No googleUsers found</span>
+  </div>
+
+  <div class="table-responsive" id="entities" *ngIf="googleUsers && googleUsers.length > 0">
+    <table class="table table-striped" aria-describedby="page-heading">
+      <thead>
+        <tr>
+          <th scope="col"><span jhiTranslate="global.field.id">ID</span></th>
+          <th scope="col"><span jhiTranslate="fluidQrServerApp.googleUser.name">Name</span></th>
+          <th scope="col"><span jhiTranslate="fluidQrServerApp.googleUser.refreshToken">Refresh Token</span></th>
+          <th scope="col"><span jhiTranslate="fluidQrServerApp.googleUser.user">User</span></th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let googleUser of googleUsers; trackBy: trackId" data-cy="entityTable">
+          <td>
+            <a [routerLink]="['/google-user', googleUser.id, 'view']">{{ googleUser.id }}</a>
+          </td>
+          <td>{{ googleUser.name }}</td>
+          <td>{{ googleUser.refreshToken }}</td>
+          <td>
+            {{ googleUser.user?.login }}
+          </td>
+          <td class="text-right">
+            <div class="btn-group">
+              <button
+                type="submit"
+                [routerLink]="['/google-user', googleUser.id, 'view']"
+                class="btn btn-info btn-sm"
+                data-cy="entityDetailsButton"
+              >
+                <fa-icon icon="eye"></fa-icon>
+                <span class="d-none d-md-inline" jhiTranslate="entity.action.view">View</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

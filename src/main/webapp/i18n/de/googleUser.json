@@ -1,0 +1,18 @@
+{
+  "fluidQrServerApp": {
+    "googleUser": {
+      "home": {
+        "title": "Google Users",
+        "refreshListLabel": "Liste aktualisieren",
+        "notFound": "Keine Google Users gefunden"
+      },
+      "detail": {
+        "title": "Google User"
+      },
+      "id": "ID",
+      "name": "Name",
+      "refreshToken": "Refresh Token",
+      "user": "User"
+    }
+  }
+}
