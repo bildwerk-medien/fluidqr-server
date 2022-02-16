@@ -1,0 +1,38 @@
+{
+  "changelogDate": "20220216172337",
+  "dto": "no",
+  "fields": [
+    {
+      "fieldName": "name",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "unique"]
+    },
+    {
+      "fieldName": "refreshToken",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "enabled",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "creationTime",
+      "fieldType": "Instant"
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "name": "GoogleUser",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityField": "login",
+      "otherEntityName": "user",
+      "otherEntityRelationshipName": "googleUser",
+      "ownerSide": true,
+      "relationshipName": "user",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "service": "serviceImpl"
+}

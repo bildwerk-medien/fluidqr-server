@@ -1,0 +1,28 @@
+{
+  "fluidQrServerApp": {
+    "googleUser": {
+      "home": {
+        "title": "Google Users",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Google User",
+        "createOrEditLabel": "Create or edit a Google User",
+        "notFound": "No Google Users found"
+      },
+      "created": "A new Google User is created with identifier {{ param }}",
+      "updated": "A Google User is updated with identifier {{ param }}",
+      "deleted": "A Google User is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Google User {{ id }}?"
+      },
+      "detail": {
+        "title": "Google User"
+      },
+      "id": "ID",
+      "name": "Name",
+      "refreshToken": "Refresh Token",
+      "enabled": "Enabled",
+      "creationTime": "Creation Time",
+      "user": "User"
+    }
+  }
+}

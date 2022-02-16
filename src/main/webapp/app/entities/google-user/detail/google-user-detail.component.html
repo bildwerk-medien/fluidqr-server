@@ -1,0 +1,48 @@
+<div class="row justify-content-center">
+  <div class="col-8">
+    <div *ngIf="googleUser">
+      <h2 data-cy="googleUserDetailsHeading"><span jhiTranslate="fluidQrServerApp.googleUser.detail.title">Google User</span></h2>
+
+      <hr />
+
+      <jhi-alert-error></jhi-alert-error>
+
+      <jhi-alert></jhi-alert>
+
+      <dl class="row-md jh-entity-details">
+        <dt><span jhiTranslate="global.field.id">ID</span></dt>
+        <dd>
+          <span>{{ googleUser.id }}</span>
+        </dd>
+        <dt><span jhiTranslate="fluidQrServerApp.googleUser.name">Name</span></dt>
+        <dd>
+          <span>{{ googleUser.name }}</span>
+        </dd>
+        <dt><span jhiTranslate="fluidQrServerApp.googleUser.refreshToken">Refresh Token</span></dt>
+        <dd>
+          <span>{{ googleUser.refreshToken }}</span>
+        </dd>
+        <dt><span jhiTranslate="fluidQrServerApp.googleUser.enabled">Enabled</span></dt>
+        <dd>
+          <span>{{ googleUser.enabled }}</span>
+        </dd>
+        <dt><span jhiTranslate="fluidQrServerApp.googleUser.creationTime">Creation Time</span></dt>
+        <dd>
+          <span>{{ googleUser.creationTime | formatMediumDatetime }}</span>
+        </dd>
+        <dt><span jhiTranslate="fluidQrServerApp.googleUser.user">User</span></dt>
+        <dd>
+          <span>{{ googleUser.user?.login }}</span>
+        </dd>
+      </dl>
+
+      <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+        <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
+      </button>
+
+      <button type="button" [routerLink]="['/google-user', googleUser.id, 'edit']" class="btn btn-primary">
+        <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
+      </button>
+    </div>
+  </div>
+</div>

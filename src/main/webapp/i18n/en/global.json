@@ -10,6 +10,7 @@
         "main": "Entities",
         "redirection": "Redirection",
         "qrCode": "Qr Code",
+        "googleUser": "Google User",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {
