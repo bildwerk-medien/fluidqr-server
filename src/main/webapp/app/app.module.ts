@@ -26,6 +26,7 @@ import { PageRibbonComponent } from './layouts/profiles/page-ribbon.component';
 import { ActiveMenuDirective } from './layouts/navbar/active-menu.directive';
 import { ErrorComponent } from './layouts/error/error.component';
 import { QrCodesModule } from './qr-codes';
+import { GoogleLoginModule } from './google-login/google-login.module';
 
 @NgModule({
   imports: [
@@ -33,6 +34,7 @@ import { QrCodesModule } from './qr-codes';
     SharedModule,
     HomeModule,
     QrCodesModule,
+    GoogleLoginModule,
     // jhipster-needle-angular-add-module JHipster will add new module here
     AppRoutingModule,
     // Set this to true to enable service worker (PWA)
