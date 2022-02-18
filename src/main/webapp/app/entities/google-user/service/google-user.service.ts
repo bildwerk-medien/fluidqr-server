@@ -20,9 +20,16 @@ export class GoogleUserService {
 
   create(googleUser: IGoogleUser): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(googleUser);
-    return this.http
-      .post<IGoogleUser>(this.resourceUrl, copy, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+    return this.http.post<IGoogleUser>(this.resourceUrl, copy, { observe: 'response' }).pipe(
+      map((res: EntityResponseType) => {
+        const convertedResponse = this.convertDateFromServer(res);
+
+        if (convertedResponse.body?.id) {
+          document.cookie = `guser=${convertedResponse.body.id}`;
+        }
+        return convertedResponse;
+      })
+    );
   }
 
   update(googleUser: IGoogleUser): Observable<EntityResponseType> {
