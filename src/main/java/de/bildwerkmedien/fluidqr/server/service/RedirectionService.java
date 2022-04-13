@@ -18,6 +18,14 @@ public interface RedirectionService {
     Redirection save(Redirection redirection);
 
     /**
+     * Updates a redirection.
+     *
+     * @param redirection the entity to update.
+     * @return the persisted entity.
+     */
+    Redirection update(Redirection redirection);
+
+    /**
      * Partially updates a redirection.
      *
      * @param redirection the entity to update partially.

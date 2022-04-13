@@ -3,7 +3,7 @@
     <span jhiTranslate="fluidQrServerApp.qrCode.home.title">Qr Codes</span>
 
     <div class="d-flex justify-content-end">
-      <button class="btn btn-info mr-2" (click)="reset()" [disabled]="isLoading">
+      <button class="btn btn-info me-2" (click)="reset()" [disabled]="isLoading">
         <fa-icon icon="sync" [spin]="isLoading"></fa-icon>
         <span jhiTranslate="fluidQrServerApp.qrCode.home.refreshListLabel">Refresh List</span>
       </button>
@@ -51,7 +51,7 @@
           <td>
             {{ qrCode.user?.id }}
           </td>
-          <td class="text-right">
+          <td class="text-end">
             <div class="btn-group">
               <button
                 type="submit"

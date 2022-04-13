@@ -33,6 +33,12 @@ public class RedirectionServiceImpl implements RedirectionService {
     }
 
     @Override
+    public Redirection update(Redirection redirection) {
+        log.debug("Request to save Redirection : {}", redirection);
+        return redirectionRepository.save(redirection);
+    }
+
+    @Override
     public Optional<Redirection> partialUpdate(Redirection redirection) {
         log.debug("Request to partially update Redirection : {}", redirection);
 

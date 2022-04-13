@@ -1,4 +1,4 @@
-<div class="row justify-content-center">
+<div class="d-flex justify-content-center">
   <div class="col-8">
     <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
       <h2
@@ -12,15 +12,13 @@
       <div>
         <jhi-alert-error></jhi-alert-error>
 
-        <div class="form-group" [hidden]="editForm.get('id')!.value == null">
-          <label class="form-control-label" jhiTranslate="global.field.id" for="field_id">ID</label>
+        <div class="row mb-3" [hidden]="editForm.get('id')!.value == null">
+          <label class="form-label" jhiTranslate="global.field.id" for="field_id">ID</label>
           <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
         </div>
 
-        <div class="form-group">
-          <label class="form-control-label" jhiTranslate="fluidQrServerApp.redirection.description" for="field_description"
-            >Description</label
-          >
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="fluidQrServerApp.redirection.description" for="field_description">Description</label>
           <input
             type="text"
             class="form-control"
@@ -31,13 +29,13 @@
           />
         </div>
 
-        <div class="form-group">
-          <label class="form-control-label" jhiTranslate="fluidQrServerApp.redirection.code" for="field_code">Code</label>
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="fluidQrServerApp.redirection.code" for="field_code">Code</label>
           <input type="text" class="form-control" name="code" id="field_code" data-cy="code" formControlName="code" />
         </div>
 
-        <div class="form-group">
-          <label class="form-control-label" jhiTranslate="fluidQrServerApp.redirection.url" for="field_url">Url</label>
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="fluidQrServerApp.redirection.url" for="field_url">Url</label>
           <input type="text" class="form-control" name="url" id="field_url" data-cy="url" formControlName="url" />
           <div *ngIf="editForm.get('url')!.invalid && (editForm.get('url')!.dirty || editForm.get('url')!.touched)">
             <small class="form-text text-danger" *ngIf="editForm.get('url')?.errors?.required" jhiTranslate="entity.validation.required">
@@ -46,8 +44,8 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-control-label" jhiTranslate="fluidQrServerApp.redirection.enabled" for="field_enabled">Enabled</label>
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="fluidQrServerApp.redirection.enabled" for="field_enabled">Enabled</label>
           <input type="checkbox" class="form-check" name="enabled" id="field_enabled" data-cy="enabled" formControlName="enabled" />
           <div *ngIf="editForm.get('enabled')!.invalid && (editForm.get('enabled')!.dirty || editForm.get('enabled')!.touched)">
             <small
@@ -60,8 +58,8 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-control-label" jhiTranslate="fluidQrServerApp.redirection.creation" for="field_creation">Creation</label>
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="fluidQrServerApp.redirection.creation" for="field_creation">Creation</label>
           <div class="d-flex">
             <input
               id="field_creation"
@@ -75,8 +73,8 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-control-label" jhiTranslate="fluidQrServerApp.redirection.startDate" for="field_startDate">Start Date</label>
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="fluidQrServerApp.redirection.startDate" for="field_startDate">Start Date</label>
           <div class="d-flex">
             <input
               id="field_startDate"
@@ -90,8 +88,8 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-control-label" jhiTranslate="fluidQrServerApp.redirection.endDate" for="field_endDate">End Date</label>
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="fluidQrServerApp.redirection.endDate" for="field_endDate">End Date</label>
           <div class="d-flex">
             <input
               id="field_endDate"
@@ -105,8 +103,8 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-control-label" jhiTranslate="fluidQrServerApp.redirection.user" for="field_user">User</label>
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="fluidQrServerApp.redirection.user" for="field_user">User</label>
           <select class="form-control" id="field_user" data-cy="user" name="user" formControlName="user">
             <option [ngValue]="null"></option>
             <option
@@ -118,8 +116,8 @@
           </select>
         </div>
 
-        <div class="form-group">
-          <label class="form-control-label" jhiTranslate="fluidQrServerApp.redirection.qrCode" for="field_qrCode">Qr Code</label>
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="fluidQrServerApp.redirection.qrCode" for="field_qrCode">Qr Code</label>
           <select class="form-control" id="field_qrCode" data-cy="qrCode" name="qrCode" formControlName="qrCode">
             <option [ngValue]="null"></option>
             <option
