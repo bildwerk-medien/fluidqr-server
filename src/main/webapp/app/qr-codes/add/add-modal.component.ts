@@ -47,6 +47,15 @@ export class AddModalComponent implements OnInit, AfterViewInit {
   }
 
   submit(f: NgForm): void {
+    // eslint-disable-next-line no-console
+    console.log(f.valid)
+
+    // eslint-disable-next-line no-console
+    console.log(this.code)
+
+    // eslint-disable-next-line no-console
+    console.log(this.account)
+
     if (f.valid && this.code && this.account) {
       this.qrCodeService
         .create({

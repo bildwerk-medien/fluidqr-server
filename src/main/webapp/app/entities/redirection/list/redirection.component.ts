@@ -68,7 +68,7 @@ export class RedirectionComponent implements OnInit {
     this.loadAll();
   }
 
-  trackId(index: number, item: IRedirection): number {
+  trackId(_index: number, item: IRedirection): number {
     return item.id!;
   }
 

@@ -33,6 +33,12 @@ public class QrCodeServiceImpl implements QrCodeService {
     }
 
     @Override
+    public QrCode update(QrCode qrCode) {
+        log.debug("Request to save QrCode : {}", qrCode);
+        return qrCodeRepository.save(qrCode);
+    }
+
+    @Override
     public Optional<QrCode> partialUpdate(QrCode qrCode) {
         log.debug("Request to partially update QrCode : {}", qrCode);
 

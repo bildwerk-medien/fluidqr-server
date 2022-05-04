@@ -20,13 +20,13 @@
 
       <div class="row m-1 m-md-0">
         <a
-          class="btn btn-primary mt-3 mr-2 text-white btn-block d-none d-md-block col-md-3"
+          class="btn btn-primary mt-3 me-2 text-white btn-block d-none d-md-block col-md-3"
           (click)="onDownload()"
           jhiTranslate="qr-codes.download"
           >Download</a
         >
 
-        <a class="btn btn-primary mt-3 mr-2 text-white btn-block d-md-none col-5" (click)="onShowQrCode()" jhiTranslate="qr-codes.show"
+        <a class="btn btn-primary mt-3 me-2 text-white btn-block d-md-none col-5" (click)="onShowQrCode()" jhiTranslate="qr-codes.show"
           >QR Code</a
         >
 
@@ -35,7 +35,7 @@
     </div>
 
     <div class="col-4 d-none d-md-block">
-      <div class="float-right" [id]="'canvas-' + this.currentQrCode?.id"></div>
+      <div class="float-end" [id]="'canvas-' + this.currentQrCode?.id"></div>
     </div>
   </div>
 </div>

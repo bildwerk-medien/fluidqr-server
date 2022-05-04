@@ -104,7 +104,7 @@ public class QrCodeResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        QrCode result = qrCodeService.save(qrCode);
+        QrCode result = qrCodeService.update(qrCode);
         return ResponseEntity
             .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, qrCode.getId().toString()))

@@ -75,11 +75,11 @@ export class RedirectionUpdateComponent implements OnInit {
     }
   }
 
-  trackUserById(index: number, item: IUser): number {
+  trackUserById(_index: number, item: IUser): number {
     return item.id!;
   }
 
-  trackQrCodeById(index: number, item: IQrCode): number {
+  trackQrCodeById(_index: number, item: IQrCode): number {
     return item.id!;
   }
 

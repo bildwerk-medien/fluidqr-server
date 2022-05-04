@@ -68,7 +68,7 @@ export class QrCodeComponent implements OnInit {
     this.loadAll();
   }
 
-  trackId(index: number, item: IQrCode): number {
+  trackId(_index: number, item: IQrCode): number {
     return item.id!;
   }
 

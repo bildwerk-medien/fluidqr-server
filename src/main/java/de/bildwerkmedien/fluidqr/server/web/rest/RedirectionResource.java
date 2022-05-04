@@ -104,7 +104,7 @@ public class RedirectionResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Redirection result = redirectionService.save(redirection);
+        Redirection result = redirectionService.update(redirection);
         return ResponseEntity
             .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, redirection.getId().toString()))

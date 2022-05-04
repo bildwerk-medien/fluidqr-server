@@ -18,6 +18,14 @@ public interface QrCodeService {
     QrCode save(QrCode qrCode);
 
     /**
+     * Updates a qrCode.
+     *
+     * @param qrCode the entity to update.
+     * @return the persisted entity.
+     */
+    QrCode update(QrCode qrCode);
+
+    /**
      * Partially updates a qrCode.
      *
      * @param qrCode the entity to update partially.
