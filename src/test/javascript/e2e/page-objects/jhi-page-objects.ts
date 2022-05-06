@@ -7,14 +7,19 @@ export class NavBarPage {
   adminMenu!: ElementFinder;
   signIn = element(by.id('login'));
   register = element(by.css('[routerLink="account/register"]'));
-  signOut = element(by.id('logout'));
+  signOut = element(by.css('[routerLink="account/settings"]'));
   passwordMenu = element(by.css('[routerLink="account/password"]'));
   settingsMenu = element(by.css('[routerLink="account/settings"]'));
+  qrCodeMenuItem = element(by.id('qr-codes-nav-element'));
 
   constructor(asAdmin?: boolean) {
     if (asAdmin) {
       this.adminMenu = element(by.id('admin-menu'));
     }
+  }
+
+  async clickOnQrCodeMenuItem(): Promise<void> {
+    await this.qrCodeMenuItem.click();
   }
 
   async clickOnEntityMenu(): Promise<void> {
@@ -55,6 +60,10 @@ export class NavBarPage {
 
   async clickOnAdmin(entityName: string): Promise<void> {
     await element(by.css('[routerLink="admin/' + entityName + '"]')).click();
+  }
+
+  async getQrCodesPage(): Promise<any> {
+
   }
 
   async getSignInPage(): Promise<SignInPage> {

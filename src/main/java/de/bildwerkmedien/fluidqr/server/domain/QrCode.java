@@ -4,20 +4,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.*;
-import javax.validation.constraints.*;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * A QrCode.
  */
 @Entity
 @Table(name = "qr_code")
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class QrCode implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -32,7 +30,6 @@ public class QrCode implements Serializable {
     private String code;
 
     @OneToMany(mappedBy = "qrCode")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "user", "qrCode" }, allowSetters = true)
     private Set<Redirection> redirections = new HashSet<>();
 

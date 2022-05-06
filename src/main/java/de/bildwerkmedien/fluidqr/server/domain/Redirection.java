@@ -1,19 +1,17 @@
 package de.bildwerkmedien.fluidqr.server.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
-import javax.persistence.*;
-import javax.validation.constraints.*;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * A Redirection.
  */
 @Entity
 @Table(name = "redirection")
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Redirection implements Serializable {
 
     private static final long serialVersionUID = 1L;
