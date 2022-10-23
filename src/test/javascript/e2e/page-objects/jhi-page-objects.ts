@@ -7,7 +7,7 @@ export class NavBarPage {
   adminMenu!: ElementFinder;
   signIn = element(by.id('login'));
   register = element(by.css('[routerLink="account/register"]'));
-  signOut = element(by.css('[routerLink="account/settings"]'));
+  signOut = element(by.id('logout'));
   passwordMenu = element(by.css('[routerLink="account/password"]'));
   settingsMenu = element(by.css('[routerLink="account/settings"]'));
   qrCodeMenuItem = element(by.id('qr-codes-nav-element'));
