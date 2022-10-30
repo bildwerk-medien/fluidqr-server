@@ -115,7 +115,7 @@ class AccountResourceIT {
 
     @Test
     @Transactional
-    void testRegisterValid_Expect403AsRegistrationShouldBeDeactivated() throws Exception {
+    void testRegisterValidExpect403AsRegistrationShouldBeDeactivated() throws Exception {
         ManagedUserVM validUser = new ManagedUserVM();
         validUser.setLogin("test-register-valid");
         validUser.setPassword("password");
@@ -136,7 +136,7 @@ class AccountResourceIT {
 
     @Test
     @Transactional
-    void testRegisterInvalidLogin_Expect403AsRegistrationShouldBeDeactivated() throws Exception {
+    void testRegisterInvalidLoginExpect403AsRegistrationShouldBeDeactivated() throws Exception {
         ManagedUserVM invalidUser = new ManagedUserVM();
         invalidUser.setLogin("funky-log(n"); // <-- invalid
         invalidUser.setPassword("password");
@@ -152,13 +152,13 @@ class AccountResourceIT {
             .perform(post("/api/register").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(invalidUser)))
             .andExpect(status().isForbidden());
 
-//        Optional<User> user = userRepository.findOneByEmailIgnoreCase("funky@example.com");
-//        assertThat(user).isEmpty();
+        Optional<User> user = userRepository.findOneByEmailIgnoreCase("funky@example.com");
+        assertThat(user).isEmpty();
     }
 
     @Test
     @Transactional
-    void testRegisterInvalidEmail_Expect403AsRegistrationShouldBeDeactivated() throws Exception {
+    void testRegisterInvalidEmailExpect403AsRegistrationShouldBeDeactivated() throws Exception {
         ManagedUserVM invalidUser = new ManagedUserVM();
         invalidUser.setLogin("bob");
         invalidUser.setPassword("password");
@@ -174,13 +174,13 @@ class AccountResourceIT {
             .perform(post("/api/register").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(invalidUser)))
             .andExpect(status().isForbidden());
 
-//        Optional<User> user = userRepository.findOneByLogin("bob");
-//        assertThat(user).isEmpty();
+        Optional<User> user = userRepository.findOneByLogin("bob");
+        assertThat(user).isEmpty();
     }
 
     @Test
     @Transactional
-    void testRegisterInvalidPassword_Expect403AsRegistrationShouldBeDeactivated() throws Exception {
+    void testRegisterInvalidPasswordExpect403AsRegistrationShouldBeDeactivated() throws Exception {
         ManagedUserVM invalidUser = new ManagedUserVM();
         invalidUser.setLogin("bob");
         invalidUser.setPassword("123"); // password with only 3 digits
@@ -196,13 +196,13 @@ class AccountResourceIT {
             .perform(post("/api/register").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(invalidUser)))
             .andExpect(status().isForbidden());
 
-//        Optional<User> user = userRepository.findOneByLogin("bob");
-//        assertThat(user).isEmpty();
+        Optional<User> user = userRepository.findOneByLogin("bob");
+        assertThat(user).isEmpty();
     }
 
     @Test
     @Transactional
-    void testRegisterNullPassword_Expect403AsRegistrationShouldBeDeactivated() throws Exception {
+    void testRegisterNullPasswordExpect403AsRegistrationShouldBeDeactivated() throws Exception {
         ManagedUserVM invalidUser = new ManagedUserVM();
         invalidUser.setLogin("bob");
         invalidUser.setPassword(null); // invalid null password
@@ -218,13 +218,13 @@ class AccountResourceIT {
             .perform(post("/api/register").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(invalidUser)))
             .andExpect(status().isForbidden());
 
-//        Optional<User> user = userRepository.findOneByLogin("bob");
-//        assertThat(user).isEmpty();
+        Optional<User> user = userRepository.findOneByLogin("bob");
+        assertThat(user).isEmpty();
     }
 
     @Test
     @Transactional
-    void testRegisterDuplicateLogin_Expect403AsRegistrationShouldBeDeactivated() throws Exception {
+    void testRegisterDuplicateLoginExpect403AsRegistrationShouldBeDeactivated() throws Exception {
         // First registration
         ManagedUserVM firstUser = new ManagedUserVM();
         firstUser.setLogin("alice");
@@ -261,6 +261,9 @@ class AccountResourceIT {
             .perform(post("/api/register").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(secondUser)))
             .andExpect(status().isForbidden());
 
+        Optional<User> testUser = userRepository.findOneByEmailIgnoreCase("alice2@example.com");
+        assertThat(testUser).isEmpty();
+
 //        Optional<User> testUser = userRepository.findOneByEmailIgnoreCase("alice2@example.com");
 //        assertThat(testUser).isPresent();
 //        testUser.get().setActivated(true);
@@ -274,7 +277,7 @@ class AccountResourceIT {
 
     @Test
     @Transactional
-    void testRegisterDuplicateEmail_Expect403AsRegistrationShouldBeDeactivated() throws Exception {
+    void testRegisterDuplicateEmailExpect403AsRegistrationShouldBeDeactivated() throws Exception {
         // First user
         ManagedUserVM firstUser = new ManagedUserVM();
         firstUser.setLogin("test-register-duplicate-email");
@@ -290,6 +293,9 @@ class AccountResourceIT {
         restAccountMockMvc
             .perform(post("/api/register").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(firstUser)))
             .andExpect(status().isForbidden());
+
+        Optional<User> testUser1 = userRepository.findOneByLogin("test-register-duplicate-email");
+        assertThat(testUser1).isEmpty();
 //
 //        Optional<User> testUser1 = userRepository.findOneByLogin("test-register-duplicate-email");
 //        assertThat(testUser1).isPresent();
@@ -352,7 +358,7 @@ class AccountResourceIT {
 
     @Test
     @Transactional
-    void testRegisterAdminIsIgnored_Expect403AsRegistrationShouldBeDeactivated() throws Exception {
+    void testRegisterAdminIsIgnoredExpect403AsRegistrationShouldBeDeactivated() throws Exception {
         ManagedUserVM validUser = new ManagedUserVM();
         validUser.setLogin("badguy");
         validUser.setPassword("password");
@@ -367,6 +373,9 @@ class AccountResourceIT {
         restAccountMockMvc
             .perform(post("/api/register").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(validUser)))
             .andExpect(status().isForbidden());
+
+        Optional<User> userDup = userRepository.findOneWithAuthoritiesByLogin("badguy");
+        assertThat(userDup).isEmpty();
 
 //        Optional<User> userDup = userRepository.findOneWithAuthoritiesByLogin("badguy");
 //        assertThat(userDup).isPresent();
