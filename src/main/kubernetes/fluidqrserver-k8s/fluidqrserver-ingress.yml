@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fluidqrserver
+  namespace: fluidqr
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: fluidqrserver.fluidqr.fluidqr.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: fluidqrserver
+                port:
+                  name: http
