@@ -13,15 +13,6 @@
 #   Then delete the previous replica pods one by one so that they can be recreated with the correct CLUSTER_SIZE configuration.
 #   `kubectl delete pod jhipster-registry-0`, `kubectl delete pod jhipster-registry-1`
 apiVersion: v1
-kind: Secret
-metadata:
-  name: registry-secret
-  namespace: fluidqr
-type: Opaque
-data:
-  registry-admin-password: YWRtaW4= # base64 encoded "admin"
----
-apiVersion: v1
 kind: Service
 metadata:
   name: jhipster-registry
@@ -74,7 +65,10 @@ spec:
                   name: registry-secret
                   key: registry-admin-password
             - name: JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET
-              value: YlhrdGMyVmpjbVYwTFhSdmEyVnVMWFJ2TFdOb1lXNW5aUzFwYmkxd2NtOWtkV04wYVc5dUxXRnVaQzEwYnkxclpXVndMV2x1TFdFdGMyVmpkWEpsTFhCc1lXTmwK
+              valueFrom:
+                secretKeyRef:
+                  name: jhipster-authentication
+                  key: secret
             - name: SPRING_CLOUD_CONFIG_SERVER_COMPOSITE_0_TYPE
               value: native
             - name: SPRING_CLOUD_CONFIG_SERVER_COMPOSITE_0_SEARCH_LOCATIONS

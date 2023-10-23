@@ -13,3 +13,7 @@ resources:
   # service discovery eureka/consul
   - registry-k8s/jhipster-registry.yml
   - registry-k8s/application-configmap.yml
+  # secrets
+  - secrets/db-credentials.yml
+  - secrets/jhipster-authentication.yml
+  - secrets/registry-admin-password.yml

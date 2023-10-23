@@ -53,11 +53,10 @@ spec:
             - name: SPRING_CLOUD_CONFIG_URI
               value: http://admin:${jhipster.registry.password}@jhipster-registry.fluidqr.svc.cluster.local:8761/config
             - name: JHIPSTER_REGISTRY_PASSWORD
-              value: admin
-              #valueFrom:
-              #  secretKeyRef:
-              #    name: registry-secret
-              #    key: registry-admin-password
+              valueFrom:
+                secretKeyRef:
+                  name: registry-secret
+                  key: registry-admin-password
             - name: EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE
               value: http://admin:${jhipster.registry.password}@jhipster-registry.fluidqr.svc.cluster.local:8761/eureka/
             - name: SPRING_DATASOURCE_URL
@@ -71,9 +70,15 @@ spec:
             - name: SERVER_SHUTDOWN
               value: graceful
             - name: DB_USERNAME
-              value: fluidqruser
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: user
             - name: DB_PASSWORD
-              value: fluidqruserpw
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: password
           resources:
             requests:
               memory: '512Mi'
