@@ -17,3 +17,7 @@ resources:
   - secrets/db-credentials.yml
   - secrets/jhipster-authentication.yml
   - secrets/registry-admin-password.yml
+  #network policies
+  - network-policy/fluidqr-server.yml
+  - network-policy/fluidqr-mysql.yml
+  - network-policy/jhipster-registry.yml
