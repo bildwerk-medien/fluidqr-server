@@ -1,0 +1,23 @@
+commonLabels:
+  app.kubernetes.io/genereted-by: JHipster
+
+namespace: fluidqr
+
+resources:
+  - namespace.yml
+  # Individual apps
+  - fluidqrserver-k8s/fluidqrserver-deployment.yml
+  - fluidqrserver-k8s/fluidqrserver-service.yml
+  - fluidqrserver-k8s/fluidqrserver-mysql.yml
+  - fluidqrserver-k8s/fluidqrserver-ingress.yml
+  # service discovery eureka/consul
+  - registry-k8s/jhipster-registry.yml
+  - registry-k8s/application-configmap.yml
+  # secrets
+  - secrets/db-credentials.yml
+  - secrets/jhipster-authentication.yml
+  - secrets/registry-admin-password.yml
+  #network policies
+  - network-policy/fluidqr-server.yml
+  - network-policy/fluidqr-mysql.yml
+  - network-policy/jhipster-registry.yml

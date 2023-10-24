@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fluidqrserver-mysql
+  namespace: fluidqr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fluidqrserver-mysql
+  template:
+    metadata:
+      labels:
+        app: fluidqrserver-mysql
+    spec:
+      volumes:
+        - name: data
+          emptyDir: {}
+      containers:
+        - name: mysql
+          image: mysql:8.0.30
+          env:
+            - name: MYSQL_RANDOM_ROOT_PASSWORD
+              value: yes
+            - name: MYSQL_DATABASE
+              value: fluidqrserver
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: password
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: user
+          args:
+            - --lower_case_table_names=1
+            - --skip-ssl
+            - --character_set_server=utf8mb4
+            - --explicit_defaults_for_timestamp
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql/
+          resources:
+            requests:
+              memory: '512Mi'
+              cpu: '500m'
+            limits:
+              memory: '1Gi'
+              cpu: '1'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fluidqrserver-mysql
+  namespace: fluidqr
+spec:
+  selector:
+    app: fluidqrserver-mysql
+  ports:
+    - port: 3306
