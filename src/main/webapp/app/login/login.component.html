@@ -7,7 +7,7 @@
       </div>
       <form class="form" role="form" (ngSubmit)="login()" [formGroup]="loginForm">
         <div class="mb-3">
-          <label class="username-label" for="username" jhiTranslate="global.form.username.label">Login</label>
+          <label class="username-label" for="username" jhiTranslate="global.form.username.label">Username</label>
           <input
             type="text"
             class="form-control"
@@ -46,6 +46,11 @@
         <a class="alert-link" routerLink="/account/reset/request" jhiTranslate="login.password.forgot" data-cy="forgetYourPasswordSelector"
           >Did you forget your password?</a
         >
+      </div>
+
+      <div class="alert alert-warning">
+        <span jhiTranslate="global.messages.info.register.noaccount">You don't have an account yet?</span>
+        <a class="alert-link" routerLink="/account/register" jhiTranslate="global.messages.info.register.link">Register a new account</a>
       </div>
     </div>
   </div>

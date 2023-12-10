@@ -2,6 +2,7 @@ package de.bildwerkmedien.fluidqr.server.web.rest;
 
 import de.bildwerkmedien.fluidqr.server.domain.QrCode;
 import de.bildwerkmedien.fluidqr.server.service.QrCodeQueryExtendedService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -9,8 +10,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import javax.servlet.http.HttpServletResponse;
 
 @Controller
 @RequestMapping("/go")
@@ -40,6 +39,5 @@ public class RedirectController {
         } else {
             httpServletResponse.setStatus(HttpStatus.NOT_FOUND.value());
         }
-
     }
 }

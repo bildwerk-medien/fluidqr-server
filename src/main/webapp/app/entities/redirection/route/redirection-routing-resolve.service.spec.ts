@@ -5,17 +5,16 @@ import { ActivatedRouteSnapshot, ActivatedRoute, Router, convertToParamMap } fro
 import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
 
-import { IRedirection, Redirection } from '../redirection.model';
+import { IRedirection } from '../redirection.model';
 import { RedirectionService } from '../service/redirection.service';
 
-import { RedirectionRoutingResolveService } from './redirection-routing-resolve.service';
+import redirectionResolve from './redirection-routing-resolve.service';
 
 describe('Redirection routing resolve service', () => {
   let mockRouter: Router;
   let mockActivatedRouteSnapshot: ActivatedRouteSnapshot;
-  let routingResolveService: RedirectionRoutingResolveService;
   let service: RedirectionService;
-  let resultRedirection: IRedirection | undefined;
+  let resultRedirection: IRedirection | null | undefined;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -34,7 +33,6 @@ describe('Redirection routing resolve service', () => {
     mockRouter = TestBed.inject(Router);
     jest.spyOn(mockRouter, 'navigate').mockImplementation(() => Promise.resolve(true));
     mockActivatedRouteSnapshot = TestBed.inject(ActivatedRoute).snapshot;
-    routingResolveService = TestBed.inject(RedirectionRoutingResolveService);
     service = TestBed.inject(RedirectionService);
     resultRedirection = undefined;
   });
@@ -46,8 +44,12 @@ describe('Redirection routing resolve service', () => {
       mockActivatedRouteSnapshot.params = { id: 123 };
 
       // WHEN
-      routingResolveService.resolve(mockActivatedRouteSnapshot).subscribe(result => {
-        resultRedirection = result;
+      TestBed.runInInjectionContext(() => {
+        redirectionResolve(mockActivatedRouteSnapshot).subscribe({
+          next(result) {
+            resultRedirection = result;
+          },
+        });
       });
 
       // THEN
@@ -55,29 +57,37 @@ describe('Redirection routing resolve service', () => {
       expect(resultRedirection).toEqual({ id: 123 });
     });
 
-    it('should return new IRedirection if id is not provided', () => {
+    it('should return null if id is not provided', () => {
       // GIVEN
       service.find = jest.fn();
       mockActivatedRouteSnapshot.params = {};
 
       // WHEN
-      routingResolveService.resolve(mockActivatedRouteSnapshot).subscribe(result => {
-        resultRedirection = result;
+      TestBed.runInInjectionContext(() => {
+        redirectionResolve(mockActivatedRouteSnapshot).subscribe({
+          next(result) {
+            resultRedirection = result;
+          },
+        });
       });
 
       // THEN
       expect(service.find).not.toBeCalled();
-      expect(resultRedirection).toEqual(new Redirection());
+      expect(resultRedirection).toEqual(null);
     });
 
     it('should route to 404 page if data not found in server', () => {
       // GIVEN
-      jest.spyOn(service, 'find').mockReturnValue(of(new HttpResponse({ body: null as unknown as Redirection })));
+      jest.spyOn(service, 'find').mockReturnValue(of(new HttpResponse<IRedirection>({ body: null })));
       mockActivatedRouteSnapshot.params = { id: 123 };
 
       // WHEN
-      routingResolveService.resolve(mockActivatedRouteSnapshot).subscribe(result => {
-        resultRedirection = result;
+      TestBed.runInInjectionContext(() => {
+        redirectionResolve(mockActivatedRouteSnapshot).subscribe({
+          next(result) {
+            resultRedirection = result;
+          },
+        });
       });
 
       // THEN

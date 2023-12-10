@@ -1,30 +1,29 @@
-import { Injectable } from '@angular/core';
+import { inject } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
-import { Resolve, ActivatedRouteSnapshot, Router } from '@angular/router';
-import { Observable, of, EMPTY } from 'rxjs';
+import { ActivatedRouteSnapshot, Router } from '@angular/router';
+import { of, EMPTY, Observable } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 
-import { IRedirection, Redirection } from '../redirection.model';
+import { IRedirection } from '../redirection.model';
 import { RedirectionService } from '../service/redirection.service';
 
-@Injectable({ providedIn: 'root' })
-export class RedirectionRoutingResolveService implements Resolve<IRedirection> {
-  constructor(protected service: RedirectionService, protected router: Router) {}
-
-  resolve(route: ActivatedRouteSnapshot): Observable<IRedirection> | Observable<never> {
-    const id = route.params['id'];
-    if (id) {
-      return this.service.find(id).pipe(
-        mergeMap((redirection: HttpResponse<Redirection>) => {
+export const redirectionResolve = (route: ActivatedRouteSnapshot): Observable<null | IRedirection> => {
+  const id = route.params['id'];
+  if (id) {
+    return inject(RedirectionService)
+      .find(id)
+      .pipe(
+        mergeMap((redirection: HttpResponse<IRedirection>) => {
           if (redirection.body) {
             return of(redirection.body);
           } else {
-            this.router.navigate(['404']);
+            inject(Router).navigate(['404']);
             return EMPTY;
           }
-        })
+        }),
       );
-    }
-    return of(new Redirection());
   }
-}
+  return of(null);
+};
+
+export default redirectionResolve;

@@ -1,36 +1,38 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute } from '@angular/router';
+import { TestBed } from '@angular/core/testing';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { RouterTestingHarness, RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
 
 import { RedirectionDetailComponent } from './redirection-detail.component';
 
 describe('Redirection Management Detail Component', () => {
-  let comp: RedirectionDetailComponent;
-  let fixture: ComponentFixture<RedirectionDetailComponent>;
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      declarations: [RedirectionDetailComponent],
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [RedirectionDetailComponent, RouterTestingModule.withRoutes([], { bindToComponentInputs: true })],
       providers: [
-        {
-          provide: ActivatedRoute,
-          useValue: { data: of({ redirection: { id: 123 } }) },
-        },
+        provideRouter(
+          [
+            {
+              path: '**',
+              component: RedirectionDetailComponent,
+              resolve: { redirection: () => of({ id: 123 }) },
+            },
+          ],
+          withComponentInputBinding(),
+        ),
       ],
     })
       .overrideTemplate(RedirectionDetailComponent, '')
       .compileComponents();
-    fixture = TestBed.createComponent(RedirectionDetailComponent);
-    comp = fixture.componentInstance;
   });
 
   describe('OnInit', () => {
-    it('Should load redirection on init', () => {
-      // WHEN
-      comp.ngOnInit();
+    it('Should load redirection on init', async () => {
+      const harness = await RouterTestingHarness.create();
+      const instance = await harness.navigateByUrl('/', RedirectionDetailComponent);
 
       // THEN
-      expect(comp.redirection).toEqual(expect.objectContaining({ id: 123 }));
+      expect(instance.redirection).toEqual(expect.objectContaining({ id: 123 }));
     });
   });
 });

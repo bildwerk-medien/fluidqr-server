@@ -6,11 +6,12 @@ import { ActivatedRoute } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of, Subject, from } from 'rxjs';
 
-import { QrCodeService } from '../service/qr-code.service';
-import { IQrCode, QrCode } from '../qr-code.model';
-
 import { IUser } from 'app/entities/user/user.model';
 import { UserService } from 'app/entities/user/user.service';
+import { QrCodeService } from '../service/qr-code.service';
+import { IQrCode } from '../qr-code.model';
+
+import { QrCodeFormService } from './qr-code-form.service';
 
 import { QrCodeUpdateComponent } from './qr-code-update.component';
 
@@ -18,13 +19,13 @@ describe('QrCode Management Update Component', () => {
   let comp: QrCodeUpdateComponent;
   let fixture: ComponentFixture<QrCodeUpdateComponent>;
   let activatedRoute: ActivatedRoute;
+  let qrCodeFormService: QrCodeFormService;
   let qrCodeService: QrCodeService;
   let userService: UserService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, RouterTestingModule.withRoutes([])],
-      declarations: [QrCodeUpdateComponent],
+      imports: [HttpClientTestingModule, RouterTestingModule.withRoutes([]), QrCodeUpdateComponent],
       providers: [
         FormBuilder,
         {
@@ -40,6 +41,7 @@ describe('QrCode Management Update Component', () => {
 
     fixture = TestBed.createComponent(QrCodeUpdateComponent);
     activatedRoute = TestBed.inject(ActivatedRoute);
+    qrCodeFormService = TestBed.inject(QrCodeFormService);
     qrCodeService = TestBed.inject(QrCodeService);
     userService = TestBed.inject(UserService);
 
@@ -49,10 +51,10 @@ describe('QrCode Management Update Component', () => {
   describe('ngOnInit', () => {
     it('Should call User query and add missing value', () => {
       const qrCode: IQrCode = { id: 456 };
-      const user: IUser = { id: 49702 };
+      const user: IUser = { id: 2368 };
       qrCode.user = user;
 
-      const userCollection: IUser[] = [{ id: 2857 }];
+      const userCollection: IUser[] = [{ id: 1301 }];
       jest.spyOn(userService, 'query').mockReturnValue(of(new HttpResponse({ body: userCollection })));
       const additionalUsers = [user];
       const expectedCollection: IUser[] = [...additionalUsers, ...userCollection];
@@ -62,28 +64,32 @@ describe('QrCode Management Update Component', () => {
       comp.ngOnInit();
 
       expect(userService.query).toHaveBeenCalled();
-      expect(userService.addUserToCollectionIfMissing).toHaveBeenCalledWith(userCollection, ...additionalUsers);
+      expect(userService.addUserToCollectionIfMissing).toHaveBeenCalledWith(
+        userCollection,
+        ...additionalUsers.map(expect.objectContaining),
+      );
       expect(comp.usersSharedCollection).toEqual(expectedCollection);
     });
 
     it('Should update editForm', () => {
       const qrCode: IQrCode = { id: 456 };
-      const user: IUser = { id: 44107 };
+      const user: IUser = { id: 3903 };
       qrCode.user = user;
 
       activatedRoute.data = of({ qrCode });
       comp.ngOnInit();
 
-      expect(comp.editForm.value).toEqual(expect.objectContaining(qrCode));
       expect(comp.usersSharedCollection).toContain(user);
+      expect(comp.qrCode).toEqual(qrCode);
     });
   });
 
   describe('save', () => {
     it('Should call update service on save for existing entity', () => {
       // GIVEN
-      const saveSubject = new Subject<HttpResponse<QrCode>>();
+      const saveSubject = new Subject<HttpResponse<IQrCode>>();
       const qrCode = { id: 123 };
+      jest.spyOn(qrCodeFormService, 'getQrCode').mockReturnValue(qrCode);
       jest.spyOn(qrCodeService, 'update').mockReturnValue(saveSubject);
       jest.spyOn(comp, 'previousState');
       activatedRoute.data = of({ qrCode });
@@ -96,18 +102,20 @@ describe('QrCode Management Update Component', () => {
       saveSubject.complete();
 
       // THEN
+      expect(qrCodeFormService.getQrCode).toHaveBeenCalled();
       expect(comp.previousState).toHaveBeenCalled();
-      expect(qrCodeService.update).toHaveBeenCalledWith(qrCode);
+      expect(qrCodeService.update).toHaveBeenCalledWith(expect.objectContaining(qrCode));
       expect(comp.isSaving).toEqual(false);
     });
 
     it('Should call create service on save for new entity', () => {
       // GIVEN
-      const saveSubject = new Subject<HttpResponse<QrCode>>();
-      const qrCode = new QrCode();
+      const saveSubject = new Subject<HttpResponse<IQrCode>>();
+      const qrCode = { id: 123 };
+      jest.spyOn(qrCodeFormService, 'getQrCode').mockReturnValue({ id: null });
       jest.spyOn(qrCodeService, 'create').mockReturnValue(saveSubject);
       jest.spyOn(comp, 'previousState');
-      activatedRoute.data = of({ qrCode });
+      activatedRoute.data = of({ qrCode: null });
       comp.ngOnInit();
 
       // WHEN
@@ -117,14 +125,15 @@ describe('QrCode Management Update Component', () => {
       saveSubject.complete();
 
       // THEN
-      expect(qrCodeService.create).toHaveBeenCalledWith(qrCode);
+      expect(qrCodeFormService.getQrCode).toHaveBeenCalled();
+      expect(qrCodeService.create).toHaveBeenCalled();
       expect(comp.isSaving).toEqual(false);
       expect(comp.previousState).toHaveBeenCalled();
     });
 
     it('Should set isSaving to false on error', () => {
       // GIVEN
-      const saveSubject = new Subject<HttpResponse<QrCode>>();
+      const saveSubject = new Subject<HttpResponse<IQrCode>>();
       const qrCode = { id: 123 };
       jest.spyOn(qrCodeService, 'update').mockReturnValue(saveSubject);
       jest.spyOn(comp, 'previousState');
@@ -137,18 +146,20 @@ describe('QrCode Management Update Component', () => {
       saveSubject.error('This is an error!');
 
       // THEN
-      expect(qrCodeService.update).toHaveBeenCalledWith(qrCode);
+      expect(qrCodeService.update).toHaveBeenCalled();
       expect(comp.isSaving).toEqual(false);
       expect(comp.previousState).not.toHaveBeenCalled();
     });
   });
 
-  describe('Tracking relationships identifiers', () => {
-    describe('trackUserById', () => {
-      it('Should return tracked User primary key', () => {
+  describe('Compare relationships', () => {
+    describe('compareUser', () => {
+      it('Should forward to userService', () => {
         const entity = { id: 123 };
-        const trackResult = comp.trackUserById(0, entity);
-        expect(trackResult).toEqual(entity.id);
+        const entity2 = { id: 456 };
+        jest.spyOn(userService, 'compareUser');
+        comp.compareUser(entity, entity2);
+        expect(userService.compareUser).toHaveBeenCalledWith(entity, entity2);
       });
     });
   });

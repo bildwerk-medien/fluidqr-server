@@ -4,8 +4,8 @@ import de.bildwerkmedien.fluidqr.server.domain.*; // for static metamodels
 import de.bildwerkmedien.fluidqr.server.domain.QrCode;
 import de.bildwerkmedien.fluidqr.server.repository.QrCodeRepository;
 import de.bildwerkmedien.fluidqr.server.service.criteria.QrCodeCriteria;
+import jakarta.persistence.criteria.JoinType;
 import java.util.List;
-import javax.persistence.criteria.JoinType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;

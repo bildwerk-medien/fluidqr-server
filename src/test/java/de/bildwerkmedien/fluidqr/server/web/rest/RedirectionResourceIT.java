@@ -12,7 +12,7 @@ import de.bildwerkmedien.fluidqr.server.domain.Redirection;
 import de.bildwerkmedien.fluidqr.server.domain.User;
 import de.bildwerkmedien.fluidqr.server.repository.RedirectionRepository;
 import de.bildwerkmedien.fluidqr.server.repository.UserRepository;
-import de.bildwerkmedien.fluidqr.server.service.criteria.RedirectionCriteria;
+import jakarta.persistence.EntityManager;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -20,7 +20,6 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -860,8 +859,20 @@ class RedirectionResourceIT {
     @Test
     @Transactional
     void getAllRedirectionsByUserIsEqualToSomething() throws Exception {
-        // Initialize the database
+        User user;
+        if (TestUtil.findAll(em, User.class).isEmpty()) {
+            redirectionRepository.saveAndFlush(redirection);
+            user = UserResourceIT.createEntity(em);
+        } else {
+            user = TestUtil.findAll(em, User.class).get(0);
+        }
+        em.persist(user);
+        em.flush();
+        redirection.setUser(user);
         redirectionRepository.saveAndFlush(redirection);
+        Long userId = user.getId();
+        // Get all the redirectionList where user equals to userId
+        defaultRedirectionShouldBeFound("userId.equals=" + userId);
 
         // Get all the redirectionList where user equals to 2
         defaultRedirectionShouldBeFound("userId.equals=2");
@@ -953,7 +964,7 @@ class RedirectionResourceIT {
         int databaseSizeBeforeUpdate = redirectionRepository.findAll().size();
 
         // Update the redirection
-        Redirection updatedRedirection = redirectionRepository.findById(redirection.getId()).get();
+        Redirection updatedRedirection = redirectionRepository.findById(redirection.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedRedirection are not directly saved in db
         em.detach(updatedRedirection);
         updatedRedirection

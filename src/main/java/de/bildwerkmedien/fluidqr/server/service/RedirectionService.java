@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 /**
- * Service Interface for managing {@link Redirection}.
+ * Service Interface for managing {@link de.bildwerkmedien.fluidqr.server.domain.Redirection}.
  */
 public interface RedirectionService {
     /**

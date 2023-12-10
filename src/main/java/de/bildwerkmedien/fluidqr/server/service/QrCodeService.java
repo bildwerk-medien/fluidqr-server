@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 /**
- * Service Interface for managing {@link QrCode}.
+ * Service Interface for managing {@link de.bildwerkmedien.fluidqr.server.domain.QrCode}.
  */
 public interface QrCodeService {
     /**

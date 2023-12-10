@@ -3,9 +3,9 @@
     <span jhiTranslate="fluidQrServerApp.qrCode.home.title">Qr Codes</span>
 
     <div class="d-flex justify-content-end">
-      <button class="btn btn-info me-2" (click)="reset()" [disabled]="isLoading">
+      <button class="btn btn-info me-2" (click)="load()" [disabled]="isLoading">
         <fa-icon icon="sync" [spin]="isLoading"></fa-icon>
-        <span jhiTranslate="fluidQrServerApp.qrCode.home.refreshListLabel">Refresh List</span>
+        <span jhiTranslate="fluidQrServerApp.qrCode.home.refreshListLabel">Refresh list</span>
       </button>
 
       <button
@@ -15,7 +15,7 @@
         [routerLink]="['/qr-code/new']"
       >
         <fa-icon icon="plus"></fa-icon>
-        <span jhiTranslate="fluidQrServerApp.qrCode.home.createLabel"> Create a new Qr Code </span>
+        <span jhiTranslate="fluidQrServerApp.qrCode.home.createLabel">Create a new Qr Code</span>
       </button>
     </div>
   </h2>
@@ -25,24 +25,40 @@
   <jhi-alert></jhi-alert>
 
   <div class="alert alert-warning" id="no-result" *ngIf="qrCodes?.length === 0">
-    <span jhiTranslate="fluidQrServerApp.qrCode.home.notFound">No qrCodes found</span>
+    <span jhiTranslate="fluidQrServerApp.qrCode.home.notFound">No Qr Codes found</span>
   </div>
 
-  <div class="table-responsive" id="entities" *ngIf="qrCodes && qrCodes.length > 0">
+  <div class="table-responsive table-entities" id="entities" *ngIf="qrCodes && qrCodes.length > 0">
     <table class="table table-striped" aria-describedby="page-heading">
       <thead>
-        <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" (sortChange)="reset()">
-          <th scope="col" jhiSortBy="id"><span jhiTranslate="global.field.id">ID</span> <fa-icon icon="sort"></fa-icon></th>
+        <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" (sortChange)="navigateToWithComponentValues()">
+          <th scope="col" jhiSortBy="id">
+            <div class="d-flex">
+              <span jhiTranslate="global.field.id">ID</span>
+              <fa-icon class="p-1" icon="sort"></fa-icon>
+            </div>
+          </th>
           <th scope="col" jhiSortBy="code">
-            <span jhiTranslate="fluidQrServerApp.qrCode.code">Code</span> <fa-icon icon="sort"></fa-icon>
+            <div class="d-flex">
+              <span jhiTranslate="fluidQrServerApp.qrCode.code">Code</span>
+              <fa-icon class="p-1" icon="sort"></fa-icon>
+            </div>
           </th>
           <th scope="col" jhiSortBy="user.id">
-            <span jhiTranslate="fluidQrServerApp.qrCode.user">User</span> <fa-icon icon="sort"></fa-icon>
+            <div class="d-flex">
+              <span jhiTranslate="fluidQrServerApp.qrCode.user">User</span>
+              <fa-icon class="p-1" icon="sort"></fa-icon>
+            </div>
           </th>
           <th scope="col"></th>
         </tr>
       </thead>
-      <tbody infinite-scroll (scrolled)="loadPage(page + 1)" [infiniteScrollDisabled]="page >= links['last']" [infiniteScrollDistance]="0">
+      <tbody
+        infinite-scroll
+        (scrolled)="loadPage(page + 1)"
+        [infiniteScrollDisabled]="page - 1 >= links['last']"
+        [infiniteScrollDistance]="0"
+      >
         <tr *ngFor="let qrCode of qrCodes; trackBy: trackId" data-cy="entityTable">
           <td>
             <a [routerLink]="['/qr-code', qrCode.id, 'view']">{{ qrCode.id }}</a>
@@ -53,25 +69,15 @@
           </td>
           <td class="text-end">
             <div class="btn-group">
-              <button
-                type="submit"
-                [routerLink]="['/qr-code', qrCode.id, 'view']"
-                class="btn btn-info btn-sm"
-                data-cy="entityDetailsButton"
-              >
+              <a [routerLink]="['/qr-code', qrCode.id, 'view']" class="btn btn-info btn-sm" data-cy="entityDetailsButton">
                 <fa-icon icon="eye"></fa-icon>
                 <span class="d-none d-md-inline" jhiTranslate="entity.action.view">View</span>
-              </button>
+              </a>
 
-              <button
-                type="submit"
-                [routerLink]="['/qr-code', qrCode.id, 'edit']"
-                class="btn btn-primary btn-sm"
-                data-cy="entityEditButton"
-              >
+              <a [routerLink]="['/qr-code', qrCode.id, 'edit']" class="btn btn-primary btn-sm" data-cy="entityEditButton">
                 <fa-icon icon="pencil-alt"></fa-icon>
                 <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
-              </button>
+              </a>
 
               <button type="submit" (click)="delete(qrCode)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
                 <fa-icon icon="times"></fa-icon>

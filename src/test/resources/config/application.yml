@@ -21,52 +21,21 @@ eureka:
     instanceId: FluidQrServer:${spring.application.instance-id:${random.value}}
 
 spring:
-  profiles:
-    # Uncomment the following line to enable tests against production database type rather than H2, using Testcontainers
-    #active: testcontainers
   application:
     name: FluidQrServer
   cloud:
     config:
       enabled: false
-
-  datasource:
-    type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:h2:mem:fluidqrserver;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    name:
-    username:
-    password:
-    hikari:
-      auto-commit: false
+  # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
+  liquibase:
+    contexts: test
   jackson:
     serialization:
       write-durations-as-timestamps: false
-  jpa:
-    database-platform: tech.jhipster.domain.util.FixedH2Dialect
-    open-in-view: false
-    hibernate:
-      ddl-auto: none
-      naming:
-        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
-        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
-    properties:
-      hibernate.id.new_generator_mappings: true
-      hibernate.connection.provider_disables_autocommit: true
-      hibernate.cache.use_second_level_cache: false
-      hibernate.cache.use_query_cache: false
-      hibernate.generate_statistics: false
-      hibernate.hbm2ddl.auto: validate
-      hibernate.jdbc.time_zone: UTC
-      hibernate.query.fail_on_pagination_over_collection_fetch: true
-  liquibase:
-    contexts: test
   mail:
     host: localhost
   main:
     allow-bean-definition-overriding: true
-  mvc:
-    pathmatch:
-      matching-strategy: ant_path_matcher
   messages:
     basename: i18n/messages
   task:
@@ -95,6 +64,9 @@ server:
 jhipster:
   clientApp:
     name: 'fluidQrServerApp'
+  mail:
+    from: FluidQrServer@localhost.com
+    base-url: http://127.0.0.1:8080
   logging:
     # To test json console appender
     use-json-format: false
@@ -102,17 +74,16 @@ jhipster:
       enabled: false
       host: localhost
       port: 5000
-      queue-size: 512
-  mail:
-    from: test@localhost
-    base-url: http://127.0.0.1:8080
+      ring-buffer-size: 512
   security:
     authentication:
       jwt:
         # This token must be encoded using Base64 (you can type `echo 'secret-key'|base64` on your command line)
-        #        base64-secret: ODQ1Yzc0MmYyYzA5YWM3MjlkOTExZTViNTVjMGY1N2I2OWNjOGNkOGJkOTQyYTQyMGNlNzZkN2IxMTM4MzRlYzllZDExNTg1YWVlMmY3MWUxYzUxN2EyZDE5ODA0MTcxYzBkNzA3MGVjMTBhNzNlMzRkZTRlYzE2NjMyNzc3Njg=
+        base64-secret: ODQ1Yzc0MmYyYzA5YWM3MjlkOTExZTViNTVjMGY1N2I2OWNjOGNkOGJkOTQyYTQyMGNlNzZkN2IxMTM4MzRlYzllZDExNTg1YWVlMmY3MWUxYzUxN2EyZDE5ODA0MTcxYzBkNzA3MGVjMTBhNzNlMzRkZTRlYzE2NjMyNzc3Njg=
         # Token is valid 24 hours
         token-validity-in-seconds: 86400
+        token-validity-in-seconds-for-remember-me: 86400
+
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class
@@ -123,7 +94,7 @@ jhipster:
 # ===================================================================
 
 # application:
-application:
-  url:
-    base: 'localhost:8080'
-    protocol: 'http://'
+management:
+  health:
+    mail:
+      enabled: false

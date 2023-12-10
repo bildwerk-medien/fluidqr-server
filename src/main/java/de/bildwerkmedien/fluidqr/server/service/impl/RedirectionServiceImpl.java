@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Service Implementation for managing {@link Redirection}.
+ * Service Implementation for managing {@link de.bildwerkmedien.fluidqr.server.domain.Redirection}.
  */
 @Service
 @Transactional
@@ -34,7 +34,7 @@ public class RedirectionServiceImpl implements RedirectionService {
 
     @Override
     public Redirection update(Redirection redirection) {
-        log.debug("Request to save Redirection : {}", redirection);
+        log.debug("Request to update Redirection : {}", redirection);
         return redirectionRepository.save(redirection);
     }
 

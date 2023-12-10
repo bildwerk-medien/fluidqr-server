@@ -2,15 +2,9 @@ package de.bildwerkmedien.fluidqr.server.service.criteria;
 
 import java.io.Serializable;
 import java.util.Objects;
-import org.springdoc.api.annotations.ParameterObject;
+import org.springdoc.core.annotations.ParameterObject;
 import tech.jhipster.service.Criteria;
-import tech.jhipster.service.filter.BooleanFilter;
-import tech.jhipster.service.filter.DoubleFilter;
-import tech.jhipster.service.filter.Filter;
-import tech.jhipster.service.filter.FloatFilter;
-import tech.jhipster.service.filter.IntegerFilter;
-import tech.jhipster.service.filter.LongFilter;
-import tech.jhipster.service.filter.StringFilter;
+import tech.jhipster.service.filter.*;
 
 /**
  * Criteria class for the {@link de.bildwerkmedien.fluidqr.server.domain.QrCode} entity. This class is used
@@ -22,6 +16,7 @@ import tech.jhipster.service.filter.StringFilter;
  * fix type specific filters.
  */
 @ParameterObject
+@SuppressWarnings("common-java:DuplicatedBlocks")
 public class QrCodeCriteria implements Serializable, Criteria {
 
     private static final long serialVersionUID = 1L;

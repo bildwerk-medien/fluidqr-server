@@ -1,6 +1,6 @@
 @import 'bootstrap-variables';
-@import '~bootstrap/scss/functions';
-@import '~bootstrap/scss/variables';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
 
 /* ==============================================================
 Bootstrap tweaks
@@ -101,10 +101,6 @@ Generic styles
   background-color: #fff;
 }
 
-.btn, .btn:hover, .btn:active, .btn:focus {
-  color: #fff;
-}
-
 .readonly {
   background-color: #eee;
   opacity: 1;
@@ -159,6 +155,14 @@ Custom alerts for notification
   .alerts .jhi-toast {
     width: 50%;
   }
+}
+
+/* ==========================================================================
+entity list page css
+========================================================================== */
+
+.table-entities thead th .d-flex > * {
+  margin: auto 0;
 }
 
 /* ==========================================================================

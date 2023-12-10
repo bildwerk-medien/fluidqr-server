@@ -1,0 +1,14 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot-FluidQrServerApp<fluid-qr-server>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "de.bildwerkmedien.fluidqr.server.FluidQrServerApp",
+      "projectName": "fluid-qr-server",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}

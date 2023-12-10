@@ -12,6 +12,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Service Implementation for managing {@link Redirection}.
  */
 @Service
+@Primary
 @Transactional
 public class RedirectionServiceExtendedImpl extends RedirectionServiceImpl {
 
@@ -61,8 +63,8 @@ public class RedirectionServiceExtendedImpl extends RedirectionServiceImpl {
 
         if (
             redirection.isPresent() &&
-            redirection.get().getUser() != null &&
-            redirection.get().getUser().equals(userService.getUserWithAuthorities().orElse(null))
+            redirection.orElseThrow().getUser() != null &&
+            redirection.orElseThrow().getUser().equals(userService.getUserWithAuthorities().orElse(null))
         ) {
             return redirection;
         }

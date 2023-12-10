@@ -1,13 +1,29 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
+
 import { map } from 'rxjs/operators';
+
 import dayjs from 'dayjs/esm';
 
 import { isPresent } from 'app/core/util/operators';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
 import { createRequestOption } from 'app/core/request/request-util';
-import { IRedirection, getRedirectionIdentifier } from '../redirection.model';
+import { IRedirection, NewRedirection } from '../redirection.model';
+
+export type PartialUpdateRedirection = Partial<IRedirection> & Pick<IRedirection, 'id'>;
+
+type RestOf<T extends IRedirection | NewRedirection> = Omit<T, 'creation' | 'startDate' | 'endDate'> & {
+  creation?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+};
+
+export type RestRedirection = RestOf<IRedirection>;
+
+export type NewRestRedirection = RestOf<NewRedirection>;
+
+export type PartialUpdateRestRedirection = RestOf<PartialUpdateRedirection>;
 
 export type EntityResponseType = HttpResponse<IRedirection>;
 export type EntityArrayResponseType = HttpResponse<IRedirection[]>;
@@ -16,56 +32,69 @@ export type EntityArrayResponseType = HttpResponse<IRedirection[]>;
 export class RedirectionService {
   protected resourceUrl = this.applicationConfigService.getEndpointFor('api/redirections');
 
-  constructor(protected http: HttpClient, protected applicationConfigService: ApplicationConfigService) {}
+  constructor(
+    protected http: HttpClient,
+    protected applicationConfigService: ApplicationConfigService,
+  ) {}
 
-  create(redirection: IRedirection): Observable<EntityResponseType> {
+  create(redirection: NewRedirection): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(redirection);
     return this.http
-      .post<IRedirection>(this.resourceUrl, copy, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+      .post<RestRedirection>(this.resourceUrl, copy, { observe: 'response' })
+      .pipe(map(res => this.convertResponseFromServer(res)));
   }
 
   update(redirection: IRedirection): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(redirection);
     return this.http
-      .put<IRedirection>(`${this.resourceUrl}/${getRedirectionIdentifier(redirection) as number}`, copy, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+      .put<RestRedirection>(`${this.resourceUrl}/${this.getRedirectionIdentifier(redirection)}`, copy, { observe: 'response' })
+      .pipe(map(res => this.convertResponseFromServer(res)));
   }
 
-  partialUpdate(redirection: IRedirection): Observable<EntityResponseType> {
+  partialUpdate(redirection: PartialUpdateRedirection): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(redirection);
     return this.http
-      .patch<IRedirection>(`${this.resourceUrl}/${getRedirectionIdentifier(redirection) as number}`, copy, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+      .patch<RestRedirection>(`${this.resourceUrl}/${this.getRedirectionIdentifier(redirection)}`, copy, { observe: 'response' })
+      .pipe(map(res => this.convertResponseFromServer(res)));
   }
 
   find(id: number): Observable<EntityResponseType> {
     return this.http
-      .get<IRedirection>(`${this.resourceUrl}/${id}`, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+      .get<RestRedirection>(`${this.resourceUrl}/${id}`, { observe: 'response' })
+      .pipe(map(res => this.convertResponseFromServer(res)));
   }
 
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOption(req);
     return this.http
-      .get<IRedirection[]>(this.resourceUrl, { params: options, observe: 'response' })
-      .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
+      .get<RestRedirection[]>(this.resourceUrl, { params: options, observe: 'response' })
+      .pipe(map(res => this.convertResponseArrayFromServer(res)));
   }
 
   delete(id: number): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
-  addRedirectionToCollectionIfMissing(
-    redirectionCollection: IRedirection[],
-    ...redirectionsToCheck: (IRedirection | null | undefined)[]
-  ): IRedirection[] {
-    const redirections: IRedirection[] = redirectionsToCheck.filter(isPresent);
+  getRedirectionIdentifier(redirection: Pick<IRedirection, 'id'>): number {
+    return redirection.id;
+  }
+
+  compareRedirection(o1: Pick<IRedirection, 'id'> | null, o2: Pick<IRedirection, 'id'> | null): boolean {
+    return o1 && o2 ? this.getRedirectionIdentifier(o1) === this.getRedirectionIdentifier(o2) : o1 === o2;
+  }
+
+  addRedirectionToCollectionIfMissing<Type extends Pick<IRedirection, 'id'>>(
+    redirectionCollection: Type[],
+    ...redirectionsToCheck: (Type | null | undefined)[]
+  ): Type[] {
+    const redirections: Type[] = redirectionsToCheck.filter(isPresent);
     if (redirections.length > 0) {
-      const redirectionCollectionIdentifiers = redirectionCollection.map(redirectionItem => getRedirectionIdentifier(redirectionItem)!);
+      const redirectionCollectionIdentifiers = redirectionCollection.map(
+        redirectionItem => this.getRedirectionIdentifier(redirectionItem)!,
+      );
       const redirectionsToAdd = redirections.filter(redirectionItem => {
-        const redirectionIdentifier = getRedirectionIdentifier(redirectionItem);
-        if (redirectionIdentifier == null || redirectionCollectionIdentifiers.includes(redirectionIdentifier)) {
+        const redirectionIdentifier = this.getRedirectionIdentifier(redirectionItem);
+        if (redirectionCollectionIdentifiers.includes(redirectionIdentifier)) {
           return false;
         }
         redirectionCollectionIdentifiers.push(redirectionIdentifier);
@@ -76,31 +105,33 @@ export class RedirectionService {
     return redirectionCollection;
   }
 
-  protected convertDateFromClient(redirection: IRedirection): IRedirection {
-    return Object.assign({}, redirection, {
-      creation: redirection.creation?.isValid() ? redirection.creation.toJSON() : undefined,
-      startDate: redirection.startDate?.isValid() ? redirection.startDate.toJSON() : undefined,
-      endDate: redirection.endDate?.isValid() ? redirection.endDate.toJSON() : undefined,
+  protected convertDateFromClient<T extends IRedirection | NewRedirection | PartialUpdateRedirection>(redirection: T): RestOf<T> {
+    return {
+      ...redirection,
+      creation: redirection.creation?.toJSON() ?? null,
+      startDate: redirection.startDate?.toJSON() ?? null,
+      endDate: redirection.endDate?.toJSON() ?? null,
+    };
+  }
+
+  protected convertDateFromServer(restRedirection: RestRedirection): IRedirection {
+    return {
+      ...restRedirection,
+      creation: restRedirection.creation ? dayjs(restRedirection.creation) : undefined,
+      startDate: restRedirection.startDate ? dayjs(restRedirection.startDate) : undefined,
+      endDate: restRedirection.endDate ? dayjs(restRedirection.endDate) : undefined,
+    };
+  }
+
+  protected convertResponseFromServer(res: HttpResponse<RestRedirection>): HttpResponse<IRedirection> {
+    return res.clone({
+      body: res.body ? this.convertDateFromServer(res.body) : null,
     });
   }
 
-  protected convertDateFromServer(res: EntityResponseType): EntityResponseType {
-    if (res.body) {
-      res.body.creation = res.body.creation ? dayjs(res.body.creation) : undefined;
-      res.body.startDate = res.body.startDate ? dayjs(res.body.startDate) : undefined;
-      res.body.endDate = res.body.endDate ? dayjs(res.body.endDate) : undefined;
-    }
-    return res;
-  }
-
-  protected convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
-    if (res.body) {
-      res.body.forEach((redirection: IRedirection) => {
-        redirection.creation = redirection.creation ? dayjs(redirection.creation) : undefined;
-        redirection.startDate = redirection.startDate ? dayjs(redirection.startDate) : undefined;
-        redirection.endDate = redirection.endDate ? dayjs(redirection.endDate) : undefined;
-      });
-    }
-    return res;
+  protected convertResponseArrayFromServer(res: HttpResponse<RestRedirection[]>): HttpResponse<IRedirection[]> {
+    return res.clone({
+      body: res.body ? res.body.map(item => this.convertDateFromServer(item)) : null,
+    });
   }
 }

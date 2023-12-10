@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Service Implementation for managing {@link QrCode}.
+ * Service Implementation for managing {@link de.bildwerkmedien.fluidqr.server.domain.QrCode}.
  */
 @Service
 @Transactional
@@ -34,7 +34,7 @@ public class QrCodeServiceImpl implements QrCodeService {
 
     @Override
     public QrCode update(QrCode qrCode) {
-        log.debug("Request to save QrCode : {}", qrCode);
+        log.debug("Request to update QrCode : {}", qrCode);
         return qrCodeRepository.save(qrCode);
     }
 
