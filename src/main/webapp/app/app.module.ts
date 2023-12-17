@@ -20,6 +20,7 @@ import { fontAwesomeIcons } from './config/font-awesome-icons';
 import MainComponent from './layouts/main/main.component';
 import MainModule from './layouts/main/main.module';
 import { AppPageTitleStrategy } from './app-page-title-strategy';
+import { QrCodeOverviewComponent } from './qr-code-overview/qr-code-overview.component';
 
 @NgModule({
   imports: [

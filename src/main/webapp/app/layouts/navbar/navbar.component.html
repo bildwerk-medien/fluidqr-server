@@ -26,15 +26,15 @@
             </span>
           </a>
         </li>
-        <!-- <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-          <a class="nav-link" routerLink="qr-codes" (click)="collapseNavbar()">
+        <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+          <a class="nav-link" routerLink="/qr-code-overview" (click)="collapseNavbar()">
             <fa-icon icon="qrcode" [fixedWidth]="true"></fa-icon>
             <span jhiTranslate="global.menu.qr-codes">Qr Codes</span>
           </a>
-        </li> -->
+        </li>
         <!-- jhipster-needle-add-element-to-menu - JHipster will add new menu items here -->
         <li
-          *ngSwitchCase="true"
+          *jhiHasAnyAuthority="'ROLE_ADMIN'"
           ngbDropdown
           class="nav-item dropdown pointer"
           display="dynamic"

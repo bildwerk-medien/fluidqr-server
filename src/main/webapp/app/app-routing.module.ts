@@ -9,6 +9,7 @@ import { errorRoute } from './layouts/error/error.route';
 import HomeComponent from './home/home.component';
 import NavbarComponent from './layouts/navbar/navbar.component';
 import LoginComponent from './login/login.component';
+import { QrCodeOverviewComponent } from './qr-code-overview/qr-code-overview.component';
 
 @NgModule({
   imports: [
@@ -44,6 +45,12 @@ import LoginComponent from './login/login.component';
         {
           path: '',
           loadChildren: () => import(`./entities/entity-routing.module`).then(({ EntityRoutingModule }) => EntityRoutingModule),
+        },
+        {
+          path: 'qr-code-overview',
+          component: QrCodeOverviewComponent,
+          canActivate: [UserRouteAccessService],
+          title: 'home.title',
         },
         ...errorRoute,
       ],
