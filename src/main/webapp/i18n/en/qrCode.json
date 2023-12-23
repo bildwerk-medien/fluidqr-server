@@ -20,7 +20,9 @@
       "id": "ID",
       "code": "Code",
       "redirection": "Redirection",
-      "user": "User"
+      "user": "User",
+      "redirectionTarget": "Redirection Target",
+      "linkToShare": "Link to share"
     }
   }
 }

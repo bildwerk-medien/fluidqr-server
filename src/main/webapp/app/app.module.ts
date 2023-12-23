@@ -21,6 +21,7 @@ import MainComponent from './layouts/main/main.component';
 import MainModule from './layouts/main/main.module';
 import { AppPageTitleStrategy } from './app-page-title-strategy';
 import { QrCodeOverviewComponent } from './qr-code-overview/qr-code-overview.component';
+import { QrCodeCardComponent } from './qr-code-overview/qr-code-card/qr-code-card.component';
 
 @NgModule({
   imports: [
@@ -41,6 +42,7 @@ import { QrCodeOverviewComponent } from './qr-code-overview/qr-code-overview.com
     { provide: TitleStrategy, useClass: AppPageTitleStrategy },
   ],
   bootstrap: [MainComponent],
+  declarations: [],
 })
 export class AppModule {
   constructor(applicationConfigService: ApplicationConfigService, iconLibrary: FaIconLibrary, dpConfig: NgbDatepickerConfig) {
