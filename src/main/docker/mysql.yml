@@ -1,5 +1,4 @@
 # This configuration is intended for development purpose, it's **your** responsibility to harden it for production
-name: fluidqrserver
 services:
   mysql:
     image: mysql:8.2.0
@@ -16,6 +15,6 @@ services:
     command: mysqld --lower_case_table_names=1 --skip-ssl --character_set_server=utf8mb4 --explicit_defaults_for_timestamp
     healthcheck:
       test: ['CMD', 'mysql', '-e', 'SHOW DATABASES;']
-      interval: 5s
+      interval: 15s
       timeout: 5s
       retries: 10
