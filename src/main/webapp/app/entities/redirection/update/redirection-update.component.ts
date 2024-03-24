@@ -1,61 +1,53 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
-import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { finalize, map } from 'rxjs/operators';
 
-import dayjs from 'dayjs/esm';
-import { DATE_TIME_FORMAT } from 'app/config/input.constants';
+import SharedModule from 'app/shared/shared.module';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { IRedirection, Redirection } from '../redirection.model';
-import { RedirectionService } from '../service/redirection.service';
 import { IUser } from 'app/entities/user/user.model';
 import { UserService } from 'app/entities/user/user.service';
 import { IQrCode } from 'app/entities/qr-code/qr-code.model';
 import { QrCodeService } from 'app/entities/qr-code/service/qr-code.service';
+import { RedirectionService } from '../service/redirection.service';
+import { IRedirection } from '../redirection.model';
+import { RedirectionFormService, RedirectionFormGroup } from './redirection-form.service';
 
 @Component({
+  standalone: true,
   selector: 'jhi-redirection-update',
   templateUrl: './redirection-update.component.html',
+  imports: [SharedModule, FormsModule, ReactiveFormsModule],
 })
 export class RedirectionUpdateComponent implements OnInit {
   isSaving = false;
+  redirection: IRedirection | null = null;
 
   usersSharedCollection: IUser[] = [];
   qrCodesSharedCollection: IQrCode[] = [];
 
-  editForm = this.fb.group({
-    id: [],
-    description: [],
-    code: [],
-    url: [null, [Validators.required]],
-    enabled: [null, [Validators.required]],
-    creation: [],
-    startDate: [],
-    endDate: [],
-    user: [],
-    qrCode: [],
-  });
+  editForm: RedirectionFormGroup = this.redirectionFormService.createRedirectionFormGroup();
 
   constructor(
     protected redirectionService: RedirectionService,
+    protected redirectionFormService: RedirectionFormService,
     protected userService: UserService,
     protected qrCodeService: QrCodeService,
     protected activatedRoute: ActivatedRoute,
-    protected fb: FormBuilder
   ) {}
+
+  compareUser = (o1: IUser | null, o2: IUser | null): boolean => this.userService.compareUser(o1, o2);
+
+  compareQrCode = (o1: IQrCode | null, o2: IQrCode | null): boolean => this.qrCodeService.compareQrCode(o1, o2);
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ redirection }) => {
-      if (redirection.id === undefined) {
-        const today = dayjs().startOf('day');
-        redirection.creation = today;
-        redirection.startDate = today;
-        redirection.endDate = today;
+      this.redirection = redirection;
+      if (redirection) {
+        this.updateForm(redirection);
       }
-
-      this.updateForm(redirection);
 
       this.loadRelationshipsOptions();
     });
@@ -67,20 +59,12 @@ export class RedirectionUpdateComponent implements OnInit {
 
   save(): void {
     this.isSaving = true;
-    const redirection = this.createFromForm();
-    if (redirection.id !== undefined) {
+    const redirection = this.redirectionFormService.getRedirection(this.editForm);
+    if (redirection.id !== null) {
       this.subscribeToSaveResponse(this.redirectionService.update(redirection));
     } else {
       this.subscribeToSaveResponse(this.redirectionService.create(redirection));
     }
-  }
-
-  trackUserById(_index: number, item: IUser): number {
-    return item.id!;
-  }
-
-  trackQrCodeById(_index: number, item: IQrCode): number {
-    return item.id!;
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IRedirection>>): void {
@@ -103,50 +87,27 @@ export class RedirectionUpdateComponent implements OnInit {
   }
 
   protected updateForm(redirection: IRedirection): void {
-    this.editForm.patchValue({
-      id: redirection.id,
-      description: redirection.description,
-      code: redirection.code,
-      url: redirection.url,
-      enabled: redirection.enabled,
-      creation: redirection.creation ? redirection.creation.format(DATE_TIME_FORMAT) : null,
-      startDate: redirection.startDate ? redirection.startDate.format(DATE_TIME_FORMAT) : null,
-      endDate: redirection.endDate ? redirection.endDate.format(DATE_TIME_FORMAT) : null,
-      user: redirection.user,
-      qrCode: redirection.qrCode,
-    });
+    this.redirection = redirection;
+    this.redirectionFormService.resetForm(this.editForm, redirection);
 
-    this.usersSharedCollection = this.userService.addUserToCollectionIfMissing(this.usersSharedCollection, redirection.user);
-    this.qrCodesSharedCollection = this.qrCodeService.addQrCodeToCollectionIfMissing(this.qrCodesSharedCollection, redirection.qrCode);
+    this.usersSharedCollection = this.userService.addUserToCollectionIfMissing<IUser>(this.usersSharedCollection, redirection.user);
+    this.qrCodesSharedCollection = this.qrCodeService.addQrCodeToCollectionIfMissing<IQrCode>(
+      this.qrCodesSharedCollection,
+      redirection.qrCode,
+    );
   }
 
   protected loadRelationshipsOptions(): void {
     this.userService
       .query()
       .pipe(map((res: HttpResponse<IUser[]>) => res.body ?? []))
-      .pipe(map((users: IUser[]) => this.userService.addUserToCollectionIfMissing(users, this.editForm.get('user')!.value)))
+      .pipe(map((users: IUser[]) => this.userService.addUserToCollectionIfMissing<IUser>(users, this.redirection?.user)))
       .subscribe((users: IUser[]) => (this.usersSharedCollection = users));
 
     this.qrCodeService
       .query()
       .pipe(map((res: HttpResponse<IQrCode[]>) => res.body ?? []))
-      .pipe(map((qrCodes: IQrCode[]) => this.qrCodeService.addQrCodeToCollectionIfMissing(qrCodes, this.editForm.get('qrCode')!.value)))
+      .pipe(map((qrCodes: IQrCode[]) => this.qrCodeService.addQrCodeToCollectionIfMissing<IQrCode>(qrCodes, this.redirection?.qrCode)))
       .subscribe((qrCodes: IQrCode[]) => (this.qrCodesSharedCollection = qrCodes));
-  }
-
-  protected createFromForm(): IRedirection {
-    return {
-      ...new Redirection(),
-      id: this.editForm.get(['id'])!.value,
-      description: this.editForm.get(['description'])!.value,
-      code: this.editForm.get(['code'])!.value,
-      url: this.editForm.get(['url'])!.value,
-      enabled: this.editForm.get(['enabled'])!.value,
-      creation: this.editForm.get(['creation'])!.value ? dayjs(this.editForm.get(['creation'])!.value, DATE_TIME_FORMAT) : undefined,
-      startDate: this.editForm.get(['startDate'])!.value ? dayjs(this.editForm.get(['startDate'])!.value, DATE_TIME_FORMAT) : undefined,
-      endDate: this.editForm.get(['endDate'])!.value ? dayjs(this.editForm.get(['endDate'])!.value, DATE_TIME_FORMAT) : undefined,
-      user: this.editForm.get(['user'])!.value,
-      qrCode: this.editForm.get(['qrCode'])!.value,
-    };
   }
 }

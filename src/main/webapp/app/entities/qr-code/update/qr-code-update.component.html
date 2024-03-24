@@ -8,31 +8,26 @@
       <div>
         <jhi-alert-error></jhi-alert-error>
 
-        <div class="row mb-3" [hidden]="editForm.get('id')!.value == null">
+        <div class="mb-3" *ngIf="editForm.controls.id.value !== null">
           <label class="form-label" jhiTranslate="global.field.id" for="field_id">ID</label>
           <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
         </div>
 
-        <div class="row mb-3">
+        <div class="mb-3">
           <label class="form-label" jhiTranslate="fluidQrServerApp.qrCode.code" for="field_code">Code</label>
           <input type="text" class="form-control" name="code" id="field_code" data-cy="code" formControlName="code" />
           <div *ngIf="editForm.get('code')!.invalid && (editForm.get('code')!.dirty || editForm.get('code')!.touched)">
-            <small class="form-text text-danger" *ngIf="editForm.get('code')?.errors?.required" jhiTranslate="entity.validation.required">
-              This field is required.
-            </small>
+            <small class="form-text text-danger" *ngIf="editForm.get('code')?.errors?.required" jhiTranslate="entity.validation.required"
+              >This field is required.</small
+            >
           </div>
         </div>
 
-        <div class="row mb-3">
+        <div class="mb-3">
           <label class="form-label" jhiTranslate="fluidQrServerApp.qrCode.user" for="field_user">User</label>
-          <select class="form-control" id="field_user" data-cy="user" name="user" formControlName="user">
+          <select class="form-control" id="field_user" data-cy="user" name="user" formControlName="user" [compareWith]="compareUser">
             <option [ngValue]="null"></option>
-            <option
-              [ngValue]="userOption.id === editForm.get('user')!.value?.id ? editForm.get('user')!.value : userOption"
-              *ngFor="let userOption of usersSharedCollection; trackBy: trackUserById"
-            >
-              {{ userOption.id }}
-            </option>
+            <option [ngValue]="userOption" *ngFor="let userOption of usersSharedCollection">{{ userOption.id }}</option>
           </select>
         </div>
       </div>

@@ -1,10 +1,10 @@
 package de.bildwerkmedien.fluidqr.server.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
-import javax.persistence.*;
-import javax.validation.constraints.*;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -14,6 +14,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @Table(name = "redirection")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@SuppressWarnings("common-java:DuplicatedBlocks")
 public class Redirection implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -46,10 +47,10 @@ public class Redirection implements Serializable {
     @Column(name = "end_date")
     private ZonedDateTime endDate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties(value = { "redirections", "user" }, allowSetters = true)
     private QrCode qrCode;
 
@@ -195,7 +196,7 @@ public class Redirection implements Serializable {
         if (!(o instanceof Redirection)) {
             return false;
         }
-        return id != null && id.equals(((Redirection) o).id);
+        return getId() != null && getId().equals(((Redirection) o).getId());
     }
 
     @Override

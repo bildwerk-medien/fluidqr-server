@@ -22,6 +22,7 @@
       "otherEntityName": "redirection",
       "otherEntityRelationshipName": "qrCode",
       "relationshipName": "redirection",
+      "relationshipSide": "left",
       "relationshipType": "one-to-many"
     },
     {
@@ -29,8 +30,10 @@
       "otherEntityName": "user",
       "otherEntityRelationshipName": "qrCode",
       "relationshipName": "user",
+      "relationshipSide": "right",
       "relationshipType": "many-to-one"
     }
   ],
+  "searchEngine": "no",
   "service": "serviceImpl"
 }

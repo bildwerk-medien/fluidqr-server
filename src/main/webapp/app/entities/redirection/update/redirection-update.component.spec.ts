@@ -6,13 +6,13 @@ import { ActivatedRoute } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of, Subject, from } from 'rxjs';
 
-import { RedirectionService } from '../service/redirection.service';
-import { IRedirection, Redirection } from '../redirection.model';
-
 import { IUser } from 'app/entities/user/user.model';
 import { UserService } from 'app/entities/user/user.service';
 import { IQrCode } from 'app/entities/qr-code/qr-code.model';
 import { QrCodeService } from 'app/entities/qr-code/service/qr-code.service';
+import { IRedirection } from '../redirection.model';
+import { RedirectionService } from '../service/redirection.service';
+import { RedirectionFormService } from './redirection-form.service';
 
 import { RedirectionUpdateComponent } from './redirection-update.component';
 
@@ -20,14 +20,14 @@ describe('Redirection Management Update Component', () => {
   let comp: RedirectionUpdateComponent;
   let fixture: ComponentFixture<RedirectionUpdateComponent>;
   let activatedRoute: ActivatedRoute;
+  let redirectionFormService: RedirectionFormService;
   let redirectionService: RedirectionService;
   let userService: UserService;
   let qrCodeService: QrCodeService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, RouterTestingModule.withRoutes([])],
-      declarations: [RedirectionUpdateComponent],
+      imports: [HttpClientTestingModule, RouterTestingModule.withRoutes([]), RedirectionUpdateComponent],
       providers: [
         FormBuilder,
         {
@@ -43,6 +43,7 @@ describe('Redirection Management Update Component', () => {
 
     fixture = TestBed.createComponent(RedirectionUpdateComponent);
     activatedRoute = TestBed.inject(ActivatedRoute);
+    redirectionFormService = TestBed.inject(RedirectionFormService);
     redirectionService = TestBed.inject(RedirectionService);
     userService = TestBed.inject(UserService);
     qrCodeService = TestBed.inject(QrCodeService);
@@ -53,10 +54,10 @@ describe('Redirection Management Update Component', () => {
   describe('ngOnInit', () => {
     it('Should call User query and add missing value', () => {
       const redirection: IRedirection = { id: 456 };
-      const user: IUser = { id: 42880 };
+      const user: IUser = { id: 6060 };
       redirection.user = user;
 
-      const userCollection: IUser[] = [{ id: 78393 }];
+      const userCollection: IUser[] = [{ id: 10612 }];
       jest.spyOn(userService, 'query').mockReturnValue(of(new HttpResponse({ body: userCollection })));
       const additionalUsers = [user];
       const expectedCollection: IUser[] = [...additionalUsers, ...userCollection];
@@ -66,16 +67,19 @@ describe('Redirection Management Update Component', () => {
       comp.ngOnInit();
 
       expect(userService.query).toHaveBeenCalled();
-      expect(userService.addUserToCollectionIfMissing).toHaveBeenCalledWith(userCollection, ...additionalUsers);
+      expect(userService.addUserToCollectionIfMissing).toHaveBeenCalledWith(
+        userCollection,
+        ...additionalUsers.map(expect.objectContaining),
+      );
       expect(comp.usersSharedCollection).toEqual(expectedCollection);
     });
 
     it('Should call QrCode query and add missing value', () => {
       const redirection: IRedirection = { id: 456 };
-      const qrCode: IQrCode = { id: 92489 };
+      const qrCode: IQrCode = { id: 8765 };
       redirection.qrCode = qrCode;
 
-      const qrCodeCollection: IQrCode[] = [{ id: 54499 }];
+      const qrCodeCollection: IQrCode[] = [{ id: 8752 }];
       jest.spyOn(qrCodeService, 'query').mockReturnValue(of(new HttpResponse({ body: qrCodeCollection })));
       const additionalQrCodes = [qrCode];
       const expectedCollection: IQrCode[] = [...additionalQrCodes, ...qrCodeCollection];
@@ -85,31 +89,35 @@ describe('Redirection Management Update Component', () => {
       comp.ngOnInit();
 
       expect(qrCodeService.query).toHaveBeenCalled();
-      expect(qrCodeService.addQrCodeToCollectionIfMissing).toHaveBeenCalledWith(qrCodeCollection, ...additionalQrCodes);
+      expect(qrCodeService.addQrCodeToCollectionIfMissing).toHaveBeenCalledWith(
+        qrCodeCollection,
+        ...additionalQrCodes.map(expect.objectContaining),
+      );
       expect(comp.qrCodesSharedCollection).toEqual(expectedCollection);
     });
 
     it('Should update editForm', () => {
       const redirection: IRedirection = { id: 456 };
-      const user: IUser = { id: 2438 };
+      const user: IUser = { id: 9328 };
       redirection.user = user;
-      const qrCode: IQrCode = { id: 48367 };
+      const qrCode: IQrCode = { id: 28149 };
       redirection.qrCode = qrCode;
 
       activatedRoute.data = of({ redirection });
       comp.ngOnInit();
 
-      expect(comp.editForm.value).toEqual(expect.objectContaining(redirection));
       expect(comp.usersSharedCollection).toContain(user);
       expect(comp.qrCodesSharedCollection).toContain(qrCode);
+      expect(comp.redirection).toEqual(redirection);
     });
   });
 
   describe('save', () => {
     it('Should call update service on save for existing entity', () => {
       // GIVEN
-      const saveSubject = new Subject<HttpResponse<Redirection>>();
+      const saveSubject = new Subject<HttpResponse<IRedirection>>();
       const redirection = { id: 123 };
+      jest.spyOn(redirectionFormService, 'getRedirection').mockReturnValue(redirection);
       jest.spyOn(redirectionService, 'update').mockReturnValue(saveSubject);
       jest.spyOn(comp, 'previousState');
       activatedRoute.data = of({ redirection });
@@ -122,18 +130,20 @@ describe('Redirection Management Update Component', () => {
       saveSubject.complete();
 
       // THEN
+      expect(redirectionFormService.getRedirection).toHaveBeenCalled();
       expect(comp.previousState).toHaveBeenCalled();
-      expect(redirectionService.update).toHaveBeenCalledWith(redirection);
+      expect(redirectionService.update).toHaveBeenCalledWith(expect.objectContaining(redirection));
       expect(comp.isSaving).toEqual(false);
     });
 
     it('Should call create service on save for new entity', () => {
       // GIVEN
-      const saveSubject = new Subject<HttpResponse<Redirection>>();
-      const redirection = new Redirection();
+      const saveSubject = new Subject<HttpResponse<IRedirection>>();
+      const redirection = { id: 123 };
+      jest.spyOn(redirectionFormService, 'getRedirection').mockReturnValue({ id: null });
       jest.spyOn(redirectionService, 'create').mockReturnValue(saveSubject);
       jest.spyOn(comp, 'previousState');
-      activatedRoute.data = of({ redirection });
+      activatedRoute.data = of({ redirection: null });
       comp.ngOnInit();
 
       // WHEN
@@ -143,14 +153,15 @@ describe('Redirection Management Update Component', () => {
       saveSubject.complete();
 
       // THEN
-      expect(redirectionService.create).toHaveBeenCalledWith(redirection);
+      expect(redirectionFormService.getRedirection).toHaveBeenCalled();
+      expect(redirectionService.create).toHaveBeenCalled();
       expect(comp.isSaving).toEqual(false);
       expect(comp.previousState).toHaveBeenCalled();
     });
 
     it('Should set isSaving to false on error', () => {
       // GIVEN
-      const saveSubject = new Subject<HttpResponse<Redirection>>();
+      const saveSubject = new Subject<HttpResponse<IRedirection>>();
       const redirection = { id: 123 };
       jest.spyOn(redirectionService, 'update').mockReturnValue(saveSubject);
       jest.spyOn(comp, 'previousState');
@@ -163,26 +174,30 @@ describe('Redirection Management Update Component', () => {
       saveSubject.error('This is an error!');
 
       // THEN
-      expect(redirectionService.update).toHaveBeenCalledWith(redirection);
+      expect(redirectionService.update).toHaveBeenCalled();
       expect(comp.isSaving).toEqual(false);
       expect(comp.previousState).not.toHaveBeenCalled();
     });
   });
 
-  describe('Tracking relationships identifiers', () => {
-    describe('trackUserById', () => {
-      it('Should return tracked User primary key', () => {
+  describe('Compare relationships', () => {
+    describe('compareUser', () => {
+      it('Should forward to userService', () => {
         const entity = { id: 123 };
-        const trackResult = comp.trackUserById(0, entity);
-        expect(trackResult).toEqual(entity.id);
+        const entity2 = { id: 456 };
+        jest.spyOn(userService, 'compareUser');
+        comp.compareUser(entity, entity2);
+        expect(userService.compareUser).toHaveBeenCalledWith(entity, entity2);
       });
     });
 
-    describe('trackQrCodeById', () => {
-      it('Should return tracked QrCode primary key', () => {
+    describe('compareQrCode', () => {
+      it('Should forward to qrCodeService', () => {
         const entity = { id: 123 };
-        const trackResult = comp.trackQrCodeById(0, entity);
-        expect(trackResult).toEqual(entity.id);
+        const entity2 = { id: 456 };
+        jest.spyOn(qrCodeService, 'compareQrCode');
+        comp.compareQrCode(entity, entity2);
+        expect(qrCodeService.compareQrCode).toHaveBeenCalledWith(entity, entity2);
       });
     });
   });

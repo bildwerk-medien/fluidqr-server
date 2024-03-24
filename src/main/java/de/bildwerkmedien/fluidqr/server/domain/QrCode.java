@@ -1,14 +1,13 @@
 package de.bildwerkmedien.fluidqr.server.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.*;
-import javax.validation.constraints.*;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -18,6 +17,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @Table(name = "qr_code")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@SuppressWarnings("common-java:DuplicatedBlocks")
 public class QrCode implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -31,14 +31,12 @@ public class QrCode implements Serializable {
     @Column(name = "code", nullable = false, unique = true)
     private String code;
 
-    @OneToMany(mappedBy = "qrCode")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "qrCode")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "user", "qrCode" }, allowSetters = true)
     private Set<Redirection> redirections = new HashSet<>();
 
-    @ManyToOne
-    @JsonIgnore
-    @JsonIgnoreProperties(value = "qrCodes", allowSetters = true)
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
     //    custom transient fields ### start ###
@@ -153,7 +151,7 @@ public class QrCode implements Serializable {
         if (!(o instanceof QrCode)) {
             return false;
         }
-        return id != null && id.equals(((QrCode) o).id);
+        return getId() != null && getId().equals(((QrCode) o).getId());
     }
 
     @Override

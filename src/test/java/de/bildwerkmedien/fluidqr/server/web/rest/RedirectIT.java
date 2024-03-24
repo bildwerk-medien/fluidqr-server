@@ -9,7 +9,7 @@ import de.bildwerkmedien.fluidqr.server.domain.QrCode;
 import de.bildwerkmedien.fluidqr.server.domain.Redirection;
 import de.bildwerkmedien.fluidqr.server.repository.QrCodeRepository;
 import de.bildwerkmedien.fluidqr.server.repository.UserRepository;
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

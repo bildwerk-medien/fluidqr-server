@@ -6,10 +6,11 @@ import de.bildwerkmedien.fluidqr.server.security.AuthoritiesConstants;
 import de.bildwerkmedien.fluidqr.server.security.SecurityUtils;
 import de.bildwerkmedien.fluidqr.server.service.criteria.QrCodeCriteria;
 import de.bildwerkmedien.fluidqr.server.service.impl.QrCodeServiceExtendedImpl;
+import jakarta.persistence.criteria.JoinType;
 import java.util.List;
-import javax.persistence.criteria.JoinType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -26,6 +27,7 @@ import tech.jhipster.service.filter.StringFilter;
  */
 @Service
 @Transactional(readOnly = true)
+@Primary
 public class QrCodeQueryExtendedService extends QrCodeQueryService {
 
     private final Logger log = LoggerFactory.getLogger(QrCodeQueryExtendedService.class);

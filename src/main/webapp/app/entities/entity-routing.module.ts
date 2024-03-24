@@ -7,12 +7,12 @@ import { RouterModule } from '@angular/router';
       {
         path: 'redirection',
         data: { pageTitle: 'fluidQrServerApp.redirection.home.title' },
-        loadChildren: () => import('./redirection/redirection.module').then(m => m.RedirectionModule),
+        loadChildren: () => import('./redirection/redirection.routes'),
       },
       {
         path: 'qr-code',
         data: { pageTitle: 'fluidQrServerApp.qrCode.home.title' },
-        loadChildren: () => import('./qr-code/qr-code.module').then(m => m.QrCodeModule),
+        loadChildren: () => import('./qr-code/qr-code.routes'),
       },
       /* jhipster-needle-add-entity-route - JHipster will add entity modules routes here */
     ]),

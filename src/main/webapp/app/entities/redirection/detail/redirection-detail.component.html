@@ -49,7 +49,7 @@
         <dt><span jhiTranslate="fluidQrServerApp.redirection.qrCode">Qr Code</span></dt>
         <dd>
           <div *ngIf="redirection.qrCode">
-            <a [routerLink]="['/qr-code', redirection.qrCode?.id, 'view']">{{ redirection.qrCode?.id }}</a>
+            <a [routerLink]="['/qr-code', redirection.qrCode.id, 'view']">{{ redirection.qrCode.id }}</a>
           </div>
         </dd>
       </dl>

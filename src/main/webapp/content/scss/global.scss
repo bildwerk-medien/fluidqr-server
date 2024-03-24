@@ -1,6 +1,6 @@
 @import 'bootstrap-variables';
-@import '~bootstrap/scss/functions';
-@import '~bootstrap/scss/variables';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
 
 /* ==============================================================
 Bootstrap tweaks
@@ -12,6 +12,14 @@ h2,
 h3,
 h4 {
   font-weight: 300;
+}
+
+.btn-primary {
+  color: white;
+}
+
+.btn-primary:hover {
+  color: white;
 }
 
 /* Increase contrast of links to get 100% on Lighthouse Accessability Audit. Override this color if you want to change the link color, or use a Bootswatch theme */
@@ -101,10 +109,6 @@ Generic styles
   background-color: #fff;
 }
 
-.btn, .btn:hover, .btn:active, .btn:focus {
-  color: #fff;
-}
-
 .readonly {
   background-color: #eee;
   opacity: 1;
@@ -159,6 +163,14 @@ Custom alerts for notification
   .alerts .jhi-toast {
     width: 50%;
   }
+}
+
+/* ==========================================================================
+entity list page css
+========================================================================== */
+
+.table-entities thead th .d-flex > * {
+  margin: auto 0;
 }
 
 /* ==========================================================================

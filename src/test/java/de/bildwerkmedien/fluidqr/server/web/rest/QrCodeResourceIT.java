@@ -11,11 +11,10 @@ import de.bildwerkmedien.fluidqr.server.domain.Redirection;
 import de.bildwerkmedien.fluidqr.server.domain.User;
 import de.bildwerkmedien.fluidqr.server.repository.QrCodeRepository;
 import de.bildwerkmedien.fluidqr.server.repository.UserRepository;
-import de.bildwerkmedien.fluidqr.server.service.criteria.QrCodeCriteria;
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -350,7 +349,7 @@ class QrCodeResourceIT {
         int databaseSizeBeforeUpdate = qrCodeRepository.findAll().size();
 
         // Update the qrCode
-        QrCode updatedQrCode = qrCodeRepository.findById(qrCode.getId()).get();
+        QrCode updatedQrCode = qrCodeRepository.findById(qrCode.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedQrCode are not directly saved in db
         em.detach(updatedQrCode);
         updatedQrCode.code(UPDATED_CODE);

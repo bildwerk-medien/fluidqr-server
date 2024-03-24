@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Service Implementation for managing {@link QrCode}.
  */
 @Service
+@Primary
 @Transactional
 public class QrCodeServiceExtendedImpl extends QrCodeServiceImpl {
 
@@ -80,8 +82,8 @@ public class QrCodeServiceExtendedImpl extends QrCodeServiceImpl {
 
         if (
             qrCode.isPresent() &&
-            qrCode.get().getUser() != null &&
-            qrCode.get().getUser().equals(userService.getUserWithAuthorities().orElse(null))
+            qrCode.orElseThrow().getUser() != null &&
+            qrCode.orElseThrow().getUser().equals(userService.getUserWithAuthorities().orElse(null))
         ) {
             return qrCode;
         }

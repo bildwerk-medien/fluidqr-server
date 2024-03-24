@@ -1,40 +1,47 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
-import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { finalize, map } from 'rxjs/operators';
 
-import { IQrCode, QrCode } from '../qr-code.model';
-import { QrCodeService } from '../service/qr-code.service';
+import SharedModule from 'app/shared/shared.module';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
 import { IUser } from 'app/entities/user/user.model';
 import { UserService } from 'app/entities/user/user.service';
+import { IQrCode } from '../qr-code.model';
+import { QrCodeService } from '../service/qr-code.service';
+import { QrCodeFormService, QrCodeFormGroup } from './qr-code-form.service';
 
 @Component({
+  standalone: true,
   selector: 'jhi-qr-code-update',
   templateUrl: './qr-code-update.component.html',
+  imports: [SharedModule, FormsModule, ReactiveFormsModule],
 })
 export class QrCodeUpdateComponent implements OnInit {
   isSaving = false;
+  qrCode: IQrCode | null = null;
 
   usersSharedCollection: IUser[] = [];
 
-  editForm = this.fb.group({
-    id: [],
-    code: [null, [Validators.required]],
-    user: [],
-  });
+  editForm: QrCodeFormGroup = this.qrCodeFormService.createQrCodeFormGroup();
 
   constructor(
     protected qrCodeService: QrCodeService,
+    protected qrCodeFormService: QrCodeFormService,
     protected userService: UserService,
     protected activatedRoute: ActivatedRoute,
-    protected fb: FormBuilder
   ) {}
+
+  compareUser = (o1: IUser | null, o2: IUser | null): boolean => this.userService.compareUser(o1, o2);
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ qrCode }) => {
-      this.updateForm(qrCode);
+      this.qrCode = qrCode;
+      if (qrCode) {
+        this.updateForm(qrCode);
+      }
 
       this.loadRelationshipsOptions();
     });
@@ -46,16 +53,12 @@ export class QrCodeUpdateComponent implements OnInit {
 
   save(): void {
     this.isSaving = true;
-    const qrCode = this.createFromForm();
-    if (qrCode.id !== undefined) {
+    const qrCode = this.qrCodeFormService.getQrCode(this.editForm);
+    if (qrCode.id !== null) {
       this.subscribeToSaveResponse(this.qrCodeService.update(qrCode));
     } else {
       this.subscribeToSaveResponse(this.qrCodeService.create(qrCode));
     }
-  }
-
-  trackUserById(_index: number, item: IUser): number {
-    return item.id!;
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IQrCode>>): void {
@@ -78,29 +81,17 @@ export class QrCodeUpdateComponent implements OnInit {
   }
 
   protected updateForm(qrCode: IQrCode): void {
-    this.editForm.patchValue({
-      id: qrCode.id,
-      code: qrCode.code,
-      user: qrCode.user,
-    });
+    this.qrCode = qrCode;
+    this.qrCodeFormService.resetForm(this.editForm, qrCode);
 
-    this.usersSharedCollection = this.userService.addUserToCollectionIfMissing(this.usersSharedCollection, qrCode.user);
+    this.usersSharedCollection = this.userService.addUserToCollectionIfMissing<IUser>(this.usersSharedCollection, qrCode.user);
   }
 
   protected loadRelationshipsOptions(): void {
     this.userService
       .query()
       .pipe(map((res: HttpResponse<IUser[]>) => res.body ?? []))
-      .pipe(map((users: IUser[]) => this.userService.addUserToCollectionIfMissing(users, this.editForm.get('user')!.value)))
+      .pipe(map((users: IUser[]) => this.userService.addUserToCollectionIfMissing<IUser>(users, this.qrCode?.user)))
       .subscribe((users: IUser[]) => (this.usersSharedCollection = users));
-  }
-
-  protected createFromForm(): IQrCode {
-    return {
-      ...new QrCode(),
-      id: this.editForm.get(['id'])!.value,
-      code: this.editForm.get(['code'])!.value,
-      user: this.editForm.get(['user'])!.value,
-    };
   }
 }
