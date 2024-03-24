@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import javax.servlet.http.HttpServletResponse;
 
 @Controller
-@RequestMapping("/go")
+@RequestMapping(value = {"/go", "/GO", "/gO", "/Go"})
 public class RedirectController {
 
     private final Logger log = LoggerFactory.getLogger(AccountResource.class);
