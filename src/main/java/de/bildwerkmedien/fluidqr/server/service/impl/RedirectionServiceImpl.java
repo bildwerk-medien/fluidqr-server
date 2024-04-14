@@ -69,7 +69,7 @@ public class RedirectionServiceImpl implements RedirectionService {
 
                 return existingRedirection;
             })
-            .map(redirectionRepository::save);
+            .map(this::save);
     }
 
     @Override

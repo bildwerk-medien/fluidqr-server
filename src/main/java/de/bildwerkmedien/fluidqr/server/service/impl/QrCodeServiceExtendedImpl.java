@@ -46,7 +46,7 @@ public class QrCodeServiceExtendedImpl extends QrCodeServiceImpl {
 
     @Override
     public QrCode save(QrCode qrCode) {
-        log.debug("Request to save QrCode : {}", qrCode);
+        log.debug("Request to save QrCode : {} with user", qrCode);
         if (qrCode.getId() != null && !findOne(qrCode.getId()).isPresent()) {
             throw new UserNotAuthorizedException();
         }
