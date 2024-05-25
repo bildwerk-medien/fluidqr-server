@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: jhipster-registry
+  namespace: fluidqr
+spec:
+  podSelector:
+    matchLabels:
+      app: jhipster-registry
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector: {}
+      ports:
+        - port: 8761

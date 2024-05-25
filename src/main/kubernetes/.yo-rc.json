@@ -1,0 +1,18 @@
+{
+  "generator-jhipster": {
+    "appsFolders": ["fluidqr-server"],
+    "clusteredDbApps": {},
+    "directoryPath": "../../../../",
+    "dockerPushCommand": "docker push",
+    "dockerRepositoryName": "",
+    "ingressDomain": "fluidqr.example.com",
+    "ingressType": "nginx",
+    "istio": false,
+    "jwtSecretKey": "NDUwMDI2YjMyZDY5YjFmZTg0YjY4MDg5M2E4YTE1MWIxYzNiN2ZlZjJlNWIxNjAyZWY2OWVmMzhhMzFlMjNlODMzNjdjYTA5ZDE3ZjE3MTY1OTU0NjlhNTBhMmM1MTFjMGVmMw==",
+    "kubernetesNamespace": "fluidqr",
+    "kubernetesServiceType": "Ingress",
+    "kubernetesUseDynamicStorage": false,
+    "monitoring": "prometheus",
+    "serviceDiscoveryType": "eureka"
+  }
+}
