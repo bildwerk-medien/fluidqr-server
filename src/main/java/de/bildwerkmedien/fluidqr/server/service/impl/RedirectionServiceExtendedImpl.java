@@ -1,6 +1,7 @@
 package de.bildwerkmedien.fluidqr.server.service.impl;
 
 import de.bildwerkmedien.fluidqr.server.domain.Redirection;
+import de.bildwerkmedien.fluidqr.server.domain.User;
 import de.bildwerkmedien.fluidqr.server.repository.RedirectionRepository;
 import de.bildwerkmedien.fluidqr.server.security.AuthoritiesConstants;
 import de.bildwerkmedien.fluidqr.server.security.SecurityUtils;
@@ -35,7 +36,7 @@ public class RedirectionServiceExtendedImpl extends RedirectionServiceImpl {
 
     @Override
     public Redirection save(Redirection redirection) {
-        log.debug("Request to save Redirection : {}", redirection);
+        log.debug("Request to save Redirection : {} with user", redirection);
         if (redirection.getId() != null && !findOne(redirection.getId()).isPresent()) {
             throw new UserNotAuthorizedException();
         }
@@ -46,6 +47,8 @@ public class RedirectionServiceExtendedImpl extends RedirectionServiceImpl {
         if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
             userService.getUserWithAuthorities().ifPresent(redirection::setUser);
         }
+
+        log.debug("User ID of chaning user: {} ", userService.getUserWithAuthorities().map(User::getId).orElse(null));
         return redirectionRepository.save(redirection);
     }
 
